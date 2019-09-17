@@ -3,6 +3,7 @@ package usecases
 import (
 	"database/sql"
 
+	"github.com/pkg/errors"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 )
 
@@ -25,7 +26,7 @@ func (getters LinkGetterGroup) GetLink(query string) (entities.Link, error) {
 			return link, nil
 		case sql.ErrNoRows:
 		default:
-			return entities.Link{}, err
+			return entities.Link{}, errors.Wrap(err, "unable to get the link")
 		}
 	}
 
