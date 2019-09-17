@@ -10,3 +10,6 @@ import (
 type LinkGetter interface {
 	GetLink(query string) (entities.Link, error)
 }
+
+// LinkGetterGroup ...
+type LinkGetterGroup []LinkGetter
