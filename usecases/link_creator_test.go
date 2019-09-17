@@ -1,7 +1,9 @@
 package usecases
 
 import (
+	"database/sql"
 	"testing"
+	"testing/iotest"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -25,7 +27,115 @@ func TestLinkCreator_CreateLink(test *testing.T) {
 		wantLink entities.Link
 		wantErr  assert.ErrorAssertionFunc
 	}{
-		// TODO: add test cases
+		{
+			name: "success with the getter",
+			fields: fields{
+				LinkGetter: func() LinkGetter {
+					getter := new(MockLinkGetter)
+					getter.
+						On("GetLink", "url").
+						Return(entities.Link{Code: "code", URL: "url"}, nil)
+
+					return getter
+				}(),
+				LinkSetter:    new(MockLinkSetter),
+				CodeGenerator: new(MockCodeGenerator),
+			},
+			args:     args{"url"},
+			wantLink: entities.Link{Code: "code", URL: "url"},
+			wantErr:  assert.NoError,
+		},
+		{
+			name: "success with the setter",
+			fields: fields{
+				LinkGetter: func() LinkGetter {
+					getter := new(MockLinkGetter)
+					getter.On("GetLink", "url").Return(entities.Link{}, sql.ErrNoRows)
+
+					return getter
+				}(),
+				LinkSetter: func() LinkSetter {
+					setter := new(MockLinkSetter)
+					setter.On("SetLink", entities.Link{Code: "code", URL: "url"}).Return(nil)
+
+					return setter
+				}(),
+				CodeGenerator: func() CodeGenerator {
+					generator := new(MockCodeGenerator)
+					generator.On("GenerateCode").Return("code", nil)
+
+					return generator
+				}(),
+			},
+			args:     args{"url"},
+			wantLink: entities.Link{Code: "code", URL: "url"},
+			wantErr:  assert.NoError,
+		},
+		{
+			name: "error with the getter",
+			fields: fields{
+				LinkGetter: func() LinkGetter {
+					getter := new(MockLinkGetter)
+					getter.On("GetLink", "url").Return(entities.Link{}, iotest.ErrTimeout)
+
+					return getter
+				}(),
+				LinkSetter:    new(MockLinkSetter),
+				CodeGenerator: new(MockCodeGenerator),
+			},
+			args:     args{"url"},
+			wantLink: entities.Link{},
+			wantErr:  assert.Error,
+		},
+		{
+			name: "error with the generator",
+			fields: fields{
+				LinkGetter: func() LinkGetter {
+					getter := new(MockLinkGetter)
+					getter.On("GetLink", "url").Return(entities.Link{}, sql.ErrNoRows)
+
+					return getter
+				}(),
+				LinkSetter: new(MockLinkSetter),
+				CodeGenerator: func() CodeGenerator {
+					generator := new(MockCodeGenerator)
+					generator.On("GenerateCode").Return("", iotest.ErrTimeout)
+
+					return generator
+				}(),
+			},
+			args:     args{"url"},
+			wantLink: entities.Link{},
+			wantErr:  assert.Error,
+		},
+		{
+			name: "error with the setter",
+			fields: fields{
+				LinkGetter: func() LinkGetter {
+					getter := new(MockLinkGetter)
+					getter.On("GetLink", "url").Return(entities.Link{}, sql.ErrNoRows)
+
+					return getter
+				}(),
+				LinkSetter: func() LinkSetter {
+					setter := new(MockLinkSetter)
+					setter.
+						On("SetLink", entities.Link{Code: "code", URL: "url"}).
+						Return(iotest.ErrTimeout)
+
+					return setter
+				}(),
+				CodeGenerator: func() CodeGenerator {
+					generator := new(MockCodeGenerator)
+					generator.On("GenerateCode").Return("code", nil)
+
+					return generator
+				}(),
+			},
+			args:     args{"url"},
+			wantLink: entities.Link{},
+			wantErr:  assert.Error,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			creator := LinkCreator{
