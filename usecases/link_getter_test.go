@@ -1,7 +1,9 @@
 package usecases
 
 import (
+	"database/sql"
 	"testing"
+	"testing/iotest"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -20,7 +22,62 @@ func TestLinkGetterGroup_GetLink(test *testing.T) {
 		wantLink entities.Link
 		wantErr  assert.ErrorAssertionFunc
 	}{
-		// TODO: add test cases
+		{
+			name: "success with the first getter",
+			getters: func() LinkGetterGroup {
+				getterOne := new(MockLinkGetter)
+				getterOne.
+					On("GetLink", "query").
+					Return(entities.Link{Code: "code", URL: "url"}, nil)
+
+				getterTwo := new(MockLinkGetter)
+
+				return LinkGetterGroup{getterOne, getterTwo}
+			}(),
+			args:     args{"query"},
+			wantLink: entities.Link{Code: "code", URL: "url"},
+			wantErr:  assert.NoError,
+		},
+		{
+			name: "success not with the first getter",
+			getters: func() LinkGetterGroup {
+				getterOne := new(MockLinkGetter)
+				getterOne.On("GetLink", "query").Return(entities.Link{}, sql.ErrNoRows)
+
+				getterTwo := new(MockLinkGetter)
+				getterTwo.
+					On("GetLink", "query").
+					Return(entities.Link{Code: "code", URL: "url"}, nil)
+
+				return LinkGetterGroup{getterOne, getterTwo}
+			}(),
+			args:     args{"query"},
+			wantLink: entities.Link{Code: "code", URL: "url"},
+			wantErr:  assert.NoError,
+		},
+		{
+			name:     "error without getters",
+			getters:  nil,
+			args:     args{"query"},
+			wantLink: entities.Link{},
+			wantErr: func(test assert.TestingT, err error, args ...interface{}) bool {
+				return assert.Equal(test, sql.ErrNoRows, err, args)
+			},
+		},
+		{
+			name: "error with the first getter",
+			getters: func() LinkGetterGroup {
+				getterOne := new(MockLinkGetter)
+				getterOne.On("GetLink", "query").Return(entities.Link{}, iotest.ErrTimeout)
+
+				getterTwo := new(MockLinkGetter)
+
+				return LinkGetterGroup{getterOne, getterTwo}
+			}(),
+			args:     args{"query"},
+			wantLink: entities.Link{},
+			wantErr:  assert.Error,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			gotLink, gotErr := data.getters.GetLink(data.args.query)
