@@ -10,3 +10,6 @@ import (
 type LinkSetter interface {
 	SetLink(link entities.Link) error
 }
+
+// LinkSetterGroup ...
+type LinkSetterGroup []LinkSetter
