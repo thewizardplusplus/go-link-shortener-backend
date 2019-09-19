@@ -111,7 +111,27 @@ func TestCache_SetLink(test *testing.T) {
 		wantErr assert.ErrorAssertionFunc
 		check   func(test *testing.T, client *redis.Client)
 	}{
-		// TODO: add test cases
+		{
+			name: "success",
+			fields: fields{
+				client:     redis.NewClient(&redis.Options{Addr: address}),
+				expiration: time.Hour,
+				key:        func(link entities.Link) string { return "key" },
+			},
+			args: args{
+				link: entities.Link{Code: "code", URL: "url"},
+			},
+			wantErr: assert.NoError,
+			check: func(test *testing.T, client *redis.Client) {
+				data, err := client.Get("key").Result()
+				assert.Equal(test, `{"Code":"code","URL":"url"}`, data)
+				assert.NoError(test, err)
+
+				duration, err := client.TTL("key").Result()
+				assert.InDelta(test, time.Hour, duration, float64(10*time.Second))
+				assert.NoError(test, err)
+			},
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			cache := Cache{
