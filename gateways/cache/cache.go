@@ -44,3 +44,20 @@ func (cache Cache) GetLink(query string) (entities.Link, error) {
 
 	return link, nil
 }
+
+// SetLink ...
+func (cache Cache) SetLink(link entities.Link) error {
+	data, err := json.Marshal(link)
+	if err != nil {
+		return errors.Wrap(err, "unable to marshal the link for Redis")
+	}
+
+	key := cache.key(link)
+	if err := cache.client.
+		Set(key, string(data), cache.expiration).
+		Err(); err != nil {
+		return errors.Wrap(err, "unable to set the link in Redis")
+	}
+
+	return nil
+}
