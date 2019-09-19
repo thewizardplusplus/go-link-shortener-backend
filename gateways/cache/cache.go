@@ -16,3 +16,13 @@ type Cache struct {
 	expiration time.Duration
 	key        KeyExtractor
 }
+
+// NewCache ...
+func NewCache(
+	address string,
+	expiration time.Duration,
+	key KeyExtractor,
+) Cache {
+	client := redis.NewClient(&redis.Options{Addr: address})
+	return Cache{client, expiration, key}
+}
