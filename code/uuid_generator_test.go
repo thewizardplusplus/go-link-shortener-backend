@@ -1,9 +1,11 @@
 package code
 
 import (
+	"bytes"
 	"regexp"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +17,22 @@ func TestUUIDGenerator_GenerateCode(test *testing.T) {
 		wantCodePattern *regexp.Regexp
 		wantErr         assert.ErrorAssertionFunc
 	}{
-		// TODO: add test cases
+		{
+			name:    "success",
+			prepare: func() {},
+			restore: func() {},
+			wantCodePattern: regexp.MustCompile(
+				`(?i)^[\da-f]{8}(-[\da-f]{4}){3}-[\da-f]{12}$`,
+			),
+			wantErr: assert.NoError,
+		},
+		{
+			name:            "error",
+			prepare:         func() { uuid.SetRand(bytes.NewReader(nil)) },
+			restore:         func() { uuid.SetRand(nil) },
+			wantCodePattern: regexp.MustCompile(`^$`),
+			wantErr:         assert.Error,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			data.prepare()
