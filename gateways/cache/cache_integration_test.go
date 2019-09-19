@@ -5,6 +5,7 @@ package cache
 import (
 	"os"
 	"testing"
+	"time"
 
 	"github.com/go-redis/redis"
 	"github.com/stretchr/testify/assert"
@@ -89,6 +90,39 @@ func TestCache_GetLink(test *testing.T) {
 
 			assert.Equal(test, data.wantLink, gotLink)
 			data.wantErr(test, gotErr)
+		})
+	}
+}
+
+func TestCache_SetLink(test *testing.T) {
+	type fields struct {
+		client     *redis.Client
+		expiration time.Duration
+		key        KeyExtractor
+	}
+	type args struct {
+		link entities.Link
+	}
+
+	for _, data := range []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr assert.ErrorAssertionFunc
+		check   func(test *testing.T, client *redis.Client)
+	}{
+		// TODO: add test cases
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			cache := Cache{
+				client:     data.fields.client,
+				expiration: data.fields.expiration,
+				key:        data.fields.key,
+			}
+			gotErr := cache.SetLink(data.args.link)
+
+			data.wantErr(test, gotErr)
+			data.check(test, data.fields.client)
 		})
 	}
 }
