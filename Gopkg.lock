@@ -121,11 +121,12 @@
   version = "v0.1.1"
 
 [[projects]]
-  digest = "1:ad527ce5c6b2426790449db7663fe53f8bb647f9387295406794c8be001238da"
+  digest = "1:86562a966508283e1ce3f6de0be5a7d813070271d6e14dc5af3cd5863fee03a4"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "mock",
+    "require",
   ]
   pruneopts = "UT"
   revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
@@ -190,6 +191,7 @@
     "github.com/pkg/errors",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/mock",
+    "github.com/stretchr/testify/require",
     "github.com/vektra/mockery/cmd/mockery",
   ]
   solver-name = "gps-cdcl"
