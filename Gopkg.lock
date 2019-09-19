@@ -52,6 +52,14 @@
   revision = "c34317bd91bf98fab745d77b03933cf8769299fe"
 
 [[projects]]
+  digest = "1:582b704bebaa06b48c29b0cec224a6058a09c86883aaddabde889cd1a5f73e1b"
+  name = "github.com/google/uuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "0cd6bf5da1e1c83f8b45653022c74f71af0538a4"
+  version = "v1.1.1"
+
+[[projects]]
   digest = "1:7157fd3f337f20f9058789e47f3341ae5cb77081fa01c1d678af5a03afea6f3e"
   name = "github.com/nicksnyder/go-i18n"
   packages = [
@@ -161,6 +169,7 @@
   input-imports = [
     "github.com/alecthomas/gometalinter",
     "github.com/cweill/gotests/gotests",
+    "github.com/google/uuid",
     "github.com/pkg/errors",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/mock",
