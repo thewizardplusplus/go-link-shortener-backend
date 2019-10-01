@@ -294,6 +294,7 @@
     "github.com/stretchr/testify/require",
     "github.com/vektra/mockery/cmd/mockery",
     "go.mongodb.org/mongo-driver/mongo",
+    "go.mongodb.org/mongo-driver/mongo/options",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
