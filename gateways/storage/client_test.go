@@ -17,7 +17,18 @@ func TestNewClient(test *testing.T) {
 		wantClient assert.ValueAssertionFunc
 		wantErr    assert.ErrorAssertionFunc
 	}{
-		// TODO: add test cases
+		{
+			name:       "success",
+			args:       args{"mongodb://localhost:27017"},
+			wantClient: assert.NotNil,
+			wantErr:    assert.NoError,
+		},
+		{
+			name:       "error",
+			args:       args{":"},
+			wantClient: assert.Nil,
+			wantErr:    assert.Error,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			gotClient, gotErr := NewClient(data.args.uri)
