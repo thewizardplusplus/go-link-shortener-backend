@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 )
 
@@ -25,7 +26,47 @@ func TestLinkGetter_GetLink(test *testing.T) {
 		wantLink entities.Link
 		wantErr  assert.ErrorAssertionFunc
 	}{
-		// TODO: add test cases
+		{
+			name: "success",
+			fields: fields{
+				Client: NewClient(address),
+			},
+			prepare: func(test *testing.T, client Client) {
+				err := client.innerClient.
+					Set("query", `{"Code":"code","URL":"url"}`, 0).
+					Err()
+				require.NoError(test, err)
+			},
+			args:     args{"query"},
+			wantLink: entities.Link{Code: "code", URL: "url"},
+			wantErr:  assert.NoError,
+		},
+		{
+			name: "error without data",
+			fields: fields{
+				Client: NewClient(address),
+			},
+			prepare: func(test *testing.T, client Client) {
+				err := client.innerClient.Del("query").Err()
+				require.NoError(test, err)
+			},
+			args:     args{"query"},
+			wantLink: entities.Link{},
+			wantErr:  assert.Error,
+		},
+		{
+			name: "error with incorrect data",
+			fields: fields{
+				Client: NewClient(address),
+			},
+			prepare: func(test *testing.T, client Client) {
+				err := client.innerClient.Set("query", "incorrect", 0).Err()
+				require.NoError(test, err)
+			},
+			args:     args{"query"},
+			wantLink: entities.Link{},
+			wantErr:  assert.Error,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			data.prepare(test, data.fields.Client)
