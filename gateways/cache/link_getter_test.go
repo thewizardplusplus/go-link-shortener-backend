@@ -3,12 +3,25 @@
 package cache
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 )
+
+var (
+	address string
+)
+
+// nolint: gochecknoinits
+func init() {
+	var ok bool
+	if address, ok = os.LookupEnv("REDIS_URL"); !ok {
+		address = "localhost:6379"
+	}
+}
 
 func TestLinkGetter_GetLink(test *testing.T) {
 	type fields struct {
