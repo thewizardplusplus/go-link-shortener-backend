@@ -4,7 +4,6 @@ package storage
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,18 +11,6 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 	"go.mongodb.org/mongo-driver/bson"
 )
-
-var (
-	address string
-)
-
-// nolint: gochecknoinits
-func init() {
-	var ok bool
-	if address, ok = os.LookupEnv("MONGODB_URL"); !ok {
-		address = "mongodb://localhost:27017"
-	}
-}
 
 func TestLinkSetter_SetLink(test *testing.T) {
 	type fields struct {

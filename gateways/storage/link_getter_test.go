@@ -3,11 +3,27 @@
 package storage
 
 import (
+	"context"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
+	"go.mongodb.org/mongo-driver/bson"
 )
+
+var (
+	address string
+)
+
+// nolint: gochecknoinits
+func init() {
+	var ok bool
+	if address, ok = os.LookupEnv("MONGODB_URL"); !ok {
+		address = "mongodb://localhost:27017"
+	}
+}
 
 func TestLinkGetter_GetLink(test *testing.T) {
 	type fields struct {
@@ -28,7 +44,54 @@ func TestLinkGetter_GetLink(test *testing.T) {
 		wantLink entities.Link
 		wantErr  assert.ErrorAssertionFunc
 	}{
-		// TODO: add test cases
+		{
+			name: "success",
+			fields: fields{
+				makeClient: func(test *testing.T) Client {
+					client, err := NewClient(address)
+					require.NoError(test, err)
+
+					return client
+				},
+				database:   "database",
+				collection: "collection",
+				keyField:   "code",
+			},
+			prepare: func(test *testing.T, getter LinkGetter) {
+				_, err := getter.Client.innerClient.
+					Database(getter.Database).
+					Collection(getter.Collection).
+					InsertOne(context.Background(), entities.Link{Code: "code", URL: "url"})
+				require.NoError(test, err)
+			},
+			args:     args{"code"},
+			wantLink: entities.Link{Code: "code", URL: "url"},
+			wantErr:  assert.NoError,
+		},
+		{
+			name: "error without data",
+			fields: fields{
+				makeClient: func(test *testing.T) Client {
+					client, err := NewClient(address)
+					require.NoError(test, err)
+
+					return client
+				},
+				database:   "database",
+				collection: "collection",
+				keyField:   "code",
+			},
+			prepare: func(test *testing.T, getter LinkGetter) {
+				_, err := getter.Client.innerClient.
+					Database(getter.Database).
+					Collection(getter.Collection).
+					DeleteMany(context.Background(), bson.M{"code": "code"})
+				require.NoError(test, err)
+			},
+			args:     args{"code"},
+			wantLink: entities.Link{},
+			wantErr:  assert.Error,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			client := data.fields.makeClient(test)
