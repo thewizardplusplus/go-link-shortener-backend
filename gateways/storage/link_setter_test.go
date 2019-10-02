@@ -3,11 +3,27 @@
 package storage
 
 import (
+	"context"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
+	"go.mongodb.org/mongo-driver/bson"
 )
+
+var (
+	address string
+)
+
+// nolint: gochecknoinits
+func init() {
+	var ok bool
+	if address, ok = os.LookupEnv("MONGODB_URL"); !ok {
+		address = "mongodb://localhost:27017"
+	}
+}
 
 func TestLinkSetter_SetLink(test *testing.T) {
 	type fields struct {
@@ -27,7 +43,41 @@ func TestLinkSetter_SetLink(test *testing.T) {
 		wantErr assert.ErrorAssertionFunc
 		check   func(test *testing.T, setter LinkSetter)
 	}{
-		// TODO: add test cases
+		{
+			name: "success",
+			fields: fields{
+				makeClient: func(test *testing.T) Client {
+					client, err := NewClient(address)
+					require.NoError(test, err)
+
+					return client
+				},
+				database:   "database",
+				collection: "collection",
+			},
+			prepare: func(test *testing.T, setter LinkSetter) {
+				_, err := setter.Client.innerClient.
+					Database(setter.Database).
+					Collection(setter.Collection).
+					DeleteMany(context.Background(), bson.M{"code": "code"})
+				require.NoError(test, err)
+			},
+			args: args{
+				link: entities.Link{Code: "code", URL: "url"},
+			},
+			wantErr: assert.NoError,
+			check: func(test *testing.T, setter LinkSetter) {
+				var link entities.Link
+				err := setter.Client.innerClient.
+					Database(setter.Database).
+					Collection(setter.Collection).
+					FindOne(context.Background(), bson.M{"code": "code"}).
+					Decode(&link)
+				require.NoError(test, err)
+
+				assert.Equal(test, entities.Link{Code: "code", URL: "url"}, link)
+			},
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			client := data.fields.makeClient(test)
