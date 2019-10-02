@@ -4,6 +4,7 @@ package storage
 
 import (
 	"context"
+	"database/sql"
 	"os"
 	"testing"
 
@@ -90,7 +91,9 @@ func TestLinkGetter_GetLink(test *testing.T) {
 			},
 			args:     args{"code"},
 			wantLink: entities.Link{},
-			wantErr:  assert.Error,
+			wantErr: func(test assert.TestingT, err error, args ...interface{}) bool {
+				return assert.Equal(test, sql.ErrNoRows, err, args)
+			},
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
