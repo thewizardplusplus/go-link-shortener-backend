@@ -10,3 +10,10 @@ import (
 type LinkCreator interface {
 	CreateLink(url string) (entities.Link, error)
 }
+
+// LinkCreatingHandler ...
+type LinkCreatingHandler struct {
+	LinkCreator    LinkCreator
+	LinkPresenter  LinkPresenter
+	ErrorPresenter ErrorPresenter
+}
