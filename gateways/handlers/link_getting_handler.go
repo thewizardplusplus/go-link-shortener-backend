@@ -26,3 +26,10 @@ type LinkPresenter interface {
 type ErrorPresenter interface {
 	PresentError(writer http.ResponseWriter, statusCode int, err error)
 }
+
+// LinkGettingHandler ...
+type LinkGettingHandler struct {
+	LinkGetter     LinkGetter
+	LinkPresenter  LinkPresenter
+	ErrorPresenter ErrorPresenter
+}
