@@ -1,13 +1,17 @@
 package handlers
 
 import (
+	"database/sql"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"testing/iotest"
 
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/thewizardplusplus/go-link-shortener/entities"
 )
 
 func TestLinkGettingHandler_ServeHTTP(test *testing.T) {
@@ -25,7 +29,100 @@ func TestLinkGettingHandler_ServeHTTP(test *testing.T) {
 		fields fields
 		args   args
 	}{
-		// TODO: add test cases
+		{
+			name: "success",
+			fields: fields{
+				LinkGetter: func() LinkGetter {
+					getter := new(MockLinkGetter)
+					getter.
+						On("GetLink", "code").
+						Return(entities.Link{Code: "code", URL: "url"}, nil)
+
+					return getter
+				}(),
+				LinkPresenter: func() LinkPresenter {
+					presenter := new(MockLinkPresenter)
+					presenter.On(
+						"PresentLink",
+						mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
+						entities.Link{Code: "code", URL: "url"},
+					)
+
+					return presenter
+				}(),
+				ErrorPresenter: new(MockErrorPresenter),
+			},
+			args: args{
+				request: func() *http.Request {
+					request := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
+					request = mux.SetURLVars(request, map[string]string{"code": "code"})
+
+					return request
+				}(),
+			},
+		},
+		{
+			name: "error with searching",
+			fields: fields{
+				LinkGetter: func() LinkGetter {
+					getter := new(MockLinkGetter)
+					getter.On("GetLink", "code").Return(entities.Link{}, sql.ErrNoRows)
+
+					return getter
+				}(),
+				LinkPresenter: new(MockLinkPresenter),
+				ErrorPresenter: func() ErrorPresenter {
+					presenter := new(MockErrorPresenter)
+					presenter.On(
+						"PresentError",
+						mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
+						http.StatusNotFound,
+						mock.MatchedBy(func(err error) bool { return true }),
+					)
+
+					return presenter
+				}(),
+			},
+			args: args{
+				request: func() *http.Request {
+					request := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
+					request = mux.SetURLVars(request, map[string]string{"code": "code"})
+
+					return request
+				}(),
+			},
+		},
+		{
+			name: "error with getting",
+			fields: fields{
+				LinkGetter: func() LinkGetter {
+					getter := new(MockLinkGetter)
+					getter.On("GetLink", "code").Return(entities.Link{}, iotest.ErrTimeout)
+
+					return getter
+				}(),
+				LinkPresenter: new(MockLinkPresenter),
+				ErrorPresenter: func() ErrorPresenter {
+					presenter := new(MockErrorPresenter)
+					presenter.On(
+						"PresentError",
+						mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
+						http.StatusInternalServerError,
+						mock.MatchedBy(func(err error) bool { return true }),
+					)
+
+					return presenter
+				}(),
+			},
+			args: args{
+				request: func() *http.Request {
+					request := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
+					request = mux.SetURLVars(request, map[string]string{"code": "code"})
+
+					return request
+				}(),
+			},
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			writer := httptest.NewRecorder()
