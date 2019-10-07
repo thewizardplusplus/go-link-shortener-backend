@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
 
+	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 )
 
@@ -32,4 +35,25 @@ type LinkGettingHandler struct {
 	LinkGetter     LinkGetter
 	LinkPresenter  LinkPresenter
 	ErrorPresenter ErrorPresenter
+}
+
+// ServeHTTP ...
+func (handler LinkGettingHandler) ServeHTTP(
+	writer http.ResponseWriter,
+	request *http.Request,
+) {
+	code := mux.Vars(request)["code"]
+	link, err := handler.LinkGetter.GetLink(code)
+	switch err {
+	case nil:
+		handler.LinkPresenter.PresentLink(writer, link)
+	case sql.ErrNoRows:
+		const statusCode = http.StatusNotFound
+		err = errors.New("unable to find the link")
+		handler.ErrorPresenter.PresentError(writer, statusCode, err)
+	default:
+		const statusCode = http.StatusInternalServerError
+		err = errors.Wrap(err, "unable to get the link")
+		handler.ErrorPresenter.PresentError(writer, statusCode, err)
+	}
 }
