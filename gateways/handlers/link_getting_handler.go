@@ -19,3 +19,8 @@ type LinkGetter interface {
 type LinkPresenter interface {
 	PresentLink(writer http.ResponseWriter, link entities.Link)
 }
+
+// ErrorPresenter ...
+type ErrorPresenter interface {
+	PresentError(writer http.ResponseWriter, statusCode int, err error)
+}
