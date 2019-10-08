@@ -1,13 +1,13 @@
 package handlers
 
 import (
+	"bytes"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"testing/iotest"
 
-	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
@@ -52,12 +52,36 @@ func TestLinkCreatingHandler_ServeHTTP(test *testing.T) {
 				ErrorPresenter: new(MockErrorPresenter),
 			},
 			args: args{
-				request: func() *http.Request {
-					request := httptest.NewRequest(http.MethodPost, "http://example.com/", nil)
-					request = mux.SetURLVars(request, map[string]string{"url": "url"})
+				request: httptest.NewRequest(
+					http.MethodPost,
+					"http://example.com/",
+					bytes.NewBufferString(`{"URL":"url"}`),
+				),
+			},
+		},
+		{
+			name: "error with decoding",
+			fields: fields{
+				LinkCreator:   new(MockLinkCreator),
+				LinkPresenter: new(MockLinkPresenter),
+				ErrorPresenter: func() ErrorPresenter {
+					presenter := new(MockErrorPresenter)
+					presenter.On(
+						"PresentError",
+						mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
+						http.StatusBadRequest,
+						mock.MatchedBy(func(err error) bool { return true }),
+					)
 
-					return request
+					return presenter
 				}(),
+			},
+			args: args{
+				request: httptest.NewRequest(
+					http.MethodPost,
+					"http://example.com/",
+					bytes.NewBufferString("incorrect"),
+				),
 			},
 		},
 		{
@@ -83,12 +107,11 @@ func TestLinkCreatingHandler_ServeHTTP(test *testing.T) {
 				}(),
 			},
 			args: args{
-				request: func() *http.Request {
-					request := httptest.NewRequest(http.MethodPost, "http://example.com/", nil)
-					request = mux.SetURLVars(request, map[string]string{"url": "url"})
-
-					return request
-				}(),
+				request: httptest.NewRequest(
+					http.MethodPost,
+					"http://example.com/",
+					bytes.NewBufferString(`{"URL":"url"}`),
+				),
 			},
 		},
 	} {
