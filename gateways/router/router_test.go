@@ -20,7 +20,126 @@ func TestNewRouter(test *testing.T) {
 		name string
 		args args
 	}{
-		// TODO: add test cases
+		{
+			name: "getting",
+			args: args{
+				handlers: Handlers{
+					LinkGettingHandler: func() http.Handler {
+						handler := new(MockHandler)
+						handler.On(
+							"ServeHTTP",
+							mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
+							mock.MatchedBy(func(request *http.Request) bool { return true }),
+						)
+
+						return handler
+					}(),
+					LinkCreatingHandler: func() http.Handler {
+						handler := new(MockHandler)
+						return handler
+					}(),
+					NotFoundHandler: func() http.Handler {
+						handler := new(MockHandler)
+						return handler
+					}(),
+				},
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/api/v1/links/code",
+					nil,
+				),
+			},
+		},
+		{
+			name: "creating",
+			args: args{
+				handlers: Handlers{
+					LinkGettingHandler: func() http.Handler {
+						handler := new(MockHandler)
+						return handler
+					}(),
+					LinkCreatingHandler: func() http.Handler {
+						handler := new(MockHandler)
+						handler.On(
+							"ServeHTTP",
+							mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
+							mock.MatchedBy(func(request *http.Request) bool { return true }),
+						)
+
+						return handler
+					}(),
+					NotFoundHandler: func() http.Handler {
+						handler := new(MockHandler)
+						return handler
+					}(),
+				},
+				request: httptest.NewRequest(
+					http.MethodPost,
+					"http://example.com/api/v1/links/",
+					nil,
+				),
+			},
+		},
+		{
+			name: "incorrect method",
+			args: args{
+				handlers: Handlers{
+					LinkGettingHandler: func() http.Handler {
+						handler := new(MockHandler)
+						return handler
+					}(),
+					LinkCreatingHandler: func() http.Handler {
+						handler := new(MockHandler)
+						return handler
+					}(),
+					NotFoundHandler: func() http.Handler {
+						handler := new(MockHandler)
+						handler.On(
+							"ServeHTTP",
+							mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
+							mock.MatchedBy(func(request *http.Request) bool { return true }),
+						)
+
+						return handler
+					}(),
+				},
+				request: httptest.NewRequest(
+					http.MethodPost,
+					"http://example.com/api/v1/links/code",
+					nil,
+				),
+			},
+		},
+		{
+			name: "unknown endpoint",
+			args: args{
+				handlers: Handlers{
+					LinkGettingHandler: func() http.Handler {
+						handler := new(MockHandler)
+						return handler
+					}(),
+					LinkCreatingHandler: func() http.Handler {
+						handler := new(MockHandler)
+						return handler
+					}(),
+					NotFoundHandler: func() http.Handler {
+						handler := new(MockHandler)
+						handler.On(
+							"ServeHTTP",
+							mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
+							mock.MatchedBy(func(request *http.Request) bool { return true }),
+						)
+
+						return handler
+					}(),
+				},
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/api/v1/incorrect",
+					nil,
+				),
+			},
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			writer := httptest.NewRecorder()
