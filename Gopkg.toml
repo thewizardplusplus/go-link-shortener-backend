@@ -31,3 +31,7 @@ required = [
 [[constraint]]
   name = "github.com/gorilla/mux"
   version = "1.7.3"
+
+[[constraint]]
+  name = "github.com/caarlos0/env"
+  version = "6.1.0"
