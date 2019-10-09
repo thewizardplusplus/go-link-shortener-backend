@@ -6,12 +6,16 @@ import (
 	"testing"
 	"time"
 
+	"github.com/caarlos0/env"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 )
 
 func TestLinkSetter_SetLink(test *testing.T) {
+	type options struct {
+		CacheAddress string `env:"CACHE_ADDRESS" envDefault:"localhost:6379"`
+	}
 	type fields struct {
 		KeyExtractor KeyExtractor
 		Client       Client
@@ -20,6 +24,10 @@ func TestLinkSetter_SetLink(test *testing.T) {
 	type args struct {
 		link entities.Link
 	}
+
+	var opts options
+	err := env.Parse(&opts)
+	require.NoError(test, err)
 
 	for _, data := range []struct {
 		name    string
@@ -33,7 +41,7 @@ func TestLinkSetter_SetLink(test *testing.T) {
 			name: "success",
 			fields: fields{
 				KeyExtractor: func(link entities.Link) string { return "key" },
-				Client:       NewClient(address),
+				Client:       NewClient(opts.CacheAddress),
 				Expiration:   time.Hour,
 			},
 			prepare: func(test *testing.T, client Client) {

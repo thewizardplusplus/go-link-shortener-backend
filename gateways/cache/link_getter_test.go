@@ -4,33 +4,28 @@ package cache
 
 import (
 	"database/sql"
-	"os"
 	"testing"
 
+	"github.com/caarlos0/env"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 )
 
-var (
-	address string
-)
-
-// nolint: gochecknoinits
-func init() {
-	var ok bool
-	if address, ok = os.LookupEnv("REDIS_URL"); !ok {
-		address = "localhost:6379"
-	}
-}
-
 func TestLinkGetter_GetLink(test *testing.T) {
+	type options struct {
+		CacheAddress string `env:"CACHE_ADDRESS" envDefault:"localhost:6379"`
+	}
 	type fields struct {
 		Client Client
 	}
 	type args struct {
 		query string
 	}
+
+	var opts options
+	err := env.Parse(&opts)
+	require.NoError(test, err)
 
 	for _, data := range []struct {
 		name     string
@@ -43,7 +38,7 @@ func TestLinkGetter_GetLink(test *testing.T) {
 		{
 			name: "success",
 			fields: fields{
-				Client: NewClient(address),
+				Client: NewClient(opts.CacheAddress),
 			},
 			prepare: func(test *testing.T, client Client) {
 				err := client.innerClient.
@@ -58,7 +53,7 @@ func TestLinkGetter_GetLink(test *testing.T) {
 		{
 			name: "error without data",
 			fields: fields{
-				Client: NewClient(address),
+				Client: NewClient(opts.CacheAddress),
 			},
 			prepare: func(test *testing.T, client Client) {
 				err := client.innerClient.Del("query").Err()
@@ -73,7 +68,7 @@ func TestLinkGetter_GetLink(test *testing.T) {
 		{
 			name: "error with incorrect data",
 			fields: fields{
-				Client: NewClient(address),
+				Client: NewClient(opts.CacheAddress),
 			},
 			prepare: func(test *testing.T, client Client) {
 				err := client.innerClient.Set("query", "incorrect", 0).Err()
