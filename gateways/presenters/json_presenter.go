@@ -11,12 +11,26 @@ import (
 // JSONPresenter ...
 type JSONPresenter struct{}
 
+type errorResponse struct {
+	Error string
+}
+
 // PresentLink ...
 func (presenter JSONPresenter) PresentLink(
 	writer http.ResponseWriter,
 	link entities.Link,
 ) {
 	presentData(writer, http.StatusOK, link)
+}
+
+// PresentError ...
+func (presenter JSONPresenter) PresentError(
+	writer http.ResponseWriter,
+	statusCode int,
+	err error,
+) {
+	response := errorResponse{Error: err.Error()}
+	presentData(writer, statusCode, response)
 }
 
 func presentData(writer http.ResponseWriter, statusCode int, data interface{}) {
