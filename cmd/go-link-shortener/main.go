@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/caarlos0/env"
 	"github.com/thewizardplusplus/go-link-shortener/code"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 	"github.com/thewizardplusplus/go-link-shortener/gateways/cache"
@@ -18,26 +19,35 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener/usecases"
 )
 
+// nolint: lll
+type options struct {
+	ServerAddress  string `env:"SERVER_ADDRESS" envDefault:":8080"`
+	CacheAddress   string `env:"CACHE_ADDRESS" envDefault:"localhost:6379"`
+	StorageAddress string `env:"STORAGE_ADDRESS" envDefault:"mongodb://localhost:27017"`
+}
+
 const (
-	serverAddress     = ":8080"
-	cacheAddress      = "localhost:6379"
-	storageAddress    = "mongodb://localhost:27017"
 	storageDatabase   = "go-link-shortener"
 	storageCollection = "links"
 )
 
 func main() {
-	cacheClient := cache.NewClient(cacheAddress)
+	var options options // nolint: vetshadow
+	if err := env.Parse(&options); err != nil {
+		log.Fatalf("error on parsing options: %v", err)
+	}
+
+	cacheClient := cache.NewClient(options.CacheAddress)
 	cacheGetter := cache.LinkGetter{Client: cacheClient}
 
-	storageClient, err := storage.NewClient(storageAddress)
+	storageClient, err := storage.NewClient(options.StorageAddress)
 	if err != nil {
 		log.Fatalf("error on creating the storage client: %v", err)
 	}
 
 	var presenter presenters.JSONPresenter
 	server := http.Server{
-		Addr: serverAddress,
+		Addr: options.ServerAddress,
 		Handler: router.NewRouter(router.Handlers{
 			LinkGettingHandler: handlers.LinkGettingHandler{
 				LinkGetter: usecases.LinkGetterGroup{
