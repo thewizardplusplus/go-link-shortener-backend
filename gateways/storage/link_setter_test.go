@@ -6,6 +6,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/caarlos0/env"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
@@ -13,6 +14,10 @@ import (
 )
 
 func TestLinkSetter_SetLink(test *testing.T) {
+	// nolint: lll
+	type options struct {
+		StorageAddress string `env:"STORAGE_ADDRESS" envDefault:"mongodb://localhost:27017"`
+	}
 	type fields struct {
 		makeClient func(test *testing.T) Client
 		database   string
@@ -21,6 +26,10 @@ func TestLinkSetter_SetLink(test *testing.T) {
 	type args struct {
 		link entities.Link
 	}
+
+	var opts options
+	err := env.Parse(&opts)
+	require.NoError(test, err)
 
 	for _, data := range []struct {
 		name    string
@@ -34,7 +43,7 @@ func TestLinkSetter_SetLink(test *testing.T) {
 			name: "success",
 			fields: fields{
 				makeClient: func(test *testing.T) Client {
-					client, err := NewClient(address)
+					client, err := NewClient(opts.StorageAddress)
 					require.NoError(test, err)
 
 					return client
