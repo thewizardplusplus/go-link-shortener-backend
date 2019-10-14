@@ -22,7 +22,10 @@ type LinkCreatingHandler struct {
 	ErrorPresenter ErrorPresenter
 }
 
-type linkCreatingRequest struct {
+// LinkCreatingRequest ...
+//
+// It's public only for docs generating.
+type LinkCreatingRequest struct {
 	URL string
 }
 
@@ -31,7 +34,7 @@ func (handler LinkCreatingHandler) ServeHTTP(
 	writer http.ResponseWriter,
 	request *http.Request,
 ) {
-	var data linkCreatingRequest
+	var data LinkCreatingRequest
 	if err := json.NewDecoder(request.Body).Decode(&data); err != nil {
 		const statusCode = http.StatusBadRequest
 		err = errors.Wrap(err, "unable to decode the request")
