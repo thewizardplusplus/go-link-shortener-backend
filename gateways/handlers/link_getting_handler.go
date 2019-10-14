@@ -38,6 +38,12 @@ type LinkGettingHandler struct {
 }
 
 // ServeHTTP ...
+//   @router /links/{code} [GET]
+//   @param code path string true "link code"
+//   @produce json
+//   @success 200 {object} entities.Link
+//   @failure 404 {object} presenters.ErrorResponse
+//   @failure 500 {object} presenters.ErrorResponse
 func (handler LinkGettingHandler) ServeHTTP(
 	writer http.ResponseWriter,
 	request *http.Request,
