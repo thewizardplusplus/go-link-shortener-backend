@@ -11,7 +11,10 @@ import (
 // JSONPresenter ...
 type JSONPresenter struct{}
 
-type errorResponse struct {
+// ErrorResponse ...
+//
+// It's public only for docs generating.
+type ErrorResponse struct {
 	Error string
 }
 
@@ -29,7 +32,7 @@ func (presenter JSONPresenter) PresentError(
 	statusCode int,
 	err error,
 ) {
-	response := errorResponse{Error: err.Error()}
+	response := ErrorResponse{Error: err.Error()}
 	presentData(writer, statusCode, response)
 }
 
