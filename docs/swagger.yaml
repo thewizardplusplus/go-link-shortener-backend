@@ -1,0 +1,78 @@
+basePath: /api/v1
+definitions:
+  entities.Link:
+    properties:
+      Code:
+        type: string
+      URL:
+        type: string
+    type: object
+  handlers.LinkCreatingRequest:
+    properties:
+      URL:
+        type: string
+    type: object
+  presenters.ErrorResponse:
+    properties:
+      Error:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  license:
+    name: MIT
+  title: go-link-shortener API
+  version: 1.0.0
+paths:
+  /links/:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: link data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LinkCreatingRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Link'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+  /links/{code}:
+    get:
+      parameters:
+      - description: link code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Link'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+swagger: "2.0"

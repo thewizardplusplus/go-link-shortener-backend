@@ -1,0 +1,122 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "go-link-shortener API",
+        "contact": {},
+        "license": {
+            "name": "MIT"
+        },
+        "version": "1.0.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/links/": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "description": "link data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/handlers.LinkCreatingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entities.Link"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/links/{code}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "link code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entities.Link"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "entities.Link": {
+            "type": "object",
+            "properties": {
+                "Code": {
+                    "type": "string"
+                },
+                "URL": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.LinkCreatingRequest": {
+            "type": "object",
+            "properties": {
+                "URL": {
+                    "type": "string"
+                }
+            }
+        },
+        "presenters.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "Error": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
