@@ -30,6 +30,13 @@ type LinkCreatingRequest struct {
 }
 
 // ServeHTTP ...
+//   @router /links/ [POST]
+//   @accept json
+//   @param data body handlers.LinkCreatingRequest true "link data"
+//   @produce json
+//   @success 200 {object} entities.Link
+//   @failure 400 {object} presenters.ErrorResponse
+//   @failure 500 {object} presenters.ErrorResponse
 func (handler LinkCreatingHandler) ServeHTTP(
 	writer http.ResponseWriter,
 	request *http.Request,
