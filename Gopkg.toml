@@ -39,3 +39,7 @@ required = [
 [[constraint]]
   name = "github.com/swaggo/swag"
   version = "1.6.3"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/alecthomas/template"
