@@ -11,6 +11,10 @@
 $ go get github.com/thewizardplusplus/go-link-shortener/...
 ```
 
+## Docs
+
+[swagger.yaml](docs/swagger.yaml)
+
 ## License
 
 The MIT License (MIT)
