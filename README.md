@@ -15,6 +15,11 @@ $ go get github.com/thewizardplusplus/go-link-shortener/...
 
 [swagger.yaml](docs/swagger.yaml)
 
+## Bibliography
+
+1. [URL shortener System design](https://medium.com/@narengowda/url-shortener-system-design-3db520939a1c).
+2. [Generating Globally Unique Identifiers for Use with MongoDB](https://www.mongodb.com/blog/post/generating-globally-unique-identifiers-for-use-with-mongodb).
+
 ## License
 
 The MIT License (MIT)
