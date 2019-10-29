@@ -14,15 +14,14 @@ type RandomSource func(maximum int) int
 
 // DistributedCounter ...
 type DistributedCounter interface {
-	NextCountChunk(counterName string) (uint64, error)
+	NextCountChunk() (uint64, error)
 }
 
 // DistributedGenerator ...
 type DistributedGenerator struct {
-	CountersNames      []string
-	RandomSource       RandomSource
-	DistributedCounter DistributedCounter
-	ChunkSize          uint64
+	RandomSource        RandomSource
+	DistributedCounters []DistributedCounter
+	ChunkSize           uint64
 
 	locker  sync.Mutex
 	counter uint64
@@ -47,8 +46,7 @@ func (generator *DistributedGenerator) GenerateCode() (string, error) {
 }
 
 func (generator *DistributedGenerator) resetCounter() error {
-	countChunk, err := generator.DistributedCounter.
-		NextCountChunk(generator.counterName())
+	countChunk, err := generator.selectCounter().NextCountChunk()
 	if err != nil {
 		return errors.Wrap(err, "unable to get the next count chunk")
 	}
@@ -59,7 +57,7 @@ func (generator *DistributedGenerator) resetCounter() error {
 	return nil
 }
 
-func (generator *DistributedGenerator) counterName() string {
-	index := generator.RandomSource(len(generator.CountersNames))
-	return generator.CountersNames[index]
+func (generator *DistributedGenerator) selectCounter() DistributedCounter {
+	index := generator.RandomSource(len(generator.DistributedCounters))
+	return generator.DistributedCounters[index]
 }
