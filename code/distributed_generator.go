@@ -25,3 +25,8 @@ type DistributedGenerator struct {
 	counter uint64
 	limit   uint64
 }
+
+func (generator *DistributedGenerator) counterName() string {
+	index := generator.RandomSource(len(generator.CountersNames))
+	return generator.CountersNames[index]
+}
