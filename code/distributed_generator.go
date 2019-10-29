@@ -1,6 +1,7 @@
 package code
 
 import (
+	"strconv"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -26,6 +27,23 @@ type DistributedGenerator struct {
 	locker  sync.Mutex
 	counter uint64
 	limit   uint64
+}
+
+// GenerateCode ...
+func (generator *DistributedGenerator) GenerateCode() (string, error) {
+	generator.locker.Lock()
+	defer generator.locker.Unlock()
+
+	if generator.counter == generator.limit {
+		if err := generator.resetCounter(); err != nil {
+			return "", errors.Wrap(err, "unable to reset the counter")
+		}
+	}
+
+	counter := generator.counter
+	generator.counter++
+
+	return strconv.FormatUint(counter, 10), nil
 }
 
 func (generator *DistributedGenerator) resetCounter() error {
