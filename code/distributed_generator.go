@@ -2,6 +2,8 @@ package code
 
 import (
 	"sync"
+
+	"github.com/pkg/errors"
 )
 
 // RandomSource ...
@@ -24,6 +26,19 @@ type DistributedGenerator struct {
 	locker  sync.Mutex
 	counter uint64
 	limit   uint64
+}
+
+func (generator *DistributedGenerator) resetCounter() error {
+	countChunk, err := generator.DistributedCounter.
+		NextCountChunk(generator.counterName())
+	if err != nil {
+		return errors.Wrap(err, "unable to get the next count chunk")
+	}
+
+	generator.counter = countChunk
+	generator.limit = countChunk + generator.ChunkSize
+
+	return nil
 }
 
 func (generator *DistributedGenerator) counterName() string {
