@@ -21,11 +21,9 @@ type DistributedCounter interface {
 type DistributedGenerator struct {
 	RandomSource        RandomSource
 	DistributedCounters []DistributedCounter
-	ChunkSize           uint64
 
 	locker  sync.Mutex
-	counter uint64
-	limit   uint64
+	counter chunkedCounter
 }
 
 // GenerateCode ...
@@ -33,15 +31,13 @@ func (generator *DistributedGenerator) GenerateCode() (string, error) {
 	generator.locker.Lock()
 	defer generator.locker.Unlock()
 
-	if generator.counter == generator.limit {
+	if generator.counter.isOver() {
 		if err := generator.resetCounter(); err != nil {
 			return "", errors.Wrap(err, "unable to reset the counter")
 		}
 	}
 
-	counter := generator.counter
-	generator.counter++
-
+	counter := generator.counter.increase()
 	return strconv.FormatUint(counter, 10), nil
 }
 
@@ -51,9 +47,7 @@ func (generator *DistributedGenerator) resetCounter() error {
 		return errors.Wrap(err, "unable to get the next count chunk")
 	}
 
-	generator.counter = countChunk
-	generator.limit = countChunk + generator.ChunkSize
-
+	generator.counter.reset(countChunk)
 	return nil
 }
 
