@@ -54,3 +54,11 @@ func Test_chunkedCounter_isOver(test *testing.T) {
 		})
 	}
 }
+
+func Test_chunkedCounter_increase(test *testing.T) {
+	counter := chunkedCounter{current: 23}
+	previous := counter.increase()
+
+	assert.Equal(test, chunkedCounter{current: 24}, counter)
+	assert.Equal(test, uint64(23), previous)
+}
