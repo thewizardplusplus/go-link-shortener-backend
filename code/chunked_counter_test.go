@@ -23,7 +23,24 @@ func Test_chunkedCounter_isOver(test *testing.T) {
 		fields fields
 		want   bool
 	}{
-		// TODO: add test cases
+		{
+			name: "isn't over",
+			fields: fields{
+				step:    23,
+				current: 42,
+				final:   65,
+			},
+			want: false,
+		},
+		{
+			name: "is over",
+			fields: fields{
+				step:    23,
+				current: 65,
+				final:   65,
+			},
+			want: true,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			counter := chunkedCounter{
