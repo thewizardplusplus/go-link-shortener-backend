@@ -9,3 +9,7 @@ type chunkedCounter struct {
 func newChunkedCounter(step uint64) chunkedCounter {
 	return chunkedCounter{step: step, current: 0, final: 0}
 }
+
+func (counter chunkedCounter) isOver() bool {
+	return counter.current == counter.final
+}
