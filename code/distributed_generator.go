@@ -7,23 +7,35 @@ import (
 	"github.com/pkg/errors"
 )
 
-// RandomSource ...
-//
-// It should NOT be concurrently safe, because it'll call only under lock.
-type RandomSource func(maximum int) int
-
 // DistributedCounter ...
 type DistributedCounter interface {
 	NextCountChunk() (uint64, error)
 }
 
+// RandomSource ...
+//
+// It should NOT be concurrently safe, because it'll call only under lock.
+type RandomSource func(maximum int) int
+
 // DistributedGenerator ...
 type DistributedGenerator struct {
-	RandomSource        RandomSource
-	DistributedCounters []DistributedCounter
+	locker              sync.Mutex
+	counter             chunkedCounter
+	distributedCounters []DistributedCounter
+	randomSource        RandomSource
+}
 
-	locker  sync.Mutex
-	counter chunkedCounter
+// NewDistributedGenerator ...
+func NewDistributedGenerator(
+	chunkSize uint64,
+	distributedCounters []DistributedCounter,
+	randomSource RandomSource,
+) *DistributedGenerator {
+	return &DistributedGenerator{
+		counter:             newChunkedCounter(chunkSize),
+		distributedCounters: distributedCounters,
+		randomSource:        randomSource,
+	}
 }
 
 // GenerateCode ...
@@ -52,6 +64,6 @@ func (generator *DistributedGenerator) resetCounter() error {
 }
 
 func (generator *DistributedGenerator) selectCounter() DistributedCounter {
-	index := generator.RandomSource(len(generator.DistributedCounters))
-	return generator.DistributedCounters[index]
+	index := generator.randomSource(len(generator.distributedCounters))
+	return generator.distributedCounters[index]
 }
