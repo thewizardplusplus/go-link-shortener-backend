@@ -13,3 +13,10 @@ func newChunkedCounter(step uint64) chunkedCounter {
 func (counter chunkedCounter) isOver() bool {
 	return counter.current == counter.final
 }
+
+func (counter *chunkedCounter) increase() (previous uint64) {
+	previous = counter.current
+	counter.current++
+
+	return previous
+}
