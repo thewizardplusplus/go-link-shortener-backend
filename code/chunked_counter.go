@@ -20,3 +20,8 @@ func (counter *chunkedCounter) increase() (previous uint64) {
 
 	return previous
 }
+
+func (counter *chunkedCounter) reset(initial uint64) {
+	counter.current = initial
+	counter.final = initial + counter.step
+}
