@@ -62,3 +62,10 @@ func Test_chunkedCounter_increase(test *testing.T) {
 	assert.Equal(test, chunkedCounter{current: 24}, counter)
 	assert.Equal(test, uint64(23), previous)
 }
+
+func Test_chunkedCounter_reset(test *testing.T) {
+	counter := chunkedCounter{step: 23, current: 42, final: 65}
+	counter.reset(100)
+
+	assert.Equal(test, chunkedCounter{step: 23, current: 100, final: 123}, counter)
+}
