@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"reflect"
 	"testing"
+	"testing/iotest"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -39,7 +40,40 @@ func TestDistributedGenerator_resetCounter(test *testing.T) {
 		wantCounter chunkedCounter
 		wantErr     assert.ErrorAssertionFunc
 	}{
-		// TODO: add test cases
+		{
+			name: "success",
+			fields: fields{
+				counter: chunkedCounter{step: 23, current: 42, final: 65},
+				distributedCounters: func() []DistributedCounter {
+					firstCounter := new(MockDistributedCounter)
+
+					secondCounter := new(MockDistributedCounter)
+					secondCounter.On("NextCountChunk").Return(uint64(100), nil)
+
+					return []DistributedCounter{firstCounter, secondCounter}
+				}(),
+				randomSource: rand.New(rand.NewSource(1)).Intn,
+			},
+			wantCounter: chunkedCounter{step: 23, current: 100, final: 123},
+			wantErr:     assert.NoError,
+		},
+		{
+			name: "error",
+			fields: fields{
+				counter: chunkedCounter{step: 23, current: 42, final: 65},
+				distributedCounters: func() []DistributedCounter {
+					firstCounter := new(MockDistributedCounter)
+
+					secondCounter := new(MockDistributedCounter)
+					secondCounter.On("NextCountChunk").Return(uint64(0), iotest.ErrTimeout)
+
+					return []DistributedCounter{firstCounter, secondCounter}
+				}(),
+				randomSource: rand.New(rand.NewSource(1)).Intn,
+			},
+			wantCounter: chunkedCounter{step: 23, current: 42, final: 65},
+			wantErr:     assert.Error,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			generator := &DistributedGenerator{
