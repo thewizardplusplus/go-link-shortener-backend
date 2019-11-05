@@ -27,6 +27,40 @@ func TestNewDistributedGenerator(test *testing.T) {
 	assert.Equal(test, getPointer(rand.Intn), getPointer(got.randomSource))
 }
 
+func TestDistributedGenerator_GenerateCode(test *testing.T) {
+	type fields struct {
+		counter             chunkedCounter
+		distributedCounters []DistributedCounter
+		randomSource        RandomSource
+	}
+
+	for _, data := range []struct {
+		name        string
+		fields      fields
+		wantCounter chunkedCounter
+		wantCode    string
+		wantErr     assert.ErrorAssertionFunc
+	}{
+		// TODO: add test cases
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			generator := &DistributedGenerator{
+				counter:             data.fields.counter,
+				distributedCounters: data.fields.distributedCounters,
+				randomSource:        data.fields.randomSource,
+			}
+			gotCode, gotErr := generator.GenerateCode()
+
+			for _, distributedCounter := range data.fields.distributedCounters {
+				mock.AssertExpectationsForObjects(test, distributedCounter)
+			}
+			assert.Equal(test, data.wantCounter, generator.counter)
+			assert.Equal(test, data.wantCode, gotCode)
+			data.wantErr(test, gotErr)
+		})
+	}
+}
+
 func TestDistributedGenerator_resetCounter(test *testing.T) {
 	type fields struct {
 		counter             chunkedCounter
