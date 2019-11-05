@@ -17,7 +17,12 @@ func TestNewClient(test *testing.T) {
 		wantClient assert.ValueAssertionFunc
 		wantErr    assert.ErrorAssertionFunc
 	}{
-		// TODO: add test cases
+		{
+			name:       "success",
+			args:       args{"localhost:2379"},
+			wantClient: assert.NotNil,
+			wantErr:    assert.NoError,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			gotClient, gotErr := NewClient(data.args.url)
