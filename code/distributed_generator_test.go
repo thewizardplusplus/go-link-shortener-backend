@@ -41,7 +41,56 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 		wantCode    string
 		wantErr     assert.ErrorAssertionFunc
 	}{
-		// TODO: add test cases
+		{
+			name: "success with incrementing",
+			fields: fields{
+				counter: chunkedCounter{step: 23, current: 42, final: 65},
+				distributedCounters: []DistributedCounter{
+					new(MockDistributedCounter),
+					new(MockDistributedCounter),
+				},
+				randomSource: rand.New(rand.NewSource(1)).Intn,
+			},
+			wantCounter: chunkedCounter{step: 23, current: 43, final: 65},
+			wantCode:    "42",
+			wantErr:     assert.NoError,
+		},
+		{
+			name: "success with resetting",
+			fields: fields{
+				counter: chunkedCounter{step: 23, current: 65, final: 65},
+				distributedCounters: func() []DistributedCounter {
+					firstCounter := new(MockDistributedCounter)
+
+					secondCounter := new(MockDistributedCounter)
+					secondCounter.On("NextCountChunk").Return(uint64(100), nil)
+
+					return []DistributedCounter{firstCounter, secondCounter}
+				}(),
+				randomSource: rand.New(rand.NewSource(1)).Intn,
+			},
+			wantCounter: chunkedCounter{step: 23, current: 101, final: 123},
+			wantCode:    "100",
+			wantErr:     assert.NoError,
+		},
+		{
+			name: "error on resetting",
+			fields: fields{
+				counter: chunkedCounter{step: 23, current: 65, final: 65},
+				distributedCounters: func() []DistributedCounter {
+					firstCounter := new(MockDistributedCounter)
+
+					secondCounter := new(MockDistributedCounter)
+					secondCounter.On("NextCountChunk").Return(uint64(0), iotest.ErrTimeout)
+
+					return []DistributedCounter{firstCounter, secondCounter}
+				}(),
+				randomSource: rand.New(rand.NewSource(1)).Intn,
+			},
+			wantCounter: chunkedCounter{step: 23, current: 65, final: 65},
+			wantCode:    "",
+			wantErr:     assert.Error,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			generator := &DistributedGenerator{
