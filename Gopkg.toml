@@ -43,3 +43,7 @@ required = [
 [[constraint]]
   branch = "master"
   name = "github.com/alecthomas/template"
+
+[[constraint]]
+  name = "go.etcd.io/etcd"
+  version = "3.4.3"
