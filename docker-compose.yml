@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   go-link-shortener:
     build: .
@@ -17,6 +17,19 @@ services:
     image: mongo:4-bionic
     ports:
       - 27017:27017
+
+  etcd:
+    image: gcr.io/etcd-development/etcd:v3.4.3
+    entrypoint: /usr/local/bin/etcd
+    command:
+      - "--listen-peer-urls=http://0.0.0.0:2380"
+      - "--listen-client-urls=http://0.0.0.0:2379"
+      - "--initial-advertise-peer-urls=http://0.0.0.0:2380"
+      - "--initial-cluster=default=http://0.0.0.0:2380"
+      - "--advertise-client-urls=http://0.0.0.0:2379"
+    ports:
+      - 2379:2379
+      - 2380:2380
 
   swagger:
     image: swaggerapi/swagger-ui:v3.24.0
