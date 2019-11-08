@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -17,6 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
+	"go.etcd.io/etcd/clientv3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
@@ -28,6 +30,8 @@ func TestLinkCreating(test *testing.T) {
 		ServerAddress  string `env:"SERVER_ADDRESS" envDefault:"http://localhost:8080"`
 		CacheAddress   string `env:"CACHE_ADDRESS" envDefault:"localhost:6379"`
 		StorageAddress string `env:"STORAGE_ADDRESS" envDefault:"mongodb://localhost:27017"`
+		CounterAddress string `env:"COUNTER_ADDRESS" envDefault:"localhost:2379"`
+		CounterCount   int    `env:"COUNTER_COUNT" envDefault:"2"`
 	}
 
 	var opts options
@@ -41,18 +45,27 @@ func TestLinkCreating(test *testing.T) {
 	)
 	require.NoError(test, err)
 
+	counter, err := clientv3.New(clientv3.Config{
+		Endpoints: []string{opts.CounterAddress},
+	})
+	require.NoError(test, err)
+
 	for _, data := range []struct {
 		name            string
-		prepare         func(test *testing.T)
+		prepare         func(test *testing.T) (preparedData interface{})
 		request         *http.Request
 		wantStatus      int
 		wantCodePattern *regexp.Regexp
 		wantURL         string
-		check           func(test *testing.T, expectedLink entities.Link)
+		check           func(
+			test *testing.T,
+			preparedData interface{},
+			expectedLink entities.Link,
+		)
 	}{
 		{
 			name: "without a link inside the cache and the storage",
-			prepare: func(test *testing.T) {
+			prepare: func(test *testing.T) (preparedData interface{}) {
 				err := cache.FlushDB().Err()
 				require.NoError(test, err)
 
@@ -61,6 +74,18 @@ func TestLinkCreating(test *testing.T) {
 					Collection("links").
 					DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
+
+				var counters []uint64
+				for i := 0; i < opts.CounterCount; i++ {
+					context := context.Background()
+					name := fmt.Sprintf("distributed-counter-%d", i)
+					response, err := counter.Get(context, name)
+					require.NoError(test, err)
+
+					counters = append(counters, uint64(response.Header.Revision))
+				}
+
+				return counters
 			},
 			request: func() *http.Request {
 				request, _ := http.NewRequest(
@@ -73,7 +98,11 @@ func TestLinkCreating(test *testing.T) {
 			wantStatus:      http.StatusOK,
 			wantCodePattern: regexp.MustCompile(`\d+`),
 			wantURL:         "http://example.com/",
-			check: func(test *testing.T, expectedLink entities.Link) {
+			check: func(
+				test *testing.T,
+				preparedData interface{},
+				expectedLink entities.Link,
+			) {
 				for _, key := range []string{expectedLink.Code, expectedLink.URL} {
 					data, err := cache.Get(key).Result()
 					require.NoError(test, err)
@@ -96,12 +125,23 @@ func TestLinkCreating(test *testing.T) {
 					Decode(&link)
 				require.NoError(test, err)
 
+				var counters []uint64
+				for i := 0; i < opts.CounterCount; i++ {
+					context := context.Background()
+					name := fmt.Sprintf("distributed-counter-%d", i)
+					response, err := counter.Get(context, name)
+					require.NoError(test, err)
+
+					counters = append(counters, uint64(response.Header.Revision))
+				}
+
 				assert.Equal(test, expectedLink, link)
+				assert.Equal(test, preparedData, counters)
 			},
 		},
 		{
 			name: "with a link inside the cache",
-			prepare: func(test *testing.T) {
+			prepare: func(test *testing.T) (preparedData interface{}) {
 				err := cache.FlushDB().Err()
 				require.NoError(test, err)
 
@@ -119,6 +159,18 @@ func TestLinkCreating(test *testing.T) {
 					Collection("links").
 					DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
+
+				var counters []uint64
+				for i := 0; i < opts.CounterCount; i++ {
+					context := context.Background()
+					name := fmt.Sprintf("distributed-counter-%d", i)
+					response, err := counter.Get(context, name)
+					require.NoError(test, err)
+
+					counters = append(counters, uint64(response.Header.Revision))
+				}
+
+				return counters
 			},
 			request: func() *http.Request {
 				request, _ := http.NewRequest(
@@ -131,7 +183,11 @@ func TestLinkCreating(test *testing.T) {
 			wantStatus:      http.StatusOK,
 			wantCodePattern: regexp.MustCompile("code"),
 			wantURL:         "http://example.com/",
-			check: func(test *testing.T, expectedLink entities.Link) {
+			check: func(
+				test *testing.T,
+				preparedData interface{},
+				expectedLink entities.Link,
+			) {
 				_, err := cache.Get(expectedLink.Code).Result()
 				require.Equal(test, redis.Nil, err)
 
@@ -151,13 +207,24 @@ func TestLinkCreating(test *testing.T) {
 					Err()
 				require.Equal(test, mongo.ErrNoDocuments, err)
 
+				var counters []uint64
+				for i := 0; i < opts.CounterCount; i++ {
+					context := context.Background()
+					name := fmt.Sprintf("distributed-counter-%d", i)
+					response, err := counter.Get(context, name)
+					require.NoError(test, err)
+
+					counters = append(counters, uint64(response.Header.Revision))
+				}
+
 				assert.Equal(test, expectedLink, link)
 				assert.InDelta(test, time.Hour, duration, float64(10*time.Second))
+				assert.Equal(test, preparedData, counters)
 			},
 		},
 		{
 			name: "with a link inside the storage",
-			prepare: func(test *testing.T) {
+			prepare: func(test *testing.T) (preparedData interface{}) {
 				err := cache.FlushDB().Err()
 				require.NoError(test, err)
 
@@ -175,6 +242,18 @@ func TestLinkCreating(test *testing.T) {
 						entities.Link{Code: "code", URL: "http://example.com/"},
 					)
 				require.NoError(test, err)
+
+				var counters []uint64
+				for i := 0; i < opts.CounterCount; i++ {
+					context := context.Background()
+					name := fmt.Sprintf("distributed-counter-%d", i)
+					response, err := counter.Get(context, name)
+					require.NoError(test, err)
+
+					counters = append(counters, uint64(response.Header.Revision))
+				}
+
+				return counters
 			},
 			request: func() *http.Request {
 				request, _ := http.NewRequest(
@@ -187,7 +266,11 @@ func TestLinkCreating(test *testing.T) {
 			wantStatus:      http.StatusOK,
 			wantCodePattern: regexp.MustCompile("code"),
 			wantURL:         "http://example.com/",
-			check: func(test *testing.T, expectedLink entities.Link) {
+			check: func(
+				test *testing.T,
+				preparedData interface{},
+				expectedLink entities.Link,
+			) {
 				_, err := cache.Get(expectedLink.Code).Result()
 				assert.Equal(test, redis.Nil, err)
 
@@ -202,12 +285,23 @@ func TestLinkCreating(test *testing.T) {
 					Decode(&link)
 				require.NoError(test, err)
 
+				var counters []uint64
+				for i := 0; i < opts.CounterCount; i++ {
+					context := context.Background()
+					name := fmt.Sprintf("distributed-counter-%d", i)
+					response, err := counter.Get(context, name)
+					require.NoError(test, err)
+
+					counters = append(counters, uint64(response.Header.Revision))
+				}
+
 				assert.Equal(test, expectedLink, link)
+				assert.Equal(test, preparedData, counters)
 			},
 		},
 		{
 			name: "with a link inside the cache and the storage",
-			prepare: func(test *testing.T) {
+			prepare: func(test *testing.T) (preparedData interface{}) {
 				err := cache.FlushDB().Err()
 				require.NoError(test, err)
 
@@ -234,6 +328,18 @@ func TestLinkCreating(test *testing.T) {
 						entities.Link{Code: "code #2", URL: "http://example.com/"},
 					)
 				require.NoError(test, err)
+
+				var counters []uint64
+				for i := 0; i < opts.CounterCount; i++ {
+					context := context.Background()
+					name := fmt.Sprintf("distributed-counter-%d", i)
+					response, err := counter.Get(context, name)
+					require.NoError(test, err)
+
+					counters = append(counters, uint64(response.Header.Revision))
+				}
+
+				return counters
 			},
 			request: func() *http.Request {
 				request, _ := http.NewRequest(
@@ -246,7 +352,11 @@ func TestLinkCreating(test *testing.T) {
 			wantStatus:      http.StatusOK,
 			wantCodePattern: regexp.MustCompile("code #1"),
 			wantURL:         "http://example.com/",
-			check: func(test *testing.T, expectedLink entities.Link) {
+			check: func(
+				test *testing.T,
+				preparedData interface{},
+				expectedLink entities.Link,
+			) {
 				_, err := cache.Get(expectedLink.Code).Result()
 				assert.Equal(test, redis.Nil, err)
 
@@ -266,13 +376,24 @@ func TestLinkCreating(test *testing.T) {
 					Err()
 				assert.Equal(test, mongo.ErrNoDocuments, err)
 
+				var counters []uint64
+				for i := 0; i < opts.CounterCount; i++ {
+					context := context.Background()
+					name := fmt.Sprintf("distributed-counter-%d", i)
+					response, err := counter.Get(context, name)
+					require.NoError(test, err)
+
+					counters = append(counters, uint64(response.Header.Revision))
+				}
+
 				assert.Equal(test, expectedLink, link)
 				assert.InDelta(test, time.Hour, duration, float64(10*time.Second))
+				assert.Equal(test, preparedData, counters)
 			},
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
-			data.prepare(test)
+			preparedData := data.prepare(test)
 
 			response, err := http.DefaultClient.Do(data.request)
 			require.NoError(test, err)
@@ -285,7 +406,7 @@ func TestLinkCreating(test *testing.T) {
 			assert.Equal(test, "application/json", response.Header.Get("Content-Type"))
 			assert.Regexp(test, data.wantCodePattern, link.Code)
 			assert.Equal(test, data.wantURL, link.URL)
-			data.check(test, link)
+			data.check(test, preparedData, link)
 		})
 	}
 }
