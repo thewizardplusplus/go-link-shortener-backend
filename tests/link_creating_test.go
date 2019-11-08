@@ -70,11 +70,9 @@ func TestLinkCreating(test *testing.T) {
 				)
 				return request
 			}(),
-			wantStatus: http.StatusOK,
-			wantCodePattern: regexp.MustCompile(
-				`(?i)^[\da-f]{8}(-[\da-f]{4}){3}-[\da-f]{12}$`,
-			),
-			wantURL: "http://example.com/",
+			wantStatus:      http.StatusOK,
+			wantCodePattern: regexp.MustCompile(`\d+`),
+			wantURL:         "http://example.com/",
 			check: func(test *testing.T, expectedLink entities.Link) {
 				for _, key := range []string{expectedLink.Code, expectedLink.URL} {
 					data, err := cache.Get(key).Result()
