@@ -27,6 +27,21 @@ type SilentLinkGetter struct {
 	Printer    Printer
 }
 
+// GetLink ...
+func (getter SilentLinkGetter) GetLink(query string) (entities.Link, error) {
+	link, err := getter.LinkGetter.GetLink(query)
+	switch err {
+	case nil:
+		return link, nil
+	default:
+		if err != sql.ErrNoRows {
+			getter.Printer.Printf("unable to get the link: %v", err)
+		}
+
+		return entities.Link{}, sql.ErrNoRows
+	}
+}
+
 // LinkGetterGroup ...
 type LinkGetterGroup []LinkGetter
 
