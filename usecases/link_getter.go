@@ -14,6 +14,8 @@ type LinkGetter interface {
 	GetLink(query string) (entities.Link, error)
 }
 
+//go:generate mockery -name=Printer -inpkg -case=underscore -testonly
+
 // Printer ...
 type Printer interface {
 	Printf(template string, arguments ...interface{})
