@@ -21,6 +21,12 @@ type Printer interface {
 	Printf(template string, arguments ...interface{})
 }
 
+// SilentLinkGetter ...
+type SilentLinkGetter struct {
+	LinkGetter LinkGetter
+	Printer    Printer
+}
+
 // LinkGetterGroup ...
 type LinkGetterGroup []LinkGetter
 
