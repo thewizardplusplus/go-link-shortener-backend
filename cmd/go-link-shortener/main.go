@@ -49,7 +49,10 @@ func main() {
 	}
 
 	cacheClient := cache.NewClient(options.CacheAddress)
-	cacheGetter := cache.LinkGetter{Client: cacheClient}
+	cacheGetter := usecases.SilentLinkGetter{
+		LinkGetter: cache.LinkGetter{Client: cacheClient},
+		Printer:    log.New(os.Stderr, "", log.LstdFlags|log.Lmicroseconds),
+	}
 
 	storageClient, err := storage.NewClient(options.StorageAddress)
 	if err != nil {
