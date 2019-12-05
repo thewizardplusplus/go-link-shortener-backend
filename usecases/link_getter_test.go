@@ -10,6 +10,42 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 )
 
+func TestSilentLinkGetter_GetLink(test *testing.T) {
+	type fields struct {
+		LinkGetter LinkGetter
+		Printer    Printer
+	}
+	type args struct {
+		query string
+	}
+
+	for _, data := range []struct {
+		name     string
+		fields   fields
+		args     args
+		wantLink entities.Link
+		wantErr  error
+	}{
+		// TODO: add test cases
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			getter := SilentLinkGetter{
+				LinkGetter: data.fields.LinkGetter,
+				Printer:    data.fields.Printer,
+			}
+			gotLink, gotErr := getter.GetLink(data.args.query)
+
+			mock.AssertExpectationsForObjects(
+				test,
+				data.fields.LinkGetter,
+				data.fields.Printer,
+			)
+			assert.Equal(test, data.wantLink, gotLink)
+			assert.Equal(test, data.wantErr, gotErr)
+		})
+	}
+}
+
 func TestLinkGetterGroup_GetLink(test *testing.T) {
 	type args struct {
 		query string
