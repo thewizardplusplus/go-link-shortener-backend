@@ -26,7 +26,62 @@ func TestSilentLinkGetter_GetLink(test *testing.T) {
 		wantLink entities.Link
 		wantErr  error
 	}{
-		// TODO: add test cases
+		{
+			name: "success",
+			fields: fields{
+				LinkGetter: func() LinkGetter {
+					getter := new(MockLinkGetter)
+					getter.
+						On("GetLink", "query").
+						Return(entities.Link{Code: "code", URL: "url"}, nil)
+
+					return getter
+				}(),
+				Printer: new(MockPrinter),
+			},
+			args:     args{"query"},
+			wantLink: entities.Link{Code: "code", URL: "url"},
+			wantErr:  nil,
+		},
+		{
+			name: "error (sql.ErrNoRows)",
+			fields: fields{
+				LinkGetter: func() LinkGetter {
+					getter := new(MockLinkGetter)
+					getter.On("GetLink", "query").Return(entities.Link{}, sql.ErrNoRows)
+
+					return getter
+				}(),
+				Printer: new(MockPrinter),
+			},
+			args:     args{"query"},
+			wantLink: entities.Link{},
+			wantErr:  sql.ErrNoRows,
+		},
+		{
+			name: "error (not sql.ErrNoRows)",
+			fields: fields{
+				LinkGetter: func() LinkGetter {
+					getter := new(MockLinkGetter)
+					getter.On("GetLink", "query").Return(entities.Link{}, iotest.ErrTimeout)
+
+					return getter
+				}(),
+				Printer: func() Printer {
+					printer := new(MockPrinter)
+					printer.On(
+						"Printf",
+						mock.MatchedBy(func(string) bool { return true }),
+						iotest.ErrTimeout,
+					)
+
+					return printer
+				}(),
+			},
+			args:     args{"query"},
+			wantLink: entities.Link{},
+			wantErr:  sql.ErrNoRows,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			getter := SilentLinkGetter{
