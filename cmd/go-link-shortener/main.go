@@ -48,10 +48,11 @@ func main() {
 		log.Fatalf("error on parsing options: %v", err)
 	}
 
+	logger := log.New(os.Stderr, "", log.LstdFlags|log.Lmicroseconds)
 	cacheClient := cache.NewClient(options.CacheAddress)
 	cacheGetter := usecases.SilentLinkGetter{
 		LinkGetter: cache.LinkGetter{Client: cacheClient},
-		Printer:    log.New(os.Stderr, "", log.LstdFlags|log.Lmicroseconds),
+		Printer:    logger,
 	}
 
 	storageClient, err := storage.NewClient(options.StorageAddress)
@@ -101,15 +102,21 @@ func main() {
 						},
 					},
 					LinkSetter: usecases.LinkSetterGroup{
-						cache.LinkSetter{
-							KeyExtractor: func(link entities.Link) string { return link.Code },
-							Client:       cacheClient,
-							Expiration:   time.Hour,
+						usecases.SilentLinkSetter{
+							LinkSetter: cache.LinkSetter{
+								KeyExtractor: func(link entities.Link) string { return link.Code },
+								Client:       cacheClient,
+								Expiration:   time.Hour,
+							},
+							Printer: logger,
 						},
-						cache.LinkSetter{
-							KeyExtractor: func(link entities.Link) string { return link.URL },
-							Client:       cacheClient,
-							Expiration:   time.Hour,
+						usecases.SilentLinkSetter{
+							LinkSetter: cache.LinkSetter{
+								KeyExtractor: func(link entities.Link) string { return link.URL },
+								Client:       cacheClient,
+								Expiration:   time.Hour,
+							},
+							Printer: logger,
 						},
 						storage.LinkSetter{
 							Client:     storageClient,
