@@ -24,7 +24,49 @@ func TestSilentLinkSetter_SetLink(test *testing.T) {
 		args    args
 		wantErr assert.ErrorAssertionFunc
 	}{
-		// TODO: add test cases
+		{
+			name: "success",
+			fields: fields{
+				LinkSetter: func() LinkSetter {
+					getter := new(MockLinkSetter)
+					getter.On("SetLink", entities.Link{Code: "code", URL: "url"}).Return(nil)
+
+					return getter
+				}(),
+				Printer: new(MockPrinter),
+			},
+			args: args{
+				link: entities.Link{Code: "code", URL: "url"},
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "error",
+			fields: fields{
+				LinkSetter: func() LinkSetter {
+					getter := new(MockLinkSetter)
+					getter.
+						On("SetLink", entities.Link{Code: "code", URL: "url"}).
+						Return(iotest.ErrTimeout)
+
+					return getter
+				}(),
+				Printer: func() Printer {
+					printer := new(MockPrinter)
+					printer.On(
+						"Printf",
+						mock.MatchedBy(func(string) bool { return true }),
+						iotest.ErrTimeout,
+					)
+
+					return printer
+				}(),
+			},
+			args: args{
+				link: entities.Link{Code: "code", URL: "url"},
+			},
+			wantErr: assert.NoError,
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			setter := SilentLinkSetter{
