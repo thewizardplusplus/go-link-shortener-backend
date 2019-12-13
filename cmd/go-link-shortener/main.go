@@ -43,12 +43,13 @@ const (
 )
 
 func main() {
+	logger := log.New(os.Stderr, "", log.LstdFlags|log.Lmicroseconds)
+
 	var options options // nolint: vetshadow
 	if err := env.Parse(&options); err != nil {
-		log.Fatalf("error on parsing options: %v", err)
+		logger.Fatalf("error on parsing options: %v", err)
 	}
 
-	logger := log.New(os.Stderr, "", log.LstdFlags|log.Lmicroseconds)
 	cacheClient := cache.NewClient(options.CacheAddress)
 	cacheGetter := usecases.SilentLinkGetter{
 		LinkGetter: cache.LinkGetter{Client: cacheClient},
@@ -57,12 +58,12 @@ func main() {
 
 	storageClient, err := storage.NewClient(options.StorageAddress)
 	if err != nil {
-		log.Fatalf("error on creating the storage client: %v", err)
+		logger.Fatalf("error on creating the storage client: %v", err)
 	}
 
 	counterClient, err := counter.NewClient(options.Counter.Address)
 	if err != nil {
-		log.Fatalf("error on creating the counter client: %v", err)
+		logger.Fatalf("error on creating the counter client: %v", err)
 	}
 
 	var counters []code.DistributedCounter
@@ -145,7 +146,7 @@ func main() {
 
 		if err := server.Shutdown(context.Background()); err != nil {
 			// error on closing listeners
-			log.Printf("error on shutdown: %v", err)
+			logger.Printf("error on shutdown: %v", err)
 		}
 
 		close(done)
@@ -153,7 +154,7 @@ func main() {
 
 	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		// error on starting or closing listeners
-		log.Fatalf("error on listening and serving: %v", err)
+		logger.Fatalf("error on listening and serving: %v", err)
 	}
 
 	<-done
