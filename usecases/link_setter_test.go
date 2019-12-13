@@ -9,6 +9,40 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 )
 
+func TestSilentLinkSetter_SetLink(test *testing.T) {
+	type fields struct {
+		LinkSetter LinkSetter
+		Printer    Printer
+	}
+	type args struct {
+		link entities.Link
+	}
+
+	for _, data := range []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr assert.ErrorAssertionFunc
+	}{
+		// TODO: add test cases
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			setter := SilentLinkSetter{
+				LinkSetter: data.fields.LinkSetter,
+				Printer:    data.fields.Printer,
+			}
+			gotErr := setter.SetLink(data.args.link)
+
+			mock.AssertExpectationsForObjects(
+				test,
+				data.fields.LinkSetter,
+				data.fields.Printer,
+			)
+			data.wantErr(test, gotErr)
+		})
+	}
+}
+
 func TestLinkSetterGroup_SetLink(test *testing.T) {
 	type args struct {
 		link entities.Link
