@@ -12,6 +12,12 @@ type LinkSetter interface {
 	SetLink(link entities.Link) error
 }
 
+// SilentLinkSetter ...
+type SilentLinkSetter struct {
+	LinkSetter LinkSetter
+	Printer    Printer
+}
+
 // LinkSetterGroup ...
 type LinkSetterGroup []LinkSetter
 
