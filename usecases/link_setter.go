@@ -18,6 +18,15 @@ type SilentLinkSetter struct {
 	Printer    Printer
 }
 
+// SetLink ...
+func (setter SilentLinkSetter) SetLink(link entities.Link) error {
+	if err := setter.LinkSetter.SetLink(link); err != nil {
+		setter.Printer.Printf("unable to set the link: %v", err)
+	}
+
+	return nil
+}
+
 // LinkSetterGroup ...
 type LinkSetterGroup []LinkSetter
 
