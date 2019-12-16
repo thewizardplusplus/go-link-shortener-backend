@@ -22,28 +22,25 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener/usecases"
 )
 
-type ttlOptions struct {
-	Code time.Duration `env:"CODE_CACHE_TTL" envDefault:"1h"`
-	URL  time.Duration `env:"URL_CACHE_TTL" envDefault:"1h"`
-}
-
-type cacheOptions struct {
-	Address string `env:"CACHE_ADDRESS" envDefault:"localhost:6379"`
-	TTL     ttlOptions
-}
-
-type counterOptions struct {
-	Address string `env:"COUNTER_ADDRESS" envDefault:"localhost:2379"`
-	Count   int    `env:"COUNTER_COUNT" envDefault:"2"`
-	Chunk   uint64 `env:"COUNTER_CHUNK" envDefault:"1000"`
-}
-
-// nolint: lll
 type options struct {
-	ServerAddress  string `env:"SERVER_ADDRESS" envDefault:":8080"`
-	Cache          cacheOptions
-	StorageAddress string `env:"STORAGE_ADDRESS" envDefault:"mongodb://localhost:27017"`
-	Counter        counterOptions
+	Server struct {
+		Address string `env:"SERVER_ADDRESS" envDefault:":8080"`
+	}
+	Cache struct {
+		Address string `env:"CACHE_ADDRESS" envDefault:"localhost:6379"`
+		TTL     struct {
+			Code time.Duration `env:"CACHE_TTL_CODE" envDefault:"1h"`
+			URL  time.Duration `env:"CACHE_TTL_URL" envDefault:"1h"`
+		}
+	}
+	Storage struct {
+		Address string `env:"STORAGE_ADDRESS" envDefault:"mongodb://localhost:27017"`
+	}
+	Counter struct {
+		Address string `env:"COUNTER_ADDRESS" envDefault:"localhost:2379"`
+		Count   int    `env:"COUNTER_COUNT" envDefault:"2"`
+		Chunk   uint64 `env:"COUNTER_CHUNK" envDefault:"1000"`
+	}
 }
 
 const (
@@ -66,7 +63,7 @@ func main() {
 		Printer:    logger,
 	}
 
-	storageClient, err := storage.NewClient(options.StorageAddress)
+	storageClient, err := storage.NewClient(options.Storage.Address)
 	if err != nil {
 		logger.Fatalf("error on creating the storage client: %v", err)
 	}
@@ -86,7 +83,7 @@ func main() {
 
 	var presenter presenters.JSONPresenter
 	server := http.Server{
-		Addr: options.ServerAddress,
+		Addr: options.Server.Address,
 		Handler: router.NewRouter(router.Handlers{
 			LinkGettingHandler: handlers.LinkGettingHandler{
 				LinkGetter: usecases.LinkGetterGroup{
