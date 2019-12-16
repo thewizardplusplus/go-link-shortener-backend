@@ -30,8 +30,10 @@ func TestLinkCreating(test *testing.T) {
 		ServerAddress  string `env:"SERVER_ADDRESS" envDefault:"http://localhost:8080"`
 		CacheAddress   string `env:"CACHE_ADDRESS" envDefault:"localhost:6379"`
 		StorageAddress string `env:"STORAGE_ADDRESS" envDefault:"mongodb://localhost:27017"`
-		CounterAddress string `env:"COUNTER_ADDRESS" envDefault:"localhost:2379"`
-		CounterCount   int    `env:"COUNTER_COUNT" envDefault:"2"`
+		Counter        struct {
+			Address string `env:"COUNTER_ADDRESS" envDefault:"localhost:2379"`
+			Count   int    `env:"COUNTER_COUNT" envDefault:"2"`
+		}
 	}
 
 	var opts options
@@ -46,7 +48,7 @@ func TestLinkCreating(test *testing.T) {
 	require.NoError(test, err)
 
 	counter, err := clientv3.New(clientv3.Config{
-		Endpoints: []string{opts.CounterAddress},
+		Endpoints: []string{opts.Counter.Address},
 	})
 	require.NoError(test, err)
 
@@ -76,7 +78,7 @@ func TestLinkCreating(test *testing.T) {
 				require.NoError(test, err)
 
 				var counters []uint64
-				for i := 0; i < opts.CounterCount; i++ {
+				for i := 0; i < opts.Counter.Count; i++ {
 					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
@@ -126,7 +128,7 @@ func TestLinkCreating(test *testing.T) {
 				require.NoError(test, err)
 
 				var counters []uint64
-				for i := 0; i < opts.CounterCount; i++ {
+				for i := 0; i < opts.Counter.Count; i++ {
 					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
@@ -161,7 +163,7 @@ func TestLinkCreating(test *testing.T) {
 				require.NoError(test, err)
 
 				var counters []uint64
-				for i := 0; i < opts.CounterCount; i++ {
+				for i := 0; i < opts.Counter.Count; i++ {
 					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
@@ -208,7 +210,7 @@ func TestLinkCreating(test *testing.T) {
 				require.Equal(test, mongo.ErrNoDocuments, err)
 
 				var counters []uint64
-				for i := 0; i < opts.CounterCount; i++ {
+				for i := 0; i < opts.Counter.Count; i++ {
 					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
@@ -244,7 +246,7 @@ func TestLinkCreating(test *testing.T) {
 				require.NoError(test, err)
 
 				var counters []uint64
-				for i := 0; i < opts.CounterCount; i++ {
+				for i := 0; i < opts.Counter.Count; i++ {
 					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
@@ -286,7 +288,7 @@ func TestLinkCreating(test *testing.T) {
 				require.NoError(test, err)
 
 				var counters []uint64
-				for i := 0; i < opts.CounterCount; i++ {
+				for i := 0; i < opts.Counter.Count; i++ {
 					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
@@ -330,7 +332,7 @@ func TestLinkCreating(test *testing.T) {
 				require.NoError(test, err)
 
 				var counters []uint64
-				for i := 0; i < opts.CounterCount; i++ {
+				for i := 0; i < opts.Counter.Count; i++ {
 					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
@@ -377,7 +379,7 @@ func TestLinkCreating(test *testing.T) {
 				assert.Equal(test, mongo.ErrNoDocuments, err)
 
 				var counters []uint64
-				for i := 0; i < opts.CounterCount; i++ {
+				for i := 0; i < opts.Counter.Count; i++ {
 					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
