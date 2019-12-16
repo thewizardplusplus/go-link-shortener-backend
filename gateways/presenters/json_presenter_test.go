@@ -37,3 +37,27 @@ func TestJSONPresenter_PresentError(test *testing.T) {
 	assert.Equal(test, "application/json", response.Header.Get("Content-Type"))
 	assert.Equal(test, `{"Error":"timeout"}`, string(responseBody))
 }
+
+func Test_presentData(test *testing.T) {
+	type args struct {
+		writer     http.ResponseWriter
+		statusCode int
+		data       interface{}
+	}
+
+	for _, data := range []struct {
+		name    string
+		args    args
+		wantErr assert.ErrorAssertionFunc
+		check   func(test *testing.T, writer http.ResponseWriter)
+	}{
+		// TODO: add test cases
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			gotErr := presentData(data.args.writer, data.args.statusCode, data.args.data)
+
+			data.wantErr(test, gotErr)
+			data.check(test, data.args.writer)
+		})
+	}
+}
