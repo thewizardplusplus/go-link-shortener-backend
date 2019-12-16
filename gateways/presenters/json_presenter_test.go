@@ -11,6 +11,19 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 )
 
+type TimeoutResponseRecorder struct {
+	*httptest.ResponseRecorder
+}
+
+func NewTimeoutResponseRecorder() TimeoutResponseRecorder {
+	responseRecorder := httptest.NewRecorder()
+	return TimeoutResponseRecorder{responseRecorder}
+}
+
+func (TimeoutResponseRecorder) WriteString(string) (n int, err error) {
+	return 0, iotest.ErrTimeout
+}
+
 func TestJSONPresenter_PresentLink(test *testing.T) {
 	writer := httptest.NewRecorder()
 	presenter := JSONPresenter{}
@@ -51,7 +64,57 @@ func Test_presentData(test *testing.T) {
 		wantErr assert.ErrorAssertionFunc
 		check   func(test *testing.T, writer http.ResponseWriter)
 	}{
-		// TODO: add test cases
+		{
+			name: "success",
+			args: args{
+				writer:     httptest.NewRecorder(),
+				statusCode: http.StatusOK,
+				data:       entities.Link{Code: "code", URL: "url"},
+			},
+			wantErr: assert.NoError,
+			check: func(test *testing.T, writer http.ResponseWriter) {
+				response := writer.(*httptest.ResponseRecorder).Result()
+				responseBody, _ := ioutil.ReadAll(response.Body)
+
+				assert.Equal(test, http.StatusOK, response.StatusCode)
+				assert.Equal(test, "application/json", response.Header.Get("Content-Type"))
+				assert.Equal(test, `{"Code":"code","URL":"url"}`, string(responseBody))
+			},
+		},
+		{
+			name: "error on marshalling",
+			args: args{
+				writer:     httptest.NewRecorder(),
+				statusCode: http.StatusOK,
+				data:       func() {},
+			},
+			wantErr: assert.Error,
+			check: func(test *testing.T, writer http.ResponseWriter) {
+				response := writer.(*httptest.ResponseRecorder).Result()
+				responseBody, _ := ioutil.ReadAll(response.Body)
+
+				assert.Equal(test, http.StatusOK, response.StatusCode)
+				assert.Equal(test, "application/json", response.Header.Get("Content-Type"))
+				assert.Empty(test, responseBody)
+			},
+		},
+		{
+			name: "error on writing",
+			args: args{
+				writer:     NewTimeoutResponseRecorder(),
+				statusCode: http.StatusOK,
+				data:       entities.Link{Code: "code", URL: "url"},
+			},
+			wantErr: assert.Error,
+			check: func(test *testing.T, writer http.ResponseWriter) {
+				response := writer.(TimeoutResponseRecorder).Result()
+				responseBody, _ := ioutil.ReadAll(response.Body)
+
+				assert.Equal(test, http.StatusOK, response.StatusCode)
+				assert.Equal(test, "application/json", response.Header.Get("Content-Type"))
+				assert.Empty(test, responseBody)
+			},
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			gotErr := presentData(data.args.writer, data.args.statusCode, data.args.data)
