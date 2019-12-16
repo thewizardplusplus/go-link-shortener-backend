@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/pkg/errors"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 )
 
@@ -36,10 +37,22 @@ func (presenter JSONPresenter) PresentError(
 	presentData(writer, statusCode, response)
 }
 
-func presentData(writer http.ResponseWriter, statusCode int, data interface{}) {
+func presentData(
+	writer http.ResponseWriter,
+	statusCode int,
+	data interface{},
+) error {
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(statusCode)
 
-	bytes, _ := json.Marshal(data)        // nolint: gosec
-	io.WriteString(writer, string(bytes)) // nolint: gosec, errcheck
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		return errors.Wrap(err, "unable to marshal the data")
+	}
+
+	if _, err := io.WriteString(writer, string(bytes)); err != nil {
+		return errors.Wrap(err, "unable to write the data")
+	}
+
+	return nil
 }
