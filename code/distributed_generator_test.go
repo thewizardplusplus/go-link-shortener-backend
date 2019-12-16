@@ -74,7 +74,7 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 			wantErr:     assert.NoError,
 		},
 		{
-			name: "error on resetting",
+			name: "error with resetting",
 			fields: fields{
 				counter: chunkedCounter{step: 23, current: 65, final: 65},
 				distributedCounters: func() []DistributedCounter {

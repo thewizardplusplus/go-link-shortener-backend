@@ -82,7 +82,7 @@ func Test_presentData(test *testing.T) {
 			},
 		},
 		{
-			name: "error on marshalling",
+			name: "error with marshalling",
 			args: args{
 				writer:     httptest.NewRecorder(),
 				statusCode: http.StatusOK,
@@ -99,7 +99,7 @@ func Test_presentData(test *testing.T) {
 			},
 		},
 		{
-			name: "error on writing",
+			name: "error with writing",
 			args: args{
 				writer:     NewTimeoutResponseRecorder(),
 				statusCode: http.StatusOK,

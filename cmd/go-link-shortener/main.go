@@ -54,7 +54,7 @@ func main() {
 
 	var options options // nolint: vetshadow
 	if err := env.Parse(&options); err != nil {
-		logger.Fatalf("error on parsing options: %v", err)
+		logger.Fatalf("error with parsing options: %v", err)
 	}
 
 	cacheClient := cache.NewClient(options.Cache.Address)
@@ -65,12 +65,12 @@ func main() {
 
 	storageClient, err := storage.NewClient(options.Storage.Address)
 	if err != nil {
-		logger.Fatalf("error on creating the storage client: %v", err)
+		logger.Fatalf("error with creating the storage client: %v", err)
 	}
 
 	counterClient, err := counter.NewClient(options.Counter.Address)
 	if err != nil {
-		logger.Fatalf("error on creating the counter client: %v", err)
+		logger.Fatalf("error with creating the counter client: %v", err)
 	}
 
 	var counters []code.DistributedCounter
@@ -152,16 +152,16 @@ func main() {
 		<-interrupt
 
 		if err := server.Shutdown(context.Background()); err != nil {
-			// error on closing listeners
-			logger.Printf("error on shutdown: %v", err)
+			// error with closing listeners
+			logger.Printf("error with shutdown: %v", err)
 		}
 
 		close(done)
 	}()
 
 	if err := server.ListenAndServe(); err != http.ErrServerClosed {
-		// error on starting or closing listeners
-		logger.Fatalf("error on listening and serving: %v", err)
+		// error with starting or closing listeners
+		logger.Fatalf("error with listening and serving: %v", err)
 	}
 
 	<-done
