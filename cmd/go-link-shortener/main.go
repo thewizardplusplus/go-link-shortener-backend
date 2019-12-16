@@ -22,6 +22,16 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener/usecases"
 )
 
+type ttlOptions struct {
+	Code time.Duration `env:"CODE_CACHE_TTL" envDefault:"1h"`
+	URL  time.Duration `env:"URL_CACHE_TTL" envDefault:"1h"`
+}
+
+type cacheOptions struct {
+	Address string `env:"CACHE_ADDRESS" envDefault:"localhost:6379"`
+	TTL     ttlOptions
+}
+
 type counterOptions struct {
 	Address string `env:"COUNTER_ADDRESS" envDefault:"localhost:2379"`
 	Count   int    `env:"COUNTER_COUNT" envDefault:"2"`
@@ -31,7 +41,7 @@ type counterOptions struct {
 // nolint: lll
 type options struct {
 	ServerAddress  string `env:"SERVER_ADDRESS" envDefault:":8080"`
-	CacheAddress   string `env:"CACHE_ADDRESS" envDefault:"localhost:6379"`
+	Cache          cacheOptions
 	StorageAddress string `env:"STORAGE_ADDRESS" envDefault:"mongodb://localhost:27017"`
 	Counter        counterOptions
 }
@@ -50,7 +60,7 @@ func main() {
 		logger.Fatalf("error on parsing options: %v", err)
 	}
 
-	cacheClient := cache.NewClient(options.CacheAddress)
+	cacheClient := cache.NewClient(options.Cache.Address)
 	cacheGetter := usecases.SilentLinkGetter{
 		LinkGetter: cache.LinkGetter{Client: cacheClient},
 		Printer:    logger,
@@ -107,7 +117,7 @@ func main() {
 							LinkSetter: cache.LinkSetter{
 								KeyExtractor: func(link entities.Link) string { return link.Code },
 								Client:       cacheClient,
-								Expiration:   time.Hour,
+								Expiration:   options.Cache.TTL.Code,
 							},
 							Printer: logger,
 						},
@@ -115,7 +125,7 @@ func main() {
 							LinkSetter: cache.LinkSetter{
 								KeyExtractor: func(link entities.Link) string { return link.URL },
 								Client:       cacheClient,
-								Expiration:   time.Hour,
+								Expiration:   options.Cache.TTL.URL,
 							},
 							Printer: logger,
 						},
