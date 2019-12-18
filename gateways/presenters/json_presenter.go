@@ -25,7 +25,7 @@ func (presenter JSONPresenter) PresentLink(
 	link entities.Link,
 ) error {
 	if err := presentData(writer, http.StatusOK, link); err != nil {
-		return errors.Wrap(err, "unable to present the link")
+		return errors.Wrap(err, "unable to present the link in JSON")
 	}
 
 	return nil
@@ -39,7 +39,7 @@ func (presenter JSONPresenter) PresentError(
 ) error {
 	response := ErrorResponse{Error: err.Error()}
 	if err := presentData(writer, statusCode, response); err != nil {
-		return errors.Wrap(err, "unable to present the error")
+		return errors.Wrap(err, "unable to present the error in JSON")
 	}
 
 	return nil
