@@ -19,3 +19,9 @@ type LinkPresenter interface {
 type Printer interface {
 	Printf(template string, arguments ...interface{})
 }
+
+// SilentLinkPresenter ...
+type SilentLinkPresenter struct {
+	LinkPresenter LinkPresenter
+	Printer       Printer
+}
