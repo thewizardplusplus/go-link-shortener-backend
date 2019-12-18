@@ -92,7 +92,40 @@ func TestJSONPresenter_PresentError(test *testing.T) {
 		wantErr assert.ErrorAssertionFunc
 		check   func(test *testing.T, writer http.ResponseWriter)
 	}{
-		// TODO: add test cases
+		{
+			name: "success",
+			args: args{
+				writer:     httptest.NewRecorder(),
+				statusCode: http.StatusInternalServerError,
+				err:        iotest.ErrTimeout,
+			},
+			wantErr: assert.NoError,
+			check: func(test *testing.T, writer http.ResponseWriter) {
+				response := writer.(*httptest.ResponseRecorder).Result()
+				responseBody, _ := ioutil.ReadAll(response.Body)
+
+				assert.Equal(test, http.StatusInternalServerError, response.StatusCode)
+				assert.Equal(test, "application/json", response.Header.Get("Content-Type"))
+				assert.Equal(test, `{"Error":"timeout"}`, string(responseBody))
+			},
+		},
+		{
+			name: "error",
+			args: args{
+				writer:     NewTimeoutResponseRecorder(),
+				statusCode: http.StatusInternalServerError,
+				err:        iotest.ErrTimeout,
+			},
+			wantErr: assert.Error,
+			check: func(test *testing.T, writer http.ResponseWriter) {
+				response := writer.(TimeoutResponseRecorder).Result()
+				responseBody, _ := ioutil.ReadAll(response.Body)
+
+				assert.Equal(test, http.StatusInternalServerError, response.StatusCode)
+				assert.Equal(test, "application/json", response.Header.Get("Content-Type"))
+				assert.Empty(test, responseBody)
+			},
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			var presenter JSONPresenter
