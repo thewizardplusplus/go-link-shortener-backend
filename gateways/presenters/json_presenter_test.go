@@ -80,17 +80,32 @@ func TestJSONPresenter_PresentLink(test *testing.T) {
 }
 
 func TestJSONPresenter_PresentError(test *testing.T) {
-	writer := httptest.NewRecorder()
-	presenter := JSONPresenter{}
-	presenter.
-		PresentError(writer, http.StatusInternalServerError, iotest.ErrTimeout)
+	type args struct {
+		writer     http.ResponseWriter
+		statusCode int
+		err        error
+	}
 
-	response := writer.Result()
-	responseBody, _ := ioutil.ReadAll(response.Body)
+	for _, data := range []struct {
+		name    string
+		args    args
+		wantErr assert.ErrorAssertionFunc
+		check   func(test *testing.T, writer http.ResponseWriter)
+	}{
+		// TODO: add test cases
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			var presenter JSONPresenter
+			gotErr := presenter.PresentError(
+				data.args.writer,
+				data.args.statusCode,
+				data.args.err,
+			)
 
-	assert.Equal(test, http.StatusInternalServerError, response.StatusCode)
-	assert.Equal(test, "application/json", response.Header.Get("Content-Type"))
-	assert.Equal(test, `{"Error":"timeout"}`, string(responseBody))
+			data.wantErr(test, gotErr)
+			data.check(test, data.args.writer)
+		})
+	}
 }
 
 func Test_presentData(test *testing.T) {
