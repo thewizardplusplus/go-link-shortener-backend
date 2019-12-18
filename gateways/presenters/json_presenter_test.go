@@ -25,16 +25,27 @@ func (TimeoutResponseRecorder) WriteString(string) (n int, err error) {
 }
 
 func TestJSONPresenter_PresentLink(test *testing.T) {
-	writer := httptest.NewRecorder()
-	presenter := JSONPresenter{}
-	presenter.PresentLink(writer, entities.Link{Code: "code", URL: "url"})
+	type args struct {
+		writer http.ResponseWriter
+		link   entities.Link
+	}
 
-	response := writer.Result()
-	responseBody, _ := ioutil.ReadAll(response.Body)
+	for _, data := range []struct {
+		name    string
+		args    args
+		wantErr assert.ErrorAssertionFunc
+		check   func(test *testing.T, writer http.ResponseWriter)
+	}{
+		// TODO: add test cases
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			var presenter JSONPresenter
+			gotErr := presenter.PresentLink(data.args.writer, data.args.link)
 
-	assert.Equal(test, http.StatusOK, response.StatusCode)
-	assert.Equal(test, "application/json", response.Header.Get("Content-Type"))
-	assert.Equal(test, `{"Code":"code","URL":"url"}`, string(responseBody))
+			data.wantErr(test, gotErr)
+			data.check(test, data.args.writer)
+		})
+	}
 }
 
 func TestJSONPresenter_PresentError(test *testing.T) {
