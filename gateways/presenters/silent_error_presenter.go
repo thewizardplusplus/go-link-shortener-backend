@@ -10,3 +10,9 @@ import (
 type ErrorPresenter interface {
 	PresentError(writer http.ResponseWriter, statusCode int, err error) error
 }
+
+// SilentErrorPresenter ...
+type SilentErrorPresenter struct {
+	ErrorPresenter ErrorPresenter
+	Printer        Printer
+}
