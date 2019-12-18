@@ -12,3 +12,8 @@ import (
 type LinkPresenter interface {
 	PresentLink(writer http.ResponseWriter, link entities.Link) error
 }
+
+// Printer ...
+type Printer interface {
+	Printf(template string, arguments ...interface{})
+}
