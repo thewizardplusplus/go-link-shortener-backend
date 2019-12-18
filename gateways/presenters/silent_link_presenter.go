@@ -25,3 +25,13 @@ type SilentLinkPresenter struct {
 	LinkPresenter LinkPresenter
 	Printer       Printer
 }
+
+// PresentLink ...
+func (presenter SilentLinkPresenter) PresentLink(
+	writer http.ResponseWriter,
+	link entities.Link,
+) {
+	if err := presenter.LinkPresenter.PresentLink(writer, link); err != nil {
+		presenter.Printer.Printf("unable to present the link: %v", err)
+	}
+}
