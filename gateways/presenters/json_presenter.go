@@ -23,8 +23,12 @@ type ErrorResponse struct {
 func (presenter JSONPresenter) PresentLink(
 	writer http.ResponseWriter,
 	link entities.Link,
-) {
-	presentData(writer, http.StatusOK, link)
+) error {
+	if err := presentData(writer, http.StatusOK, link); err != nil {
+		return errors.Wrap(err, "unable to present the link")
+	}
+
+	return nil
 }
 
 // PresentError ...
