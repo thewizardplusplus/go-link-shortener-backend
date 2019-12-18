@@ -81,10 +81,13 @@ func main() {
 		})
 	}
 
-	var presenter presenters.JSONPresenter
 	linkPresenter := presenters.SilentLinkPresenter{
 		LinkPresenter: presenters.JSONPresenter{},
 		Printer:       logger,
+	}
+	errorPresenter := presenters.SilentErrorPresenter{
+		ErrorPresenter: presenters.JSONPresenter{},
+		Printer:        logger,
 	}
 
 	server := http.Server{
@@ -101,7 +104,7 @@ func main() {
 					},
 				},
 				LinkPresenter:  linkPresenter,
-				ErrorPresenter: presenter,
+				ErrorPresenter: errorPresenter,
 			},
 			LinkCreatingHandler: handlers.LinkCreatingHandler{
 				LinkCreator: usecases.LinkCreator{
@@ -144,9 +147,9 @@ func main() {
 					),
 				},
 				LinkPresenter:  linkPresenter,
-				ErrorPresenter: presenter,
+				ErrorPresenter: errorPresenter,
 			},
-			NotFoundHandler: handlers.NotFoundHandler{ErrorPresenter: presenter},
+			NotFoundHandler: handlers.NotFoundHandler{ErrorPresenter: errorPresenter},
 		}),
 	}
 
