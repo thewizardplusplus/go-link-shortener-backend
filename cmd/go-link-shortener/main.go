@@ -82,6 +82,11 @@ func main() {
 	}
 
 	var presenter presenters.JSONPresenter
+	linkPresenter := presenters.SilentLinkPresenter{
+		LinkPresenter: presenters.JSONPresenter{},
+		Printer:       logger,
+	}
+
 	server := http.Server{
 		Addr: options.Server.Address,
 		Handler: router.NewRouter(router.Handlers{
@@ -95,7 +100,7 @@ func main() {
 						KeyField:   "code",
 					},
 				},
-				LinkPresenter:  presenter,
+				LinkPresenter:  linkPresenter,
 				ErrorPresenter: presenter,
 			},
 			LinkCreatingHandler: handlers.LinkCreatingHandler{
@@ -138,7 +143,7 @@ func main() {
 						rand.New(rand.NewSource(time.Now().UnixNano())).Intn,
 					),
 				},
-				LinkPresenter:  presenter,
+				LinkPresenter:  linkPresenter,
 				ErrorPresenter: presenter,
 			},
 			NotFoundHandler: handlers.NotFoundHandler{ErrorPresenter: presenter},
