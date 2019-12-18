@@ -36,7 +36,38 @@ func TestJSONPresenter_PresentLink(test *testing.T) {
 		wantErr assert.ErrorAssertionFunc
 		check   func(test *testing.T, writer http.ResponseWriter)
 	}{
-		// TODO: add test cases
+		{
+			name: "success",
+			args: args{
+				writer: httptest.NewRecorder(),
+				link:   entities.Link{Code: "code", URL: "url"},
+			},
+			wantErr: assert.NoError,
+			check: func(test *testing.T, writer http.ResponseWriter) {
+				response := writer.(*httptest.ResponseRecorder).Result()
+				responseBody, _ := ioutil.ReadAll(response.Body)
+
+				assert.Equal(test, http.StatusOK, response.StatusCode)
+				assert.Equal(test, "application/json", response.Header.Get("Content-Type"))
+				assert.Equal(test, `{"Code":"code","URL":"url"}`, string(responseBody))
+			},
+		},
+		{
+			name: "error",
+			args: args{
+				writer: NewTimeoutResponseRecorder(),
+				link:   entities.Link{Code: "code", URL: "url"},
+			},
+			wantErr: assert.Error,
+			check: func(test *testing.T, writer http.ResponseWriter) {
+				response := writer.(TimeoutResponseRecorder).Result()
+				responseBody, _ := ioutil.ReadAll(response.Body)
+
+				assert.Equal(test, http.StatusOK, response.StatusCode)
+				assert.Equal(test, "application/json", response.Header.Get("Content-Type"))
+				assert.Empty(test, responseBody)
+			},
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			var presenter JSONPresenter
