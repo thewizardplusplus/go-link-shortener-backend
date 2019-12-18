@@ -3,6 +3,7 @@ package presenters
 import (
 	"net/http"
 	"testing"
+	"testing/iotest"
 
 	"github.com/stretchr/testify/mock"
 )
@@ -23,7 +24,65 @@ func TestSilentErrorPresenter_PresentError(test *testing.T) {
 		fields fields
 		args   args
 	}{
-		// TODO: add test cases
+		{
+			name: "success",
+			fields: fields{
+				ErrorPresenter: func() ErrorPresenter {
+					presenter := new(MockErrorPresenter)
+					presenter.
+						On(
+							"PresentError",
+							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							http.StatusInternalServerError,
+							iotest.ErrTimeout,
+						).
+						Return(nil)
+
+					return presenter
+				}(),
+				Printer: new(MockPrinter),
+			},
+			args: args{
+				writer:     new(MockResponseWriter),
+				statusCode: http.StatusInternalServerError,
+				err:        iotest.ErrTimeout,
+			},
+		},
+		{
+			name: "error",
+			fields: fields{
+				ErrorPresenter: func() ErrorPresenter {
+					presenter := new(MockErrorPresenter)
+					presenter.
+						On(
+							"PresentError",
+							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							http.StatusInternalServerError,
+							iotest.ErrTimeout,
+						).
+						Return(iotest.ErrTimeout)
+
+					return presenter
+				}(),
+				Printer: func() Printer {
+					printer := new(MockPrinter)
+					printer.
+						On(
+							"Printf",
+							mock.MatchedBy(func(string) bool { return true }),
+							iotest.ErrTimeout,
+						).
+						Return()
+
+					return printer
+				}(),
+			},
+			args: args{
+				writer:     new(MockResponseWriter),
+				statusCode: http.StatusInternalServerError,
+				err:        iotest.ErrTimeout,
+			},
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			presenter := SilentErrorPresenter{
