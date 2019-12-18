@@ -36,9 +36,13 @@ func (presenter JSONPresenter) PresentError(
 	writer http.ResponseWriter,
 	statusCode int,
 	err error,
-) {
+) error {
 	response := ErrorResponse{Error: err.Error()}
-	presentData(writer, statusCode, response)
+	if err := presentData(writer, statusCode, response); err != nil {
+		return errors.Wrap(err, "unable to present the error")
+	}
+
+	return nil
 }
 
 func presentData(
