@@ -14,9 +14,9 @@ func TestNotFoundHandler_ServeHTTP(test *testing.T) {
 	presenter := new(MockErrorPresenter)
 	presenter.On(
 		"PresentError",
-		mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
+		mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
 		http.StatusNotFound,
-		mock.MatchedBy(func(err error) bool { return true }),
+		mock.MatchedBy(func(error) bool { return true }),
 	)
 
 	writer := httptest.NewRecorder()

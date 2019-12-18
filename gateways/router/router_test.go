@@ -28,8 +28,8 @@ func TestNewRouter(test *testing.T) {
 						handler := new(MockHandler)
 						handler.On(
 							"ServeHTTP",
-							mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
-							mock.MatchedBy(func(request *http.Request) bool { return true }),
+							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							mock.MatchedBy(func(*http.Request) bool { return true }),
 						)
 
 						return handler
@@ -62,8 +62,8 @@ func TestNewRouter(test *testing.T) {
 						handler := new(MockHandler)
 						handler.On(
 							"ServeHTTP",
-							mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
-							mock.MatchedBy(func(request *http.Request) bool { return true }),
+							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							mock.MatchedBy(func(*http.Request) bool { return true }),
 						)
 
 						return handler
@@ -96,8 +96,8 @@ func TestNewRouter(test *testing.T) {
 						handler := new(MockHandler)
 						handler.On(
 							"ServeHTTP",
-							mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
-							mock.MatchedBy(func(request *http.Request) bool { return true }),
+							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							mock.MatchedBy(func(*http.Request) bool { return true }),
 						)
 
 						return handler
@@ -126,8 +126,8 @@ func TestNewRouter(test *testing.T) {
 						handler := new(MockHandler)
 						handler.On(
 							"ServeHTTP",
-							mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
-							mock.MatchedBy(func(request *http.Request) bool { return true }),
+							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							mock.MatchedBy(func(*http.Request) bool { return true }),
 						)
 
 						return handler

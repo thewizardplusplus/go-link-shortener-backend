@@ -44,7 +44,7 @@ func TestLinkGettingHandler_ServeHTTP(test *testing.T) {
 					presenter := new(MockLinkPresenter)
 					presenter.On(
 						"PresentLink",
-						mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
+						mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
 						entities.Link{Code: "code", URL: "url"},
 					)
 
@@ -75,9 +75,9 @@ func TestLinkGettingHandler_ServeHTTP(test *testing.T) {
 					presenter := new(MockErrorPresenter)
 					presenter.On(
 						"PresentError",
-						mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
+						mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
 						http.StatusNotFound,
-						mock.MatchedBy(func(err error) bool { return true }),
+						mock.MatchedBy(func(error) bool { return true }),
 					)
 
 					return presenter
@@ -106,9 +106,9 @@ func TestLinkGettingHandler_ServeHTTP(test *testing.T) {
 					presenter := new(MockErrorPresenter)
 					presenter.On(
 						"PresentError",
-						mock.MatchedBy(func(writer http.ResponseWriter) bool { return true }),
+						mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
 						http.StatusInternalServerError,
-						mock.MatchedBy(func(err error) bool { return true }),
+						mock.MatchedBy(func(error) bool { return true }),
 					)
 
 					return presenter
