@@ -13,6 +13,8 @@ type LinkPresenter interface {
 	PresentLink(writer http.ResponseWriter, link entities.Link) error
 }
 
+//go:generate mockery -name=Printer -inpkg -case=underscore -testonly
+
 // Printer ...
 type Printer interface {
 	Printf(template string, arguments ...interface{})
