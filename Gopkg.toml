@@ -47,3 +47,7 @@ required = [
 [[constraint]]
   name = "go.etcd.io/etcd"
   version = "3.4.3"
+
+[[constraint]]
+  name = "github.com/gorilla/handlers"
+  version = "1.4.2"
