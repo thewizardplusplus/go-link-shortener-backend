@@ -14,7 +14,7 @@ type Handlers struct {
 }
 
 // NewRouter ...
-func NewRouter(handlers Handlers) http.Handler {
+func NewRouter(handlers Handlers) *mux.Router {
 	// @title go-link-shortener API
 	// @version 1.0.0
 	// @license.name MIT
