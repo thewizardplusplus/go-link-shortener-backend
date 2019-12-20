@@ -51,27 +51,27 @@ const (
 )
 
 func main() {
-	logger := log.New(os.Stderr, "", log.LstdFlags|log.Lmicroseconds)
+	errorLogger := log.New(os.Stderr, "", log.LstdFlags|log.Lmicroseconds)
 
 	var options options // nolint: vetshadow
 	if err := env.Parse(&options); err != nil {
-		logger.Fatalf("error with parsing options: %v", err)
+		errorLogger.Fatalf("error with parsing options: %v", err)
 	}
 
 	cacheClient := cache.NewClient(options.Cache.Address)
 	cacheGetter := usecases.SilentLinkGetter{
 		LinkGetter: cache.LinkGetter{Client: cacheClient},
-		Printer:    logger,
+		Printer:    errorLogger,
 	}
 
 	storageClient, err := storage.NewClient(options.Storage.Address)
 	if err != nil {
-		logger.Fatalf("error with creating the storage client: %v", err)
+		errorLogger.Fatalf("error with creating the storage client: %v", err)
 	}
 
 	counterClient, err := counter.NewClient(options.Counter.Address)
 	if err != nil {
-		logger.Fatalf("error with creating the counter client: %v", err)
+		errorLogger.Fatalf("error with creating the counter client: %v", err)
 	}
 
 	var counters []code.DistributedCounter
@@ -84,11 +84,11 @@ func main() {
 
 	linkPresenter := presenters.SilentLinkPresenter{
 		LinkPresenter: presenters.JSONPresenter{},
-		Printer:       logger,
+		Printer:       errorLogger,
 	}
 	errorPresenter := presenters.SilentErrorPresenter{
 		ErrorPresenter: presenters.JSONPresenter{},
-		Printer:        logger,
+		Printer:        errorLogger,
 	}
 
 	routerHandler := router.NewRouter(router.Handlers{
@@ -123,7 +123,7 @@ func main() {
 							Client:       cacheClient,
 							Expiration:   options.Cache.TTL.Code,
 						},
-						Printer: logger,
+						Printer: errorLogger,
 					},
 					usecases.SilentLinkSetter{
 						LinkSetter: cache.LinkSetter{
@@ -131,7 +131,7 @@ func main() {
 							Client:       cacheClient,
 							Expiration:   options.Cache.TTL.URL,
 						},
-						Printer: logger,
+						Printer: errorLogger,
 					},
 					storage.LinkSetter{
 						Client:     storageClient,
@@ -151,7 +151,7 @@ func main() {
 		NotFoundHandler: handlers.NotFoundHandler{ErrorPresenter: errorPresenter},
 	})
 	routerHandler.
-		Use(middlewares.RecoveryHandler(middlewares.RecoveryLogger(logger)))
+		Use(middlewares.RecoveryHandler(middlewares.RecoveryLogger(errorLogger)))
 	routerHandler.
 		Use(func(handler http.Handler) http.Handler {
 			return middlewares.LoggingHandler(os.Stdout, handler)
@@ -170,7 +170,7 @@ func main() {
 
 		if err := server.Shutdown(context.Background()); err != nil {
 			// error with closing listeners
-			logger.Printf("error with shutdown: %v", err)
+			errorLogger.Printf("error with shutdown: %v", err)
 		}
 
 		close(done)
@@ -178,7 +178,7 @@ func main() {
 
 	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		// error with starting or closing listeners
-		logger.Fatalf("error with listening and serving: %v", err)
+		errorLogger.Fatalf("error with listening and serving: %v", err)
 	}
 
 	<-done
