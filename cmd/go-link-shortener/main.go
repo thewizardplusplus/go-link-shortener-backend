@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/caarlos0/env"
+	middlewares "github.com/gorilla/handlers"
 	"github.com/thewizardplusplus/go-link-shortener/code"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 	"github.com/thewizardplusplus/go-link-shortener/gateways/cache"
@@ -90,67 +91,75 @@ func main() {
 		Printer:        logger,
 	}
 
-	server := http.Server{
-		Addr: options.Server.Address,
-		Handler: router.NewRouter(router.Handlers{
-			LinkGettingHandler: handlers.LinkGettingHandler{
+	routerHandler := router.NewRouter(router.Handlers{
+		LinkGettingHandler: handlers.LinkGettingHandler{
+			LinkGetter: usecases.LinkGetterGroup{
+				cacheGetter,
+				storage.LinkGetter{
+					Client:     storageClient,
+					Database:   storageDatabase,
+					Collection: storageCollection,
+					KeyField:   "code",
+				},
+			},
+			LinkPresenter:  linkPresenter,
+			ErrorPresenter: errorPresenter,
+		},
+		LinkCreatingHandler: handlers.LinkCreatingHandler{
+			LinkCreator: usecases.LinkCreator{
 				LinkGetter: usecases.LinkGetterGroup{
 					cacheGetter,
 					storage.LinkGetter{
 						Client:     storageClient,
 						Database:   storageDatabase,
 						Collection: storageCollection,
-						KeyField:   "code",
+						KeyField:   "url",
 					},
 				},
-				LinkPresenter:  linkPresenter,
-				ErrorPresenter: errorPresenter,
-			},
-			LinkCreatingHandler: handlers.LinkCreatingHandler{
-				LinkCreator: usecases.LinkCreator{
-					LinkGetter: usecases.LinkGetterGroup{
-						cacheGetter,
-						storage.LinkGetter{
-							Client:     storageClient,
-							Database:   storageDatabase,
-							Collection: storageCollection,
-							KeyField:   "url",
+				LinkSetter: usecases.LinkSetterGroup{
+					usecases.SilentLinkSetter{
+						LinkSetter: cache.LinkSetter{
+							KeyExtractor: func(link entities.Link) string { return link.Code },
+							Client:       cacheClient,
+							Expiration:   options.Cache.TTL.Code,
 						},
+						Printer: logger,
 					},
-					LinkSetter: usecases.LinkSetterGroup{
-						usecases.SilentLinkSetter{
-							LinkSetter: cache.LinkSetter{
-								KeyExtractor: func(link entities.Link) string { return link.Code },
-								Client:       cacheClient,
-								Expiration:   options.Cache.TTL.Code,
-							},
-							Printer: logger,
+					usecases.SilentLinkSetter{
+						LinkSetter: cache.LinkSetter{
+							KeyExtractor: func(link entities.Link) string { return link.URL },
+							Client:       cacheClient,
+							Expiration:   options.Cache.TTL.URL,
 						},
-						usecases.SilentLinkSetter{
-							LinkSetter: cache.LinkSetter{
-								KeyExtractor: func(link entities.Link) string { return link.URL },
-								Client:       cacheClient,
-								Expiration:   options.Cache.TTL.URL,
-							},
-							Printer: logger,
-						},
-						storage.LinkSetter{
-							Client:     storageClient,
-							Database:   storageDatabase,
-							Collection: storageCollection,
-						},
+						Printer: logger,
 					},
-					CodeGenerator: code.NewDistributedGenerator(
-						options.Counter.Chunk,
-						counters,
-						rand.New(rand.NewSource(time.Now().UnixNano())).Intn,
-					),
+					storage.LinkSetter{
+						Client:     storageClient,
+						Database:   storageDatabase,
+						Collection: storageCollection,
+					},
 				},
-				LinkPresenter:  linkPresenter,
-				ErrorPresenter: errorPresenter,
+				CodeGenerator: code.NewDistributedGenerator(
+					options.Counter.Chunk,
+					counters,
+					rand.New(rand.NewSource(time.Now().UnixNano())).Intn,
+				),
 			},
-			NotFoundHandler: handlers.NotFoundHandler{ErrorPresenter: errorPresenter},
-		}),
+			LinkPresenter:  linkPresenter,
+			ErrorPresenter: errorPresenter,
+		},
+		NotFoundHandler: handlers.NotFoundHandler{ErrorPresenter: errorPresenter},
+	})
+	routerHandler.
+		Use(middlewares.RecoveryHandler(middlewares.RecoveryLogger(logger)))
+	routerHandler.
+		Use(func(handler http.Handler) http.Handler {
+			return middlewares.LoggingHandler(os.Stdout, handler)
+		})
+
+	server := http.Server{
+		Addr:    options.Server.Address,
+		Handler: routerHandler,
 	}
 
 	done := make(chan struct{})
