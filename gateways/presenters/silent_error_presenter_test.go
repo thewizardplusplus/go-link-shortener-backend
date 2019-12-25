@@ -2,6 +2,7 @@ package presenters
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"testing/iotest"
 
@@ -15,6 +16,7 @@ func TestSilentErrorPresenter_PresentError(test *testing.T) {
 	}
 	type args struct {
 		writer     http.ResponseWriter
+		request    *http.Request
 		statusCode int
 		err        error
 	}
@@ -28,11 +30,15 @@ func TestSilentErrorPresenter_PresentError(test *testing.T) {
 			name: "success",
 			fields: fields{
 				ErrorPresenter: func() ErrorPresenter {
+					request :=
+						httptest.NewRequest(http.MethodGet, "http://example.com/code", nil)
+
 					presenter := new(MockErrorPresenter)
 					presenter.
 						On(
 							"PresentError",
 							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							request,
 							http.StatusInternalServerError,
 							iotest.ErrTimeout,
 						).
@@ -43,7 +49,12 @@ func TestSilentErrorPresenter_PresentError(test *testing.T) {
 				Printer: new(MockPrinter),
 			},
 			args: args{
-				writer:     new(MockResponseWriter),
+				writer: new(MockResponseWriter),
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/code",
+					nil,
+				),
 				statusCode: http.StatusInternalServerError,
 				err:        iotest.ErrTimeout,
 			},
@@ -52,11 +63,15 @@ func TestSilentErrorPresenter_PresentError(test *testing.T) {
 			name: "error",
 			fields: fields{
 				ErrorPresenter: func() ErrorPresenter {
+					request :=
+						httptest.NewRequest(http.MethodGet, "http://example.com/code", nil)
+
 					presenter := new(MockErrorPresenter)
 					presenter.
 						On(
 							"PresentError",
 							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							request,
 							http.StatusInternalServerError,
 							iotest.ErrTimeout,
 						).
@@ -78,7 +93,12 @@ func TestSilentErrorPresenter_PresentError(test *testing.T) {
 				}(),
 			},
 			args: args{
-				writer:     new(MockResponseWriter),
+				writer: new(MockResponseWriter),
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/code",
+					nil,
+				),
 				statusCode: http.StatusInternalServerError,
 				err:        iotest.ErrTimeout,
 			},
@@ -89,7 +109,12 @@ func TestSilentErrorPresenter_PresentError(test *testing.T) {
 				ErrorPresenter: data.fields.ErrorPresenter,
 				Printer:        data.fields.Printer,
 			}
-			presenter.PresentError(data.args.writer, data.args.statusCode, data.args.err)
+			presenter.PresentError(
+				data.args.writer,
+				data.args.request,
+				data.args.statusCode,
+				data.args.err,
+			)
 
 			mock.AssertExpectationsForObjects(
 				test,

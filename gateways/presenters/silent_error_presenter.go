@@ -8,7 +8,12 @@ import (
 
 // ErrorPresenter ...
 type ErrorPresenter interface {
-	PresentError(writer http.ResponseWriter, statusCode int, err error) error
+	PresentError(
+		writer http.ResponseWriter,
+		request *http.Request,
+		statusCode int,
+		err error,
+	) error
 }
 
 // SilentErrorPresenter ...
@@ -20,14 +25,12 @@ type SilentErrorPresenter struct {
 // PresentError ...
 func (presenter SilentErrorPresenter) PresentError(
 	writer http.ResponseWriter,
+	request *http.Request,
 	statusCode int,
 	err error,
 ) {
-	if err = presenter.ErrorPresenter.PresentError(
-		writer,
-		statusCode,
-		err,
-	); err != nil {
+	err = presenter.ErrorPresenter.PresentError(writer, request, statusCode, err)
+	if err != nil {
 		presenter.Printer.Printf("unable to present the error: %v", err)
 	}
 }

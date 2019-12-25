@@ -10,13 +10,13 @@ type MockErrorPresenter struct {
 	mock.Mock
 }
 
-// PresentError provides a mock function with given fields: writer, statusCode, err
-func (_m *MockErrorPresenter) PresentError(writer http.ResponseWriter, statusCode int, err error) error {
-	ret := _m.Called(writer, statusCode, err)
+// PresentError provides a mock function with given fields: writer, request, statusCode, err
+func (_m *MockErrorPresenter) PresentError(writer http.ResponseWriter, request *http.Request, statusCode int, err error) error {
+	ret := _m.Called(writer, request, statusCode, err)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(http.ResponseWriter, int, error) error); ok {
-		r0 = rf(writer, statusCode, err)
+	if rf, ok := ret.Get(0).(func(http.ResponseWriter, *http.Request, int, error) error); ok {
+		r0 = rf(writer, request, statusCode, err)
 	} else {
 		r0 = ret.Error(0)
 	}
