@@ -20,3 +20,14 @@ func (presenter RedirectPresenter) PresentLink(
 ) {
 	http.Redirect(writer, request, link.URL, http.StatusMovedPermanently)
 }
+
+// PresentError ...
+func (presenter RedirectPresenter) PresentError(
+	writer http.ResponseWriter,
+	request *http.Request,
+	statusCode int,
+	err error,
+) {
+	http.Redirect(writer, request, presenter.ErrorURL, http.StatusFound)
+	presenter.Printer.Printf("redirect because of the error: %v", err)
+}
