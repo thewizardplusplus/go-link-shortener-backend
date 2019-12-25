@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -40,10 +41,22 @@ func TestLinkCreatingHandler_ServeHTTP(test *testing.T) {
 					return creator
 				}(),
 				LinkPresenter: func() LinkPresenter {
+					request := httptest.NewRequest(
+						http.MethodPost,
+						"http://example.com/",
+						bytes.NewBufferString(`{"URL":"url"}`),
+					)
+
+					// we should unmarshal the request body
+					// to set up the request to the required state
+					var body interface{}
+					json.NewDecoder(request.Body).Decode(&body)
+
 					presenter := new(MockLinkPresenter)
 					presenter.On(
 						"PresentLink",
 						mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+						request,
 						entities.Link{Code: "code", URL: "url"},
 					)
 

@@ -59,5 +59,5 @@ func (handler LinkCreatingHandler) ServeHTTP(
 		return
 	}
 
-	handler.LinkPresenter.PresentLink(writer, link)
+	handler.LinkPresenter.PresentLink(writer, request, link)
 }

@@ -11,7 +11,7 @@ type MockLinkPresenter struct {
 	mock.Mock
 }
 
-// PresentLink provides a mock function with given fields: writer, link
-func (_m *MockLinkPresenter) PresentLink(writer http.ResponseWriter, link entities.Link) {
-	_m.Called(writer, link)
+// PresentLink provides a mock function with given fields: writer, request, link
+func (_m *MockLinkPresenter) PresentLink(writer http.ResponseWriter, request *http.Request, link entities.Link) {
+	_m.Called(writer, request, link)
 }

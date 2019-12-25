@@ -20,7 +20,11 @@ type LinkGetter interface {
 
 // LinkPresenter ...
 type LinkPresenter interface {
-	PresentLink(writer http.ResponseWriter, link entities.Link)
+	PresentLink(
+		writer http.ResponseWriter,
+		request *http.Request,
+		link entities.Link,
+	)
 }
 
 //go:generate mockery -name=ErrorPresenter -inpkg -case=underscore -testonly
@@ -52,7 +56,7 @@ func (handler LinkGettingHandler) ServeHTTP(
 	link, err := handler.LinkGetter.GetLink(code)
 	switch err {
 	case nil:
-		handler.LinkPresenter.PresentLink(writer, link)
+		handler.LinkPresenter.PresentLink(writer, request, link)
 	case sql.ErrNoRows:
 		const statusCode = http.StatusNotFound
 		err = errors.New("unable to find the link")

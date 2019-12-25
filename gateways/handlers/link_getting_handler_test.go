@@ -41,10 +41,14 @@ func TestLinkGettingHandler_ServeHTTP(test *testing.T) {
 					return getter
 				}(),
 				LinkPresenter: func() LinkPresenter {
+					request := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
+					request = mux.SetURLVars(request, map[string]string{"code": "code"})
+
 					presenter := new(MockLinkPresenter)
 					presenter.On(
 						"PresentLink",
 						mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+						request,
 						entities.Link{Code: "code", URL: "url"},
 					)
 
