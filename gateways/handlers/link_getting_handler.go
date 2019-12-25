@@ -31,7 +31,12 @@ type LinkPresenter interface {
 
 // ErrorPresenter ...
 type ErrorPresenter interface {
-	PresentError(writer http.ResponseWriter, statusCode int, err error)
+	PresentError(
+		writer http.ResponseWriter,
+		request *http.Request,
+		statusCode int,
+		err error,
+	)
 }
 
 // LinkGettingHandler ...
@@ -60,10 +65,10 @@ func (handler LinkGettingHandler) ServeHTTP(
 	case sql.ErrNoRows:
 		const statusCode = http.StatusNotFound
 		err = errors.New("unable to find the link")
-		handler.ErrorPresenter.PresentError(writer, statusCode, err)
+		handler.ErrorPresenter.PresentError(writer, request, statusCode, err)
 	default:
 		const statusCode = http.StatusInternalServerError
 		err = errors.Wrap(err, "unable to get the link")
-		handler.ErrorPresenter.PresentError(writer, statusCode, err)
+		handler.ErrorPresenter.PresentError(writer, request, statusCode, err)
 	}
 }

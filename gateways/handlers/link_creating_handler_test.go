@@ -78,10 +78,22 @@ func TestLinkCreatingHandler_ServeHTTP(test *testing.T) {
 				LinkCreator:   new(MockLinkCreator),
 				LinkPresenter: new(MockLinkPresenter),
 				ErrorPresenter: func() ErrorPresenter {
+					request := httptest.NewRequest(
+						http.MethodPost,
+						"http://example.com/",
+						bytes.NewBufferString("incorrect"),
+					)
+
+					// we should unmarshal the request body
+					// to set up the request to the required state
+					var body interface{}
+					json.NewDecoder(request.Body).Decode(&body)
+
 					presenter := new(MockErrorPresenter)
 					presenter.On(
 						"PresentError",
 						mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+						request,
 						http.StatusBadRequest,
 						mock.MatchedBy(func(error) bool { return true }),
 					)
@@ -108,10 +120,22 @@ func TestLinkCreatingHandler_ServeHTTP(test *testing.T) {
 				}(),
 				LinkPresenter: new(MockLinkPresenter),
 				ErrorPresenter: func() ErrorPresenter {
+					request := httptest.NewRequest(
+						http.MethodPost,
+						"http://example.com/",
+						bytes.NewBufferString(`{"URL":"url"}`),
+					)
+
+					// we should unmarshal the request body
+					// to set up the request to the required state
+					var body interface{}
+					json.NewDecoder(request.Body).Decode(&body)
+
 					presenter := new(MockErrorPresenter)
 					presenter.On(
 						"PresentError",
 						mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+						request,
 						http.StatusInternalServerError,
 						mock.MatchedBy(func(error) bool { return true }),
 					)

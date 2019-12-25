@@ -76,10 +76,14 @@ func TestLinkGettingHandler_ServeHTTP(test *testing.T) {
 				}(),
 				LinkPresenter: new(MockLinkPresenter),
 				ErrorPresenter: func() ErrorPresenter {
+					request := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
+					request = mux.SetURLVars(request, map[string]string{"code": "code"})
+
 					presenter := new(MockErrorPresenter)
 					presenter.On(
 						"PresentError",
 						mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+						request,
 						http.StatusNotFound,
 						mock.MatchedBy(func(error) bool { return true }),
 					)
@@ -107,10 +111,14 @@ func TestLinkGettingHandler_ServeHTTP(test *testing.T) {
 				}(),
 				LinkPresenter: new(MockLinkPresenter),
 				ErrorPresenter: func() ErrorPresenter {
+					request := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
+					request = mux.SetURLVars(request, map[string]string{"code": "code"})
+
 					presenter := new(MockErrorPresenter)
 					presenter.On(
 						"PresentError",
 						mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+						request,
 						http.StatusInternalServerError,
 						mock.MatchedBy(func(error) bool { return true }),
 					)

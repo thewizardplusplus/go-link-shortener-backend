@@ -11,16 +11,18 @@ import (
 )
 
 func TestNotFoundHandler_ServeHTTP(test *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
+
 	presenter := new(MockErrorPresenter)
 	presenter.On(
 		"PresentError",
 		mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+		request,
 		http.StatusNotFound,
 		mock.MatchedBy(func(error) bool { return true }),
 	)
 
 	writer := httptest.NewRecorder()
-	request := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
 	handler := NotFoundHandler{
 		ErrorPresenter: presenter,
 	}

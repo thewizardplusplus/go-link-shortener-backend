@@ -18,5 +18,5 @@ func (handler NotFoundHandler) ServeHTTP(
 ) {
 	const statusCode = http.StatusNotFound
 	err := errors.New("unable to find the endpoint")
-	handler.ErrorPresenter.PresentError(writer, statusCode, err)
+	handler.ErrorPresenter.PresentError(writer, request, statusCode, err)
 }

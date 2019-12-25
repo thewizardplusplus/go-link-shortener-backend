@@ -45,7 +45,7 @@ func (handler LinkCreatingHandler) ServeHTTP(
 	if err := json.NewDecoder(request.Body).Decode(&data); err != nil {
 		const statusCode = http.StatusBadRequest
 		err = errors.Wrap(err, "unable to decode the request")
-		handler.ErrorPresenter.PresentError(writer, statusCode, err)
+		handler.ErrorPresenter.PresentError(writer, request, statusCode, err)
 
 		return
 	}
@@ -54,7 +54,7 @@ func (handler LinkCreatingHandler) ServeHTTP(
 	if err != nil {
 		const statusCode = http.StatusInternalServerError
 		err = errors.Wrap(err, "unable to create the link")
-		handler.ErrorPresenter.PresentError(writer, statusCode, err)
+		handler.ErrorPresenter.PresentError(writer, request, statusCode, err)
 
 		return
 	}
