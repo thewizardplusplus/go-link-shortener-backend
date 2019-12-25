@@ -26,8 +26,9 @@ func (TimeoutResponseRecorder) WriteString(string) (n int, err error) {
 
 func TestJSONPresenter_PresentLink(test *testing.T) {
 	type args struct {
-		writer http.ResponseWriter
-		link   entities.Link
+		writer  http.ResponseWriter
+		request *http.Request
+		link    entities.Link
 	}
 
 	for _, data := range []struct {
@@ -40,7 +41,12 @@ func TestJSONPresenter_PresentLink(test *testing.T) {
 			name: "success",
 			args: args{
 				writer: httptest.NewRecorder(),
-				link:   entities.Link{Code: "code", URL: "url"},
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/code",
+					nil,
+				),
+				link: entities.Link{Code: "code", URL: "url"},
 			},
 			wantErr: assert.NoError,
 			check: func(test *testing.T, writer http.ResponseWriter) {
@@ -56,7 +62,12 @@ func TestJSONPresenter_PresentLink(test *testing.T) {
 			name: "error",
 			args: args{
 				writer: NewTimeoutResponseRecorder(),
-				link:   entities.Link{Code: "code", URL: "url"},
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/code",
+					nil,
+				),
+				link: entities.Link{Code: "code", URL: "url"},
 			},
 			wantErr: assert.Error,
 			check: func(test *testing.T, writer http.ResponseWriter) {
@@ -71,7 +82,8 @@ func TestJSONPresenter_PresentLink(test *testing.T) {
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			var presenter JSONPresenter
-			gotErr := presenter.PresentLink(data.args.writer, data.args.link)
+			gotErr :=
+				presenter.PresentLink(data.args.writer, data.args.request, data.args.link)
 
 			data.wantErr(test, gotErr)
 			data.check(test, data.args.writer)
@@ -82,6 +94,7 @@ func TestJSONPresenter_PresentLink(test *testing.T) {
 func TestJSONPresenter_PresentError(test *testing.T) {
 	type args struct {
 		writer     http.ResponseWriter
+		request    *http.Request
 		statusCode int
 		err        error
 	}
@@ -95,7 +108,12 @@ func TestJSONPresenter_PresentError(test *testing.T) {
 		{
 			name: "success",
 			args: args{
-				writer:     httptest.NewRecorder(),
+				writer: httptest.NewRecorder(),
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/code",
+					nil,
+				),
 				statusCode: http.StatusInternalServerError,
 				err:        iotest.ErrTimeout,
 			},
@@ -112,7 +130,12 @@ func TestJSONPresenter_PresentError(test *testing.T) {
 		{
 			name: "error",
 			args: args{
-				writer:     NewTimeoutResponseRecorder(),
+				writer: NewTimeoutResponseRecorder(),
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/code",
+					nil,
+				),
 				statusCode: http.StatusInternalServerError,
 				err:        iotest.ErrTimeout,
 			},
@@ -131,6 +154,7 @@ func TestJSONPresenter_PresentError(test *testing.T) {
 			var presenter JSONPresenter
 			gotErr := presenter.PresentError(
 				data.args.writer,
+				data.args.request,
 				data.args.statusCode,
 				data.args.err,
 			)

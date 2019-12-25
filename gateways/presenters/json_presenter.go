@@ -22,6 +22,7 @@ type ErrorResponse struct {
 // PresentLink ...
 func (presenter JSONPresenter) PresentLink(
 	writer http.ResponseWriter,
+	request *http.Request,
 	link entities.Link,
 ) error {
 	if err := presentData(writer, http.StatusOK, link); err != nil {
@@ -34,6 +35,7 @@ func (presenter JSONPresenter) PresentLink(
 // PresentError ...
 func (presenter JSONPresenter) PresentError(
 	writer http.ResponseWriter,
+	request *http.Request,
 	statusCode int,
 	err error,
 ) error {
