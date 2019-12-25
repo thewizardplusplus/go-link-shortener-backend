@@ -2,6 +2,7 @@ package presenters
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"testing/iotest"
 
@@ -15,8 +16,9 @@ func TestSilentLinkPresenter_PresentLink(test *testing.T) {
 		Printer       Printer
 	}
 	type args struct {
-		writer http.ResponseWriter
-		link   entities.Link
+		writer  http.ResponseWriter
+		request *http.Request
+		link    entities.Link
 	}
 
 	for _, data := range []struct {
@@ -28,11 +30,15 @@ func TestSilentLinkPresenter_PresentLink(test *testing.T) {
 			name: "success",
 			fields: fields{
 				LinkPresenter: func() LinkPresenter {
+					request :=
+						httptest.NewRequest(http.MethodGet, "http://example.com/code", nil)
+
 					presenter := new(MockLinkPresenter)
 					presenter.
 						On(
 							"PresentLink",
 							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							request,
 							entities.Link{Code: "code", URL: "url"},
 						).
 						Return(nil)
@@ -43,18 +49,27 @@ func TestSilentLinkPresenter_PresentLink(test *testing.T) {
 			},
 			args: args{
 				writer: new(MockResponseWriter),
-				link:   entities.Link{Code: "code", URL: "url"},
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/code",
+					nil,
+				),
+				link: entities.Link{Code: "code", URL: "url"},
 			},
 		},
 		{
 			name: "error",
 			fields: fields{
 				LinkPresenter: func() LinkPresenter {
+					request :=
+						httptest.NewRequest(http.MethodGet, "http://example.com/code", nil)
+
 					presenter := new(MockLinkPresenter)
 					presenter.
 						On(
 							"PresentLink",
 							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							request,
 							entities.Link{Code: "code", URL: "url"},
 						).
 						Return(iotest.ErrTimeout)
@@ -76,7 +91,12 @@ func TestSilentLinkPresenter_PresentLink(test *testing.T) {
 			},
 			args: args{
 				writer: new(MockResponseWriter),
-				link:   entities.Link{Code: "code", URL: "url"},
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/code",
+					nil,
+				),
+				link: entities.Link{Code: "code", URL: "url"},
 			},
 		},
 	} {
@@ -85,7 +105,7 @@ func TestSilentLinkPresenter_PresentLink(test *testing.T) {
 				LinkPresenter: data.fields.LinkPresenter,
 				Printer:       data.fields.Printer,
 			}
-			presenter.PresentLink(data.args.writer, data.args.link)
+			presenter.PresentLink(data.args.writer, data.args.request, data.args.link)
 
 			mock.AssertExpectationsForObjects(
 				test,

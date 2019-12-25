@@ -10,7 +10,11 @@ import (
 
 // LinkPresenter ...
 type LinkPresenter interface {
-	PresentLink(writer http.ResponseWriter, link entities.Link) error
+	PresentLink(
+		writer http.ResponseWriter,
+		request *http.Request,
+		link entities.Link,
+	) error
 }
 
 //go:generate mockery -name=Printer -inpkg -case=underscore -testonly
@@ -29,9 +33,11 @@ type SilentLinkPresenter struct {
 // PresentLink ...
 func (presenter SilentLinkPresenter) PresentLink(
 	writer http.ResponseWriter,
+	request *http.Request,
 	link entities.Link,
 ) {
-	if err := presenter.LinkPresenter.PresentLink(writer, link); err != nil {
+	err := presenter.LinkPresenter.PresentLink(writer, request, link)
+	if err != nil {
 		presenter.Printer.Printf("unable to present the link: %v", err)
 	}
 }
