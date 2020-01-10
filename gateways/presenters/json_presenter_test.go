@@ -20,6 +20,10 @@ func NewTimeoutResponseRecorder() TimeoutResponseRecorder {
 	return TimeoutResponseRecorder{responseRecorder}
 }
 
+func (TimeoutResponseRecorder) Write([]byte) (n int, err error) {
+	return 0, iotest.ErrTimeout
+}
+
 func (TimeoutResponseRecorder) WriteString(string) (n int, err error) {
 	return 0, iotest.ErrTimeout
 }
