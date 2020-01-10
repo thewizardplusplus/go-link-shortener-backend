@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"testing/iotest"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -24,6 +25,20 @@ const (
 			</head>
 			<body>
 				<p>Moved Permanently: <a href="http://example.com/">http://example.com/</a></p>
+			</body>
+		</html>
+	`
+	responseAtErrorPresenting = `
+		<!DOCTYPE html>
+		<html lang="en">
+			<head>
+				<meta charset="utf-8" />
+				<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+				<title>Redirect</title>
+			</head>
+			<body>
+				<p>Found: <a href="/error">/error</a></p>
 			</body>
 		</html>
 	`
@@ -129,7 +144,69 @@ func TestRedirectPresenter_PresentError(test *testing.T) {
 		wantErr assert.ErrorAssertionFunc
 		check   func(test *testing.T, writer http.ResponseWriter)
 	}{
-		// TODO: add test cases
+		{
+			name: "success",
+			fields: fields{
+				ErrorURL: "/error",
+				Printer: func() Printer {
+					printer := new(MockPrinter)
+					printer.
+						On(
+							"Printf",
+							mock.MatchedBy(func(string) bool { return true }),
+							iotest.ErrTimeout,
+						).
+						Return()
+
+					return printer
+				}(),
+			},
+			args: args{
+				writer:     httptest.NewRecorder(),
+				statusCode: http.StatusInternalServerError,
+				err:        iotest.ErrTimeout,
+			},
+			wantErr: assert.NoError,
+			check: func(test *testing.T, writer http.ResponseWriter) {
+				response := writer.(*httptest.ResponseRecorder).Result()
+				responseBody, _ := ioutil.ReadAll(response.Body)
+
+				assert.Equal(test, http.StatusFound, response.StatusCode)
+				assert.Equal(
+					test,
+					"text/html; charset=utf-8",
+					response.Header.Get("Content-Type"),
+				)
+				assert.Equal(test, "/error", response.Header.Get("Location"))
+				assert.Equal(test, responseAtErrorPresenting, string(responseBody))
+			},
+		},
+		{
+			name: "error",
+			fields: fields{
+				ErrorURL: "/error",
+				Printer:  new(MockPrinter),
+			},
+			args: args{
+				writer:     NewTimeoutResponseRecorder(),
+				statusCode: http.StatusInternalServerError,
+				err:        iotest.ErrTimeout,
+			},
+			wantErr: assert.Error,
+			check: func(test *testing.T, writer http.ResponseWriter) {
+				response := writer.(TimeoutResponseRecorder).Result()
+				responseBody, _ := ioutil.ReadAll(response.Body)
+
+				assert.Equal(test, http.StatusFound, response.StatusCode)
+				assert.Equal(
+					test,
+					"text/html; charset=utf-8",
+					response.Header.Get("Content-Type"),
+				)
+				assert.Equal(test, "/error", response.Header.Get("Location"))
+				assert.Empty(test, responseBody)
+			},
+		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			presenter := RedirectPresenter{
