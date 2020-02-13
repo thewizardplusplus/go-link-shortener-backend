@@ -1,7 +1,6 @@
 package presenters
 
 import (
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,46 +11,15 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 )
 
-// indents inside constants are significant
-const (
-	responseAtLinkPresenting = `
-		<!DOCTYPE html>
-		<html lang="en">
-			<head>
-				<meta charset="utf-8" />
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
-
-				<title>Redirect</title>
-			</head>
-			<body>
-				<p>Moved Permanently: <a href="http://example.com/">http://example.com/</a></p>
-			</body>
-		</html>
-	`
-	responseAtErrorPresenting = `
-		<!DOCTYPE html>
-		<html lang="en">
-			<head>
-				<meta charset="utf-8" />
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
-
-				<title>Redirect</title>
-			</head>
-			<body>
-				<p>Found: <a href="/error">/error</a></p>
-			</body>
-		</html>
-	`
-)
-
 func TestRedirectPresenter_PresentLink(test *testing.T) {
 	type fields struct {
 		ErrorURL string
 		Printer  Printer
 	}
 	type args struct {
-		writer http.ResponseWriter
-		link   entities.Link
+		writer  http.ResponseWriter
+		request *http.Request
+		link    entities.Link
 	}
 
 	for _, data := range []struct {
@@ -69,21 +37,23 @@ func TestRedirectPresenter_PresentLink(test *testing.T) {
 			},
 			args: args{
 				writer: httptest.NewRecorder(),
-				link:   entities.Link{Code: "code", URL: "http://example.com/"},
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/redirect/code",
+					nil,
+				),
+				link: entities.Link{Code: "code", URL: "https://www.google.com/"},
 			},
 			wantErr: assert.NoError,
 			check: func(test *testing.T, writer http.ResponseWriter) {
 				response := writer.(*httptest.ResponseRecorder).Result()
-				responseBody, _ := ioutil.ReadAll(response.Body)
 
 				assert.Equal(test, http.StatusMovedPermanently, response.StatusCode)
 				assert.Equal(
 					test,
-					"text/html; charset=utf-8",
-					response.Header.Get("Content-Type"),
+					"https://www.google.com/",
+					response.Header.Get("Location"),
 				)
-				assert.Equal(test, "http://example.com/", response.Header.Get("Location"))
-				assert.Equal(test, responseAtLinkPresenting, string(responseBody))
 			},
 		},
 		{
@@ -94,21 +64,23 @@ func TestRedirectPresenter_PresentLink(test *testing.T) {
 			},
 			args: args{
 				writer: NewTimeoutResponseRecorder(),
-				link:   entities.Link{Code: "code", URL: "http://example.com/"},
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/redirect/code",
+					nil,
+				),
+				link: entities.Link{Code: "code", URL: "https://www.google.com/"},
 			},
 			wantErr: assert.Error,
 			check: func(test *testing.T, writer http.ResponseWriter) {
 				response := writer.(TimeoutResponseRecorder).Result()
-				responseBody, _ := ioutil.ReadAll(response.Body)
 
 				assert.Equal(test, http.StatusMovedPermanently, response.StatusCode)
 				assert.Equal(
 					test,
-					"text/html; charset=utf-8",
-					response.Header.Get("Content-Type"),
+					"https://www.google.com/",
+					response.Header.Get("Location"),
 				)
-				assert.Equal(test, "http://example.com/", response.Header.Get("Location"))
-				assert.Empty(test, responseBody)
 			},
 		},
 	} {
@@ -117,7 +89,8 @@ func TestRedirectPresenter_PresentLink(test *testing.T) {
 				ErrorURL: data.fields.ErrorURL,
 				Printer:  data.fields.Printer,
 			}
-			gotErr := presenter.PresentLink(data.args.writer, data.args.link)
+			gotErr :=
+				presenter.PresentLink(data.args.writer, data.args.request, data.args.link)
 
 			mock.AssertExpectationsForObjects(test, data.fields.Printer)
 			data.wantErr(test, gotErr)
@@ -133,6 +106,7 @@ func TestRedirectPresenter_PresentError(test *testing.T) {
 	}
 	type args struct {
 		writer     http.ResponseWriter
+		request    *http.Request
 		statusCode int
 		err        error
 	}
@@ -162,23 +136,21 @@ func TestRedirectPresenter_PresentError(test *testing.T) {
 				}(),
 			},
 			args: args{
-				writer:     httptest.NewRecorder(),
+				writer: httptest.NewRecorder(),
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/redirect/code",
+					nil,
+				),
 				statusCode: http.StatusInternalServerError,
 				err:        iotest.ErrTimeout,
 			},
 			wantErr: assert.NoError,
 			check: func(test *testing.T, writer http.ResponseWriter) {
 				response := writer.(*httptest.ResponseRecorder).Result()
-				responseBody, _ := ioutil.ReadAll(response.Body)
 
 				assert.Equal(test, http.StatusFound, response.StatusCode)
-				assert.Equal(
-					test,
-					"text/html; charset=utf-8",
-					response.Header.Get("Content-Type"),
-				)
 				assert.Equal(test, "/error", response.Header.Get("Location"))
-				assert.Equal(test, responseAtErrorPresenting, string(responseBody))
 			},
 		},
 		{
@@ -188,23 +160,21 @@ func TestRedirectPresenter_PresentError(test *testing.T) {
 				Printer:  new(MockPrinter),
 			},
 			args: args{
-				writer:     NewTimeoutResponseRecorder(),
+				writer: NewTimeoutResponseRecorder(),
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/redirect/code",
+					nil,
+				),
 				statusCode: http.StatusInternalServerError,
 				err:        iotest.ErrTimeout,
 			},
 			wantErr: assert.Error,
 			check: func(test *testing.T, writer http.ResponseWriter) {
 				response := writer.(TimeoutResponseRecorder).Result()
-				responseBody, _ := ioutil.ReadAll(response.Body)
 
 				assert.Equal(test, http.StatusFound, response.StatusCode)
-				assert.Equal(
-					test,
-					"text/html; charset=utf-8",
-					response.Header.Get("Content-Type"),
-				)
 				assert.Equal(test, "/error", response.Header.Get("Location"))
-				assert.Empty(test, responseBody)
 			},
 		},
 	} {
@@ -215,6 +185,7 @@ func TestRedirectPresenter_PresentError(test *testing.T) {
 			}
 			gotErr := presenter.PresentError(
 				data.args.writer,
+				data.args.request,
 				data.args.statusCode,
 				data.args.err,
 			)
