@@ -12,8 +12,9 @@ import (
 
 func TestNewRouter(test *testing.T) {
 	type args struct {
-		handlers Handlers
-		request  *http.Request
+		redirectEndpointPrefix string
+		handlers               Handlers
+		request                *http.Request
 	}
 
 	for _, data := range []struct {
@@ -21,9 +22,37 @@ func TestNewRouter(test *testing.T) {
 		args args
 	}{
 		{
+			name: "redirect",
+			args: args{
+				redirectEndpointPrefix: "/redirect",
+				handlers: Handlers{
+					LinkRedirectHandler: func() http.Handler {
+						handler := new(MockHandler)
+						handler.On(
+							"ServeHTTP",
+							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							mock.MatchedBy(func(*http.Request) bool { return true }),
+						)
+
+						return handler
+					}(),
+					LinkGettingHandler:  new(MockHandler),
+					LinkCreatingHandler: new(MockHandler),
+					NotFoundHandler:     new(MockHandler),
+				},
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/redirect/code",
+					nil,
+				),
+			},
+		},
+		{
 			name: "getting",
 			args: args{
+				redirectEndpointPrefix: "/redirect",
 				handlers: Handlers{
+					LinkRedirectHandler: new(MockHandler),
 					LinkGettingHandler: func() http.Handler {
 						handler := new(MockHandler)
 						handler.On(
@@ -34,14 +63,8 @@ func TestNewRouter(test *testing.T) {
 
 						return handler
 					}(),
-					LinkCreatingHandler: func() http.Handler {
-						handler := new(MockHandler)
-						return handler
-					}(),
-					NotFoundHandler: func() http.Handler {
-						handler := new(MockHandler)
-						return handler
-					}(),
+					LinkCreatingHandler: new(MockHandler),
+					NotFoundHandler:     new(MockHandler),
 				},
 				request: httptest.NewRequest(
 					http.MethodGet,
@@ -53,11 +76,10 @@ func TestNewRouter(test *testing.T) {
 		{
 			name: "creating",
 			args: args{
+				redirectEndpointPrefix: "/redirect",
 				handlers: Handlers{
-					LinkGettingHandler: func() http.Handler {
-						handler := new(MockHandler)
-						return handler
-					}(),
+					LinkRedirectHandler: new(MockHandler),
+					LinkGettingHandler:  new(MockHandler),
 					LinkCreatingHandler: func() http.Handler {
 						handler := new(MockHandler)
 						handler.On(
@@ -68,10 +90,7 @@ func TestNewRouter(test *testing.T) {
 
 						return handler
 					}(),
-					NotFoundHandler: func() http.Handler {
-						handler := new(MockHandler)
-						return handler
-					}(),
+					NotFoundHandler: new(MockHandler),
 				},
 				request: httptest.NewRequest(
 					http.MethodPost,
@@ -83,15 +102,11 @@ func TestNewRouter(test *testing.T) {
 		{
 			name: "incorrect method",
 			args: args{
+				redirectEndpointPrefix: "/redirect",
 				handlers: Handlers{
-					LinkGettingHandler: func() http.Handler {
-						handler := new(MockHandler)
-						return handler
-					}(),
-					LinkCreatingHandler: func() http.Handler {
-						handler := new(MockHandler)
-						return handler
-					}(),
+					LinkRedirectHandler: new(MockHandler),
+					LinkGettingHandler:  new(MockHandler),
+					LinkCreatingHandler: new(MockHandler),
 					NotFoundHandler: func() http.Handler {
 						handler := new(MockHandler)
 						handler.On(
@@ -113,15 +128,11 @@ func TestNewRouter(test *testing.T) {
 		{
 			name: "unknown endpoint",
 			args: args{
+				redirectEndpointPrefix: "/redirect",
 				handlers: Handlers{
-					LinkGettingHandler: func() http.Handler {
-						handler := new(MockHandler)
-						return handler
-					}(),
-					LinkCreatingHandler: func() http.Handler {
-						handler := new(MockHandler)
-						return handler
-					}(),
+					LinkRedirectHandler: new(MockHandler),
+					LinkGettingHandler:  new(MockHandler),
+					LinkCreatingHandler: new(MockHandler),
 					NotFoundHandler: func() http.Handler {
 						handler := new(MockHandler)
 						handler.On(
@@ -143,7 +154,7 @@ func TestNewRouter(test *testing.T) {
 	} {
 		test.Run(data.name, func(test *testing.T) {
 			writer := httptest.NewRecorder()
-			router := NewRouter(data.args.handlers)
+			router := NewRouter(data.args.redirectEndpointPrefix, data.args.handlers)
 			router.ServeHTTP(writer, data.args.request)
 
 			response := writer.Result()
@@ -151,6 +162,7 @@ func TestNewRouter(test *testing.T) {
 
 			mock.AssertExpectationsForObjects(
 				test,
+				data.args.handlers.LinkRedirectHandler,
 				data.args.handlers.LinkGettingHandler,
 				data.args.handlers.LinkCreatingHandler,
 				data.args.handlers.NotFoundHandler,

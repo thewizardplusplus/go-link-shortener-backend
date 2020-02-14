@@ -45,9 +45,10 @@ type options struct {
 }
 
 const (
-	storageDatabase     = "go-link-shortener"
-	storageCollection   = "links"
-	counterNameTemplate = "distributed-counter-%d"
+	redirectEndpointPrefix = "/redirect"
+	storageDatabase        = "go-link-shortener"
+	storageCollection      = "links"
+	counterNameTemplate    = "distributed-counter-%d"
 )
 
 func main() {
@@ -91,7 +92,7 @@ func main() {
 		Printer:        errorLogger,
 	}
 
-	routerHandler := router.NewRouter(router.Handlers{
+	routerHandler := router.NewRouter(redirectEndpointPrefix, router.Handlers{
 		LinkGettingHandler: handlers.LinkGettingHandler{
 			LinkGetter: usecases.LinkGetterGroup{
 				cacheGetter,
