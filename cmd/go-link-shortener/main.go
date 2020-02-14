@@ -45,6 +45,7 @@ type options struct {
 }
 
 const (
+	errorURL               = "/error"
 	redirectEndpointPrefix = "/redirect"
 	storageDatabase        = "go-link-shortener"
 	storageCollection      = "links"
@@ -83,28 +84,47 @@ func main() {
 		})
 	}
 
-	linkPresenter := presenters.SilentLinkPresenter{
+	linkByCodeGetter := usecases.LinkGetterGroup{
+		cacheGetter,
+		storage.LinkGetter{
+			Client:     storageClient,
+			Database:   storageDatabase,
+			Collection: storageCollection,
+			KeyField:   "code",
+		},
+	}
+
+	redirectPresenter := presenters.RedirectPresenter{
+		ErrorURL: errorURL,
+		Printer:  errorLogger,
+	}
+	redirectLinkPresenter := presenters.SilentLinkPresenter{
+		LinkPresenter: redirectPresenter,
+		Printer:       errorLogger,
+	}
+	redirectErrorPresenter := presenters.SilentErrorPresenter{
+		ErrorPresenter: redirectPresenter,
+		Printer:        errorLogger,
+	}
+	jsonLinkPresenter := presenters.SilentLinkPresenter{
 		LinkPresenter: presenters.JSONPresenter{},
 		Printer:       errorLogger,
 	}
-	errorPresenter := presenters.SilentErrorPresenter{
+	jsonErrorPresenter := presenters.SilentErrorPresenter{
 		ErrorPresenter: presenters.JSONPresenter{},
 		Printer:        errorLogger,
 	}
 
 	routerHandler := router.NewRouter(redirectEndpointPrefix, router.Handlers{
+		LinkRedirectHandler: handlers.LinkGettingHandler{
+			LinkGetter:     linkByCodeGetter,
+			LinkPresenter:  redirectLinkPresenter,
+			ErrorPresenter: redirectErrorPresenter,
+		},
 		LinkGettingHandler: handlers.LinkGettingHandler{
-			LinkGetter: usecases.LinkGetterGroup{
-				cacheGetter,
-				storage.LinkGetter{
-					Client:     storageClient,
-					Database:   storageDatabase,
-					Collection: storageCollection,
-					KeyField:   "code",
-				},
-			},
-			LinkPresenter:  linkPresenter,
-			ErrorPresenter: errorPresenter,
+			LinkGetter:     linkByCodeGetter,
+			LinkPresenter:  jsonLinkPresenter,
+			ErrorPresenter: jsonErrorPresenter,
 		},
 		LinkCreatingHandler: handlers.LinkCreatingHandler{
 			LinkCreator: usecases.LinkCreator{
@@ -146,10 +166,10 @@ func main() {
 					rand.New(rand.NewSource(time.Now().UnixNano())).Intn,
 				),
 			},
-			LinkPresenter:  linkPresenter,
-			ErrorPresenter: errorPresenter,
+			LinkPresenter:  jsonLinkPresenter,
+			ErrorPresenter: jsonErrorPresenter,
 		},
-		NotFoundHandler: handlers.NotFoundHandler{ErrorPresenter: errorPresenter},
+		NotFoundHandler: handlers.NotFoundHandler{ErrorPresenter: jsonErrorPresenter},
 	})
 	routerHandler.
 		Use(middlewares.RecoveryHandler(middlewares.RecoveryLogger(errorLogger)))
