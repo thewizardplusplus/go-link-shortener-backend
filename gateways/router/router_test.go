@@ -38,6 +38,7 @@ func TestNewRouter(test *testing.T) {
 					}(),
 					LinkGettingHandler:  new(MockHandler),
 					LinkCreatingHandler: new(MockHandler),
+					StaticFileHandler:   new(MockHandler),
 					NotFoundHandler:     new(MockHandler),
 				},
 				request: httptest.NewRequest(
@@ -64,6 +65,7 @@ func TestNewRouter(test *testing.T) {
 						return handler
 					}(),
 					LinkCreatingHandler: new(MockHandler),
+					StaticFileHandler:   new(MockHandler),
 					NotFoundHandler:     new(MockHandler),
 				},
 				request: httptest.NewRequest(
@@ -90,11 +92,39 @@ func TestNewRouter(test *testing.T) {
 
 						return handler
 					}(),
-					NotFoundHandler: new(MockHandler),
+					StaticFileHandler: new(MockHandler),
+					NotFoundHandler:   new(MockHandler),
 				},
 				request: httptest.NewRequest(
 					http.MethodPost,
 					"http://example.com/api/v1/links/",
+					nil,
+				),
+			},
+		},
+		{
+			name: "static file",
+			args: args{
+				redirectEndpointPrefix: "/redirect",
+				handlers: Handlers{
+					LinkRedirectHandler: new(MockHandler),
+					LinkGettingHandler:  new(MockHandler),
+					LinkCreatingHandler: new(MockHandler),
+					StaticFileHandler: func() http.Handler {
+						handler := new(MockHandler)
+						handler.On(
+							"ServeHTTP",
+							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							mock.MatchedBy(func(*http.Request) bool { return true }),
+						)
+
+						return handler
+					}(),
+					NotFoundHandler: new(MockHandler),
+				},
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/page.html",
 					nil,
 				),
 			},
@@ -107,6 +137,7 @@ func TestNewRouter(test *testing.T) {
 					LinkRedirectHandler: new(MockHandler),
 					LinkGettingHandler:  new(MockHandler),
 					LinkCreatingHandler: new(MockHandler),
+					StaticFileHandler:   new(MockHandler),
 					NotFoundHandler: func() http.Handler {
 						handler := new(MockHandler)
 						handler.On(
@@ -126,13 +157,41 @@ func TestNewRouter(test *testing.T) {
 			},
 		},
 		{
-			name: "unknown endpoint",
+			name: "unknown endpoint (GET)",
 			args: args{
 				redirectEndpointPrefix: "/redirect",
 				handlers: Handlers{
 					LinkRedirectHandler: new(MockHandler),
 					LinkGettingHandler:  new(MockHandler),
 					LinkCreatingHandler: new(MockHandler),
+					StaticFileHandler: func() http.Handler {
+						handler := new(MockHandler)
+						handler.On(
+							"ServeHTTP",
+							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							mock.MatchedBy(func(*http.Request) bool { return true }),
+						)
+
+						return handler
+					}(),
+					NotFoundHandler: new(MockHandler),
+				},
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/api/v1/incorrect",
+					nil,
+				),
+			},
+		},
+		{
+			name: "unknown endpoint (POST)",
+			args: args{
+				redirectEndpointPrefix: "/redirect",
+				handlers: Handlers{
+					LinkRedirectHandler: new(MockHandler),
+					LinkGettingHandler:  new(MockHandler),
+					LinkCreatingHandler: new(MockHandler),
+					StaticFileHandler:   new(MockHandler),
 					NotFoundHandler: func() http.Handler {
 						handler := new(MockHandler)
 						handler.On(
@@ -145,7 +204,7 @@ func TestNewRouter(test *testing.T) {
 					}(),
 				},
 				request: httptest.NewRequest(
-					http.MethodGet,
+					http.MethodPost,
 					"http://example.com/api/v1/incorrect",
 					nil,
 				),
@@ -165,6 +224,7 @@ func TestNewRouter(test *testing.T) {
 				data.args.handlers.LinkRedirectHandler,
 				data.args.handlers.LinkGettingHandler,
 				data.args.handlers.LinkCreatingHandler,
+				data.args.handlers.StaticFileHandler,
 				data.args.handlers.NotFoundHandler,
 			)
 			assert.Empty(test, string(responseBody))
