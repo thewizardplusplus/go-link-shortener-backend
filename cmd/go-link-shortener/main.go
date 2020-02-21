@@ -25,7 +25,8 @@ import (
 
 type options struct {
 	Server struct {
-		Address string `env:"SERVER_ADDRESS" envDefault:":8080"`
+		Address    string `env:"SERVER_ADDRESS" envDefault:":8080"`
+		StaticPath string `env:"SERVER_STATIC_PATH" envDefault:"./static"`
 	}
 	Cache struct {
 		Address string `env:"CACHE_ADDRESS" envDefault:"localhost:6379"`
@@ -169,7 +170,10 @@ func main() {
 			LinkPresenter:  jsonLinkPresenter,
 			ErrorPresenter: jsonErrorPresenter,
 		},
-		NotFoundHandler: handlers.NotFoundHandler{ErrorPresenter: jsonErrorPresenter},
+		StaticFileHandler: http.FileServer(http.Dir(options.Server.StaticPath)),
+		NotFoundHandler: handlers.NotFoundHandler{
+			ErrorPresenter: jsonErrorPresenter,
+		},
 	})
 	routerHandler.
 		Use(middlewares.RecoveryHandler(middlewares.RecoveryLogger(errorLogger)))

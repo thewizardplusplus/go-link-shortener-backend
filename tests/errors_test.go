@@ -3,14 +3,13 @@
 package tests
 
 import (
-	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"testing"
 
 	"github.com/caarlos0/env"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/thewizardplusplus/go-link-shortener/gateways/presenters"
 )
 
 func TestErrors(test *testing.T) {
@@ -45,12 +44,16 @@ func TestErrors(test *testing.T) {
 			require.NoError(test, err)
 			defer response.Body.Close()
 
-			var error presenters.ErrorResponse
-			json.NewDecoder(response.Body).Decode(&error)
+			responseBody, err := ioutil.ReadAll(response.Body)
+			require.NoError(test, err)
 
 			assert.Equal(test, data.wantStatus, response.StatusCode)
-			assert.Equal(test, "application/json", response.Header.Get("Content-Type"))
-			assert.NotEmpty(test, error.Error)
+			assert.Equal(
+				test,
+				"text/plain; charset=utf-8",
+				response.Header.Get("Content-Type"),
+			)
+			assert.NotEmpty(test, responseBody)
 		})
 	}
 }
