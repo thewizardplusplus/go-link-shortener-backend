@@ -83,8 +83,9 @@ func TestLinkCreating(test *testing.T) {
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
 					require.NoError(test, err)
+					require.NotNil(test, response.Kvs)
 
-					counters = append(counters, uint64(response.Header.Revision))
+					counters = append(counters, uint64(response.Kvs[0].Version))
 				}
 
 				return counters
@@ -133,8 +134,9 @@ func TestLinkCreating(test *testing.T) {
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
 					require.NoError(test, err)
+					require.NotNil(test, response.Kvs)
 
-					counters = append(counters, uint64(response.Header.Revision))
+					counters = append(counters, uint64(response.Kvs[0].Version))
 				}
 
 				assert.Equal(test, expectedLink, link)
@@ -168,8 +170,9 @@ func TestLinkCreating(test *testing.T) {
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
 					require.NoError(test, err)
+					require.NotNil(test, response.Kvs)
 
-					counters = append(counters, uint64(response.Header.Revision))
+					counters = append(counters, uint64(response.Kvs[0].Version))
 				}
 
 				return counters
@@ -215,8 +218,9 @@ func TestLinkCreating(test *testing.T) {
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
 					require.NoError(test, err)
+					require.NotNil(test, response.Kvs)
 
-					counters = append(counters, uint64(response.Header.Revision))
+					counters = append(counters, uint64(response.Kvs[0].Version))
 				}
 
 				assert.Equal(test, expectedLink, link)
@@ -251,8 +255,9 @@ func TestLinkCreating(test *testing.T) {
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
 					require.NoError(test, err)
+					require.NotNil(test, response.Kvs)
 
-					counters = append(counters, uint64(response.Header.Revision))
+					counters = append(counters, uint64(response.Kvs[0].Version))
 				}
 
 				return counters
@@ -293,8 +298,9 @@ func TestLinkCreating(test *testing.T) {
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
 					require.NoError(test, err)
+					require.NotNil(test, response.Kvs)
 
-					counters = append(counters, uint64(response.Header.Revision))
+					counters = append(counters, uint64(response.Kvs[0].Version))
 				}
 
 				assert.Equal(test, expectedLink, link)
@@ -337,8 +343,9 @@ func TestLinkCreating(test *testing.T) {
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
 					require.NoError(test, err)
+					require.NotNil(test, response.Kvs)
 
-					counters = append(counters, uint64(response.Header.Revision))
+					counters = append(counters, uint64(response.Kvs[0].Version))
 				}
 
 				return counters
@@ -384,8 +391,9 @@ func TestLinkCreating(test *testing.T) {
 					name := fmt.Sprintf("distributed-counter-%d", i)
 					response, err := counter.Get(context, name)
 					require.NoError(test, err)
+					require.NotNil(test, response.Kvs)
 
-					counters = append(counters, uint64(response.Header.Revision))
+					counters = append(counters, uint64(response.Kvs[0].Version))
 				}
 
 				assert.Equal(test, expectedLink, link)

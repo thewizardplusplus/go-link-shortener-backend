@@ -37,8 +37,9 @@ func TestCounter_NextCountChunk(test *testing.T) {
 				context := context.Background()
 				response, err := counter.Client.innerClient.Get(context, "counter")
 				require.NoError(test, err)
+				require.NotNil(test, response.Kvs)
 
-				return uint64(response.Header.Revision)
+				return uint64(response.Kvs[0].Version)
 			},
 			fields: fields{
 				makeClient: func(test *testing.T) Client {
