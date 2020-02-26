@@ -15,9 +15,8 @@ type Client struct {
 
 // NewClient ...
 func NewClient(uri string) (Client, error) {
-	context := context.Background()
 	options := options.Client().ApplyURI(uri)
-	innerClient, err := mongo.Connect(context, options)
+	innerClient, err := mongo.Connect(context.Background(), options)
 	if err != nil {
 		return Client{}, errors.Wrap(err, "unable to connect to MongoDB")
 	}

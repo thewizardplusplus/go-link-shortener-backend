@@ -34,8 +34,8 @@ func TestCounter_NextCountChunk(test *testing.T) {
 		{
 			name: "success",
 			prepare: func(test *testing.T, counter Counter) (preparedData interface{}) {
-				context := context.Background()
-				response, err := counter.Client.innerClient.Get(context, "counter")
+				response, err := counter.Client.innerClient.
+					Get(context.Background(), "counter")
 				require.NoError(test, err)
 				require.NotNil(test, response.Kvs)
 

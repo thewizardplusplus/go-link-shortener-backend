@@ -79,9 +79,8 @@ func TestLinkCreating(test *testing.T) {
 
 				var counters []uint64
 				for i := 0; i < opts.Counter.Count; i++ {
-					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
-					response, err := counter.Get(context, name)
+					response, err := counter.Get(context.Background(), name)
 					require.NoError(test, err)
 					require.NotNil(test, response.Kvs)
 
@@ -130,9 +129,8 @@ func TestLinkCreating(test *testing.T) {
 
 				var counters []uint64
 				for i := 0; i < opts.Counter.Count; i++ {
-					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
-					response, err := counter.Get(context, name)
+					response, err := counter.Get(context.Background(), name)
 					require.NoError(test, err)
 					require.NotNil(test, response.Kvs)
 
@@ -176,9 +174,8 @@ func TestLinkCreating(test *testing.T) {
 
 				var counters []uint64
 				for i := 0; i < opts.Counter.Count; i++ {
-					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
-					response, err := counter.Get(context, name)
+					response, err := counter.Get(context.Background(), name)
 					require.NoError(test, err)
 					require.NotNil(test, response.Kvs)
 
@@ -224,9 +221,8 @@ func TestLinkCreating(test *testing.T) {
 
 				var counters []uint64
 				for i := 0; i < opts.Counter.Count; i++ {
-					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
-					response, err := counter.Get(context, name)
+					response, err := counter.Get(context.Background(), name)
 					require.NoError(test, err)
 					require.NotNil(test, response.Kvs)
 
@@ -261,9 +257,8 @@ func TestLinkCreating(test *testing.T) {
 
 				var counters []uint64
 				for i := 0; i < opts.Counter.Count; i++ {
-					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
-					response, err := counter.Get(context, name)
+					response, err := counter.Get(context.Background(), name)
 					require.NoError(test, err)
 					require.NotNil(test, response.Kvs)
 
@@ -304,9 +299,8 @@ func TestLinkCreating(test *testing.T) {
 
 				var counters []uint64
 				for i := 0; i < opts.Counter.Count; i++ {
-					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
-					response, err := counter.Get(context, name)
+					response, err := counter.Get(context.Background(), name)
 					require.NoError(test, err)
 					require.NotNil(test, response.Kvs)
 
@@ -349,9 +343,8 @@ func TestLinkCreating(test *testing.T) {
 
 				var counters []uint64
 				for i := 0; i < opts.Counter.Count; i++ {
-					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
-					response, err := counter.Get(context, name)
+					response, err := counter.Get(context.Background(), name)
 					require.NoError(test, err)
 					require.NotNil(test, response.Kvs)
 
@@ -397,9 +390,8 @@ func TestLinkCreating(test *testing.T) {
 
 				var counters []uint64
 				for i := 0; i < opts.Counter.Count; i++ {
-					context := context.Background()
 					name := fmt.Sprintf("distributed-counter-%d", i)
-					response, err := counter.Get(context, name)
+					response, err := counter.Get(context.Background(), name)
 					require.NoError(test, err)
 					require.NotNil(test, response.Kvs)
 
