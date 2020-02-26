@@ -139,8 +139,18 @@ func TestLinkCreating(test *testing.T) {
 					counters = append(counters, uint64(response.Kvs[0].Version))
 				}
 
+				preparedDataVariants := [][]uint64{preparedData.([]uint64)}
+				for i := 0; i < opts.Counter.Count; i++ {
+					preparedDataCopy := make([]uint64, opts.Counter.Count)
+					copy(preparedDataCopy, preparedData.([]uint64))
+
+					preparedDataCopy[i]++
+
+					preparedDataVariants = append(preparedDataVariants, preparedDataCopy)
+				}
+
 				assert.Equal(test, expectedLink, link)
-				assert.Equal(test, preparedData, counters)
+				assert.Contains(test, preparedDataVariants, counters)
 			},
 		},
 		{
