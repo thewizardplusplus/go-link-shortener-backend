@@ -1,7 +1,6 @@
 package code
 
 import (
-	"strconv"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -19,12 +18,16 @@ type DistributedCounter interface {
 // It should NOT be concurrently safe, because it'll call only under lock.
 type RandomSource func(maximum int) int
 
+// Formatter ...
+type Formatter func(code uint64) string
+
 // DistributedGenerator ...
 type DistributedGenerator struct {
 	locker              sync.Mutex
 	counter             chunkedCounter
 	distributedCounters []DistributedCounter
 	randomSource        RandomSource
+	formatter           Formatter
 }
 
 // NewDistributedGenerator ...
@@ -32,11 +35,13 @@ func NewDistributedGenerator(
 	chunkSize uint64,
 	distributedCounters []DistributedCounter,
 	randomSource RandomSource,
+	formatter Formatter,
 ) *DistributedGenerator {
 	return &DistributedGenerator{
 		counter:             newChunkedCounter(chunkSize),
 		distributedCounters: distributedCounters,
 		randomSource:        randomSource,
+		formatter:           formatter,
 	}
 }
 
@@ -52,7 +57,7 @@ func (generator *DistributedGenerator) GenerateCode() (string, error) {
 	}
 
 	counter := generator.counter.increase()
-	return strconv.FormatUint(counter, 10), nil
+	return generator.formatter(counter), nil
 }
 
 func (generator *DistributedGenerator) resetCounter() error {

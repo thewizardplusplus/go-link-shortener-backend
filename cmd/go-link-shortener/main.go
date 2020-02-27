@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 
 	"github.com/caarlos0/env"
@@ -165,6 +166,7 @@ func main() {
 					options.Counter.Chunk,
 					counters,
 					rand.New(rand.NewSource(time.Now().UnixNano())).Intn,
+					func(code uint64) string { return strconv.FormatUint(code, 10) },
 				),
 			},
 			LinkPresenter:  jsonLinkPresenter,
