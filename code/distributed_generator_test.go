@@ -12,10 +12,20 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type MarkedDistributedCounter struct {
+	MockDistributedCounter
+
+	ID int
+}
+
+func NewMarkedDistributedCounter(id int) *MarkedDistributedCounter {
+	return &MarkedDistributedCounter{ID: id}
+}
+
 func TestNewDistributedGenerator(test *testing.T) {
 	distributedCounters := []DistributedCounter{
-		new(MockDistributedCounter),
-		new(MockDistributedCounter),
+		NewMarkedDistributedCounter(1),
+		NewMarkedDistributedCounter(2),
 	}
 	randomSource := func(maximum int) int { panic("not implemented") }
 	formatter := func(code uint64) string { panic("not implemented") }
@@ -52,8 +62,8 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 			fields: fields{
 				counter: chunkedCounter{step: 23, current: 42, final: 65},
 				distributedCounters: []DistributedCounter{
-					new(MockDistributedCounter),
-					new(MockDistributedCounter),
+					NewMarkedDistributedCounter(1),
+					NewMarkedDistributedCounter(2),
 				},
 				randomSource: func(maximum int) int { panic("not implemented") },
 				formatter:    func(code uint64) string { return fmt.Sprintf("[%d]", code) },
@@ -67,9 +77,9 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 			fields: fields{
 				counter: chunkedCounter{step: 23, current: 65, final: 65},
 				distributedCounters: func() []DistributedCounter {
-					firstCounter := new(MockDistributedCounter)
+					firstCounter := NewMarkedDistributedCounter(1)
 
-					secondCounter := new(MockDistributedCounter)
+					secondCounter := NewMarkedDistributedCounter(2)
 					secondCounter.On("NextCountChunk").Return(uint64(100), nil)
 
 					return []DistributedCounter{firstCounter, secondCounter}
@@ -86,9 +96,9 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 			fields: fields{
 				counter: chunkedCounter{step: 23, current: 65, final: 65},
 				distributedCounters: func() []DistributedCounter {
-					firstCounter := new(MockDistributedCounter)
+					firstCounter := NewMarkedDistributedCounter(1)
 
-					secondCounter := new(MockDistributedCounter)
+					secondCounter := NewMarkedDistributedCounter(2)
 					secondCounter.On("NextCountChunk").Return(uint64(0), iotest.ErrTimeout)
 
 					return []DistributedCounter{firstCounter, secondCounter}
@@ -139,9 +149,9 @@ func TestDistributedGenerator_resetCounter(test *testing.T) {
 			fields: fields{
 				counter: chunkedCounter{step: 23, current: 42, final: 65},
 				distributedCounters: func() []DistributedCounter {
-					firstCounter := new(MockDistributedCounter)
+					firstCounter := NewMarkedDistributedCounter(1)
 
-					secondCounter := new(MockDistributedCounter)
+					secondCounter := NewMarkedDistributedCounter(2)
 					secondCounter.On("NextCountChunk").Return(uint64(100), nil)
 
 					return []DistributedCounter{firstCounter, secondCounter}
@@ -157,9 +167,9 @@ func TestDistributedGenerator_resetCounter(test *testing.T) {
 			fields: fields{
 				counter: chunkedCounter{step: 23, current: 42, final: 65},
 				distributedCounters: func() []DistributedCounter {
-					firstCounter := new(MockDistributedCounter)
+					firstCounter := NewMarkedDistributedCounter(1)
 
-					secondCounter := new(MockDistributedCounter)
+					secondCounter := NewMarkedDistributedCounter(2)
 					secondCounter.On("NextCountChunk").Return(uint64(0), iotest.ErrTimeout)
 
 					return []DistributedCounter{firstCounter, secondCounter}
@@ -190,15 +200,9 @@ func TestDistributedGenerator_resetCounter(test *testing.T) {
 }
 
 func TestDistributedGenerator_selectCounter(test *testing.T) {
-	type markedDistributedCounter struct {
-		MockDistributedCounter
-
-		ID int
-	}
-
 	distributedCounters := []DistributedCounter{
-		&markedDistributedCounter{ID: 1},
-		&markedDistributedCounter{ID: 2},
+		NewMarkedDistributedCounter(1),
+		NewMarkedDistributedCounter(2),
 	}
 	generator := &DistributedGenerator{
 		counter:             chunkedCounter{step: 23},
@@ -211,7 +215,7 @@ func TestDistributedGenerator_selectCounter(test *testing.T) {
 	for _, distributedCounter := range distributedCounters {
 		mock.AssertExpectationsForObjects(test, distributedCounter)
 	}
-	assert.Equal(test, &markedDistributedCounter{ID: 2}, got)
+	assert.Equal(test, NewMarkedDistributedCounter(2), got)
 }
 
 func getPointer(value interface{}) uintptr {
