@@ -8,12 +8,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"time"
 
 	"github.com/caarlos0/env"
 	middlewares "github.com/gorilla/handlers"
 	"github.com/thewizardplusplus/go-link-shortener/code"
+	"github.com/thewizardplusplus/go-link-shortener/code/formatters"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 	"github.com/thewizardplusplus/go-link-shortener/gateways/cache"
 	"github.com/thewizardplusplus/go-link-shortener/gateways/counter"
@@ -166,7 +166,7 @@ func main() {
 					options.Counter.Chunk,
 					counters,
 					rand.New(rand.NewSource(time.Now().UnixNano())).Intn,
-					func(code uint64) string { return strconv.FormatUint(code, 10) },
+					formatters.InBase10,
 				),
 			},
 			LinkPresenter:  jsonLinkPresenter,
