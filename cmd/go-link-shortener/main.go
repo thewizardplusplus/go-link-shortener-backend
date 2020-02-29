@@ -166,7 +166,7 @@ func main() {
 					options.Counter.Chunk,
 					counters,
 					rand.New(rand.NewSource(time.Now().UnixNano())).Intn,
-					formatters.InBase10,
+					formatters.InBase62,
 				),
 			},
 			LinkPresenter:  jsonLinkPresenter,

@@ -98,7 +98,7 @@ func TestLinkCreating(test *testing.T) {
 				return request
 			}(),
 			wantStatus:      http.StatusOK,
-			wantCodePattern: regexp.MustCompile(`\d+`),
+			wantCodePattern: regexp.MustCompile(`[\da-zA-Z]+`), // base 62
 			wantURL:         "http://example.com/",
 			check: func(
 				test *testing.T,
