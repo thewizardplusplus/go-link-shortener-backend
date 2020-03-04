@@ -174,7 +174,8 @@ func main() {
 		},
 		StaticFileHandler: http.FileServer(http.Dir(options.Server.StaticPath)),
 		NotFoundHandler: handlers.NotFoundHandler{
-			ErrorPresenter: jsonErrorPresenter,
+			TextErrorPresenter: redirectErrorPresenter,
+			JSONErrorPresenter: jsonErrorPresenter,
 		},
 	})
 	routerHandler.
