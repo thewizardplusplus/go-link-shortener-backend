@@ -26,7 +26,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/handlers.LinkCreatingRequest"
                         }
                     }

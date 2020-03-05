@@ -40,6 +40,6 @@ services:
     environment:
       SWAGGER_JSON: /etc/go-link-shortener/swagger.json
     ports:
-      - 9000:8080
+      - 9090:8080
     volumes:
       - ./docs:/etc/go-link-shortener

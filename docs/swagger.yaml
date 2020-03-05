@@ -36,7 +36,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/handlers.LinkCreatingRequest'
-          type: object
       produces:
       - application/json
       responses:
