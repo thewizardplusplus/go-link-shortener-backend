@@ -5,6 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
+	"github.com/thewizardplusplus/go-link-shortener/httputils"
 )
 
 // RedirectPresenter ...
@@ -49,13 +50,13 @@ func redirect(
 	url string,
 	statusCode int,
 ) error {
-	catchingWriter := newCatchingResponseWriter(writer)
+	catchingWriter := httputils.NewCatchingResponseWriter(writer)
 	http.Redirect(catchingWriter, request, url, statusCode)
 
 	// errors with writing to the http.ResponseWriter is important to handle,
 	// see for details: https://stackoverflow.com/a/43976633
-	if catchingWriter.error != nil {
-		return errors.Wrap(catchingWriter.error, "unable to write the data")
+	if err := catchingWriter.LastError(); err != nil {
+		return errors.Wrap(err, "unable to write the data")
 	}
 
 	return nil
