@@ -21,6 +21,7 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener/gateways/presenters"
 	"github.com/thewizardplusplus/go-link-shortener/gateways/router"
 	"github.com/thewizardplusplus/go-link-shortener/gateways/storage"
+	"github.com/thewizardplusplus/go-link-shortener/httputils"
 	"github.com/thewizardplusplus/go-link-shortener/usecases"
 )
 
@@ -117,6 +118,7 @@ func main() {
 		Printer:        errorLogger,
 	}
 
+	staticFileHandler := http.FileServer(http.Dir(options.Server.StaticPath))
 	routerHandler := router.NewRouter(redirectEndpointPrefix, router.Handlers{
 		LinkRedirectHandler: handlers.LinkGettingHandler{
 			LinkGetter:     linkByCodeGetter,
@@ -172,7 +174,19 @@ func main() {
 			LinkPresenter:  jsonLinkPresenter,
 			ErrorPresenter: jsonErrorPresenter,
 		},
-		StaticFileHandler: http.FileServer(http.Dir(options.Server.StaticPath)),
+		StaticFileHandler: http.HandlerFunc(func(
+			writer http.ResponseWriter,
+			request *http.Request,
+		) {
+			catchingWriter := httputils.NewCatchingResponseWriter(writer)
+			staticFileHandler.ServeHTTP(catchingWriter, request)
+
+			// errors with writing to the http.ResponseWriter is important to handle,
+			// see for details: https://stackoverflow.com/a/43976633
+			if err := catchingWriter.LastError(); err != nil {
+				errorLogger.Printf("unable to handle the static file: %v", err)
+			}
+		}),
 	})
 	routerHandler.
 		Use(middlewares.RecoveryHandler(middlewares.RecoveryLogger(errorLogger)))
