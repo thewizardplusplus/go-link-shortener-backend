@@ -18,7 +18,7 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener/gateways/cache"
 	"github.com/thewizardplusplus/go-link-shortener/gateways/counter"
 	"github.com/thewizardplusplus/go-link-shortener/gateways/handlers"
-	"github.com/thewizardplusplus/go-link-shortener/gateways/presenters"
+	"github.com/thewizardplusplus/go-link-shortener/gateways/handlers/presenters"
 	"github.com/thewizardplusplus/go-link-shortener/gateways/router"
 	"github.com/thewizardplusplus/go-link-shortener/gateways/storage"
 	"github.com/thewizardplusplus/go-link-shortener/httputils"
