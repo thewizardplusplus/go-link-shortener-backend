@@ -18,8 +18,9 @@ func TestNewRouter(test *testing.T) {
 	}
 
 	for _, data := range []struct {
-		name string
-		args args
+		name           string
+		args           args
+		wantStatusCode int
 	}{
 		{
 			name: "link redirect",
@@ -39,7 +40,6 @@ func TestNewRouter(test *testing.T) {
 					LinkGettingHandler:  new(MockHandler),
 					LinkCreatingHandler: new(MockHandler),
 					StaticFileHandler:   new(MockHandler),
-					NotFoundHandler:     new(MockHandler),
 				},
 				request: httptest.NewRequest(
 					http.MethodGet,
@@ -47,6 +47,7 @@ func TestNewRouter(test *testing.T) {
 					nil,
 				),
 			},
+			wantStatusCode: http.StatusOK,
 		},
 		{
 			name: "link getting",
@@ -66,7 +67,6 @@ func TestNewRouter(test *testing.T) {
 					}(),
 					LinkCreatingHandler: new(MockHandler),
 					StaticFileHandler:   new(MockHandler),
-					NotFoundHandler:     new(MockHandler),
 				},
 				request: httptest.NewRequest(
 					http.MethodGet,
@@ -74,6 +74,7 @@ func TestNewRouter(test *testing.T) {
 					nil,
 				),
 			},
+			wantStatusCode: http.StatusOK,
 		},
 		{
 			name: "link creating",
@@ -93,7 +94,6 @@ func TestNewRouter(test *testing.T) {
 						return handler
 					}(),
 					StaticFileHandler: new(MockHandler),
-					NotFoundHandler:   new(MockHandler),
 				},
 				request: httptest.NewRequest(
 					http.MethodPost,
@@ -101,6 +101,7 @@ func TestNewRouter(test *testing.T) {
 					nil,
 				),
 			},
+			wantStatusCode: http.StatusOK,
 		},
 		{
 			name: "static file",
@@ -120,7 +121,6 @@ func TestNewRouter(test *testing.T) {
 
 						return handler
 					}(),
-					NotFoundHandler: new(MockHandler),
 				},
 				request: httptest.NewRequest(
 					http.MethodGet,
@@ -128,6 +128,7 @@ func TestNewRouter(test *testing.T) {
 					nil,
 				),
 			},
+			wantStatusCode: http.StatusOK,
 		},
 		{
 			name: "incorrect API method (GET)",
@@ -147,7 +148,6 @@ func TestNewRouter(test *testing.T) {
 
 						return handler
 					}(),
-					NotFoundHandler: new(MockHandler),
 				},
 				request: httptest.NewRequest(
 					http.MethodGet,
@@ -155,6 +155,7 @@ func TestNewRouter(test *testing.T) {
 					nil,
 				),
 			},
+			wantStatusCode: http.StatusOK,
 		},
 		{
 			name: "incorrect API method (POST)",
@@ -165,16 +166,6 @@ func TestNewRouter(test *testing.T) {
 					LinkGettingHandler:  new(MockHandler),
 					LinkCreatingHandler: new(MockHandler),
 					StaticFileHandler:   new(MockHandler),
-					NotFoundHandler: func() http.Handler {
-						handler := new(MockHandler)
-						handler.On(
-							"ServeHTTP",
-							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
-							mock.MatchedBy(func(*http.Request) bool { return true }),
-						)
-
-						return handler
-					}(),
 				},
 				request: httptest.NewRequest(
 					http.MethodPost,
@@ -182,6 +173,7 @@ func TestNewRouter(test *testing.T) {
 					nil,
 				),
 			},
+			wantStatusCode: http.StatusMethodNotAllowed,
 		},
 		{
 			name: "unknown API endpoint (GET)",
@@ -201,7 +193,6 @@ func TestNewRouter(test *testing.T) {
 
 						return handler
 					}(),
-					NotFoundHandler: new(MockHandler),
 				},
 				request: httptest.NewRequest(
 					http.MethodGet,
@@ -209,6 +200,7 @@ func TestNewRouter(test *testing.T) {
 					nil,
 				),
 			},
+			wantStatusCode: http.StatusOK,
 		},
 		{
 			name: "unknown API endpoint (POST)",
@@ -219,16 +211,6 @@ func TestNewRouter(test *testing.T) {
 					LinkGettingHandler:  new(MockHandler),
 					LinkCreatingHandler: new(MockHandler),
 					StaticFileHandler:   new(MockHandler),
-					NotFoundHandler: func() http.Handler {
-						handler := new(MockHandler)
-						handler.On(
-							"ServeHTTP",
-							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
-							mock.MatchedBy(func(*http.Request) bool { return true }),
-						)
-
-						return handler
-					}(),
 				},
 				request: httptest.NewRequest(
 					http.MethodPost,
@@ -236,6 +218,7 @@ func TestNewRouter(test *testing.T) {
 					nil,
 				),
 			},
+			wantStatusCode: http.StatusMethodNotAllowed,
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
@@ -252,8 +235,8 @@ func TestNewRouter(test *testing.T) {
 				data.args.handlers.LinkGettingHandler,
 				data.args.handlers.LinkCreatingHandler,
 				data.args.handlers.StaticFileHandler,
-				data.args.handlers.NotFoundHandler,
 			)
+			assert.Equal(test, data.wantStatusCode, response.StatusCode)
 			assert.Empty(test, string(responseBody))
 		})
 	}

@@ -173,10 +173,6 @@ func main() {
 			ErrorPresenter: jsonErrorPresenter,
 		},
 		StaticFileHandler: http.FileServer(http.Dir(options.Server.StaticPath)),
-		NotFoundHandler: handlers.NotFoundHandler{
-			TextErrorPresenter: redirectErrorPresenter,
-			JSONErrorPresenter: jsonErrorPresenter,
-		},
 	})
 	routerHandler.
 		Use(middlewares.RecoveryHandler(middlewares.RecoveryLogger(errorLogger)))

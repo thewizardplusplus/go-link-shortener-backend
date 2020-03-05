@@ -12,7 +12,6 @@ type Handlers struct {
 	LinkGettingHandler  http.Handler
 	LinkCreatingHandler http.Handler
 	StaticFileHandler   http.Handler
-	NotFoundHandler     http.Handler
 }
 
 // NewRouter ...
@@ -24,8 +23,6 @@ func NewRouter(redirectEndpointPrefix string, handlers Handlers) *mux.Router {
 	// @basePath /api/v1
 
 	rootRouter := mux.NewRouter()
-	rootRouter.NotFoundHandler = handlers.NotFoundHandler
-	rootRouter.MethodNotAllowedHandler = handlers.NotFoundHandler
 
 	apiRouter := rootRouter.PathPrefix("/api").Subrouter()
 	apiV1Router := apiRouter.PathPrefix("/v1").Subrouter()
