@@ -23,21 +23,25 @@ func NewRouter(redirectEndpointPrefix string, handlers Handlers) *mux.Router {
 	// @host localhost:8080
 	// @basePath /api/v1
 
-	router := mux.NewRouter()
-	router.NotFoundHandler = handlers.NotFoundHandler
-	router.MethodNotAllowedHandler = handlers.NotFoundHandler
+	rootRouter := mux.NewRouter()
+	rootRouter.NotFoundHandler = handlers.NotFoundHandler
+	rootRouter.MethodNotAllowedHandler = handlers.NotFoundHandler
 
-	apiRouter := router.PathPrefix("/api/v1/links").Subrouter()
-	apiRouter.
+	apiRouter := rootRouter.PathPrefix("/api").Subrouter()
+	apiV1Router := apiRouter.PathPrefix("/v1").Subrouter()
+	linksAPIV1Router := apiV1Router.PathPrefix("/links").Subrouter()
+	linksAPIV1Router.
 		Handle("/{code}", handlers.LinkGettingHandler).
 		Methods(http.MethodGet)
-	apiRouter.Handle("/", handlers.LinkCreatingHandler).Methods(http.MethodPost)
+	linksAPIV1Router.
+		Handle("/", handlers.LinkCreatingHandler).
+		Methods(http.MethodPost)
 
-	router.Handle(redirectEndpointPrefix+"/{code}", handlers.LinkRedirectHandler)
-	router.
-		PathPrefix("/").
-		Handler(handlers.StaticFileHandler).
+	rootRouter.
+		Handle(redirectEndpointPrefix+"/{code}", handlers.LinkRedirectHandler)
+	rootRouter.
+		PathPrefix("/").Handler(handlers.StaticFileHandler).
 		Methods(http.MethodGet)
 
-	return router
+	return rootRouter
 }
