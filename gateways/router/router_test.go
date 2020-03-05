@@ -22,7 +22,7 @@ func TestNewRouter(test *testing.T) {
 		args args
 	}{
 		{
-			name: "redirect",
+			name: "link redirect",
 			args: args{
 				redirectEndpointPrefix: "/redirect",
 				handlers: Handlers{
@@ -49,7 +49,7 @@ func TestNewRouter(test *testing.T) {
 			},
 		},
 		{
-			name: "getting",
+			name: "link getting",
 			args: args{
 				redirectEndpointPrefix: "/redirect",
 				handlers: Handlers{
@@ -76,7 +76,7 @@ func TestNewRouter(test *testing.T) {
 			},
 		},
 		{
-			name: "creating",
+			name: "link creating",
 			args: args{
 				redirectEndpointPrefix: "/redirect",
 				handlers: Handlers{
@@ -130,7 +130,34 @@ func TestNewRouter(test *testing.T) {
 			},
 		},
 		{
-			name: "incorrect method",
+			name: "incorrect API method (GET)",
+			args: args{
+				redirectEndpointPrefix: "/redirect",
+				handlers: Handlers{
+					LinkRedirectHandler: new(MockHandler),
+					LinkGettingHandler:  new(MockHandler),
+					LinkCreatingHandler: new(MockHandler),
+					StaticFileHandler: func() http.Handler {
+						handler := new(MockHandler)
+						handler.On(
+							"ServeHTTP",
+							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							mock.MatchedBy(func(*http.Request) bool { return true }),
+						)
+
+						return handler
+					}(),
+					NotFoundHandler: new(MockHandler),
+				},
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/api/v1/links/",
+					nil,
+				),
+			},
+		},
+		{
+			name: "incorrect API method (POST)",
 			args: args{
 				redirectEndpointPrefix: "/redirect",
 				handlers: Handlers{
@@ -157,7 +184,7 @@ func TestNewRouter(test *testing.T) {
 			},
 		},
 		{
-			name: "unknown endpoint (GET)",
+			name: "unknown API endpoint (GET)",
 			args: args{
 				redirectEndpointPrefix: "/redirect",
 				handlers: Handlers{
@@ -184,7 +211,7 @@ func TestNewRouter(test *testing.T) {
 			},
 		},
 		{
-			name: "unknown endpoint (POST)",
+			name: "unknown API endpoint (POST)",
 			args: args{
 				redirectEndpointPrefix: "/redirect",
 				handlers: Handlers{
