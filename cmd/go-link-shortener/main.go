@@ -12,8 +12,6 @@ import (
 
 	"github.com/caarlos0/env"
 	middlewares "github.com/gorilla/handlers"
-	"github.com/thewizardplusplus/go-link-shortener/code"
-	"github.com/thewizardplusplus/go-link-shortener/code/formatters"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
 	"github.com/thewizardplusplus/go-link-shortener/gateways/cache"
 	"github.com/thewizardplusplus/go-link-shortener/gateways/counter"
@@ -23,6 +21,8 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener/gateways/storage"
 	"github.com/thewizardplusplus/go-link-shortener/httputils"
 	"github.com/thewizardplusplus/go-link-shortener/usecases"
+	"github.com/thewizardplusplus/go-link-shortener/usecases/generators"
+	"github.com/thewizardplusplus/go-link-shortener/usecases/generators/formatters"
 )
 
 type options struct {
@@ -79,7 +79,7 @@ func main() {
 		errorLogger.Fatalf("error with creating the counter client: %v", err)
 	}
 
-	var counters []code.DistributedCounter
+	var counters []generators.DistributedCounter
 	for i := 0; i < options.Counter.Count; i++ {
 		counters = append(counters, counter.Counter{
 			Client: counterClient,
@@ -164,7 +164,7 @@ func main() {
 						Collection: storageCollection,
 					},
 				},
-				CodeGenerator: code.NewDistributedGenerator(
+				CodeGenerator: generators.NewDistributedGenerator(
 					options.Counter.Chunk,
 					counters,
 					rand.New(rand.NewSource(time.Now().UnixNano())).Intn,

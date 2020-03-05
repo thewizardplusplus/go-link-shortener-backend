@@ -1,4 +1,4 @@
-package code
+package generators
 
 type chunkedCounter struct {
 	step    uint64
