@@ -5,7 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
-	"github.com/thewizardplusplus/go-link-shortener/httputils"
+	"github.com/thewizardplusplus/go-link-shortener/gateways/http/httputils"
 )
 
 // RedirectPresenter ...
