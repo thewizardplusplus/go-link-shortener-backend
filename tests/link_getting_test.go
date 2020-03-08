@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/thewizardplusplus/go-link-shortener/entities"
-	"github.com/thewizardplusplus/go-link-shortener/gateways/handlers/presenters"
+	"github.com/thewizardplusplus/go-link-shortener/gateways/http/handlers/presenters"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
