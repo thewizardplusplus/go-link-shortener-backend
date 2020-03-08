@@ -1,5 +1,6 @@
 package main
 
+// nolint: lll
 import (
 	"context"
 	"fmt"

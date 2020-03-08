@@ -1,6 +1,7 @@
 {
   "Vendor": true,
   "Test": true,
+  "Skip": ["docs"],
   "EnableAll": true,
-  "Disable": ["dupl"]
+  "Disable": ["dupl", "gocyclo"]
 }

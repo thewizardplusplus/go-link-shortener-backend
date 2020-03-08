@@ -1,5 +1,6 @@
 package presenters
 
+// nolint: lll
 import (
 	"net/http"
 

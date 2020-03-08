@@ -2,6 +2,7 @@
 
 package tests
 
+// nolint: lll
 import (
 	"context"
 	"encoding/json"
