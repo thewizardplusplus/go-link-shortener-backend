@@ -2,6 +2,7 @@ required = [
   "github.com/alecthomas/gometalinter",
   "github.com/vektra/mockery/cmd/mockery",
   "github.com/cweill/gotests/gotests",
+  "github.com/swaggo/swag/cmd/swag",
 ]
 
 [prune]
@@ -41,8 +42,8 @@ required = [
   version = "1.6.3"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/alecthomas/template"
+  revision = "fb15b899a75114aa79cc930e33c46b577cc664b1"
 
 [[constraint]]
   name = "go.etcd.io/etcd"

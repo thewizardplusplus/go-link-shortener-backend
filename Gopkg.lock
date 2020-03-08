@@ -42,7 +42,6 @@
   version = "v3.0.0"
 
 [[projects]]
-  branch = "master"
   digest = "1:125f098c5294814b5d9ce2194f03a435c35a6208f029e61681bed9a893d68133"
   name = "github.com/alecthomas/template"
   packages = [
@@ -85,6 +84,14 @@
   version = "v4"
 
 [[projects]]
+  digest = "1:7cb4fdca4c251b3ef8027c90ea35f70c7b661a593b9eeae34753c65499098bb1"
+  name = "github.com/cpuguy83/go-md2man"
+  packages = ["md2man"]
+  pruneopts = "UT"
+  revision = "7762f7e404f8416dfa1d9bb6a8c192aa9acb4d19"
+  version = "v1.0.10"
+
+[[projects]]
   digest = "1:7bd8b69b834619ba2748ae570f4b08acdc5b0f735d99f8b2fd52443908bc436a"
   name = "github.com/cweill/gotests"
   packages = [
@@ -109,6 +116,14 @@
   pruneopts = "UT"
   revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
   version = "v1.1.1"
+
+[[projects]]
+  digest = "1:2cd7915ab26ede7d95b8749e6b1f933f1c6d5398030684e6505940a10f31cfda"
+  name = "github.com/ghodss/yaml"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:ed15647db08b6d63666bf9755d337725960c302bbfa5e23754b4b915a4797e42"
@@ -282,6 +297,22 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:2ee0f15eb0fb04f918db7c2dcf39745f40d69f798ef171610a730e8a56aaa4fd"
+  name = "github.com/russross/blackfriday"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "d3b5b032dc8e8927d31a5071b56e14c89f045135"
+  version = "v2.0.1"
+
+[[projects]]
+  digest = "1:9421f6e9e28ef86933e824b5caff441366f2b69bb281085b9dca40e1f27a1602"
+  name = "github.com/shurcooL/sanitized_anchor_name"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "7bfe4c7ecddb3666a94b053b422cdd8f5aaa3615"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:ac83cf90d08b63ad5f7e020ef480d319ae890c208f8524622a2f3136e2686b02"
   name = "github.com/stretchr/objx"
   packages = ["."]
@@ -302,12 +333,24 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:e7465872a8f86f5f97a901b29298941128a54b7cac5a2b373d3d47db7a290cb9"
+  digest = "1:efff55deb640c5ebe74b2a39fcbac6f5275afc4a9f35f82fa76658b3640be454"
   name = "github.com/swaggo/swag"
-  packages = ["."]
+  packages = [
+    ".",
+    "cmd/swag",
+    "gen",
+  ]
   pruneopts = "UT"
   revision = "c9f403a30434dc43903a02f80bcf736f11169a86"
   version = "v1.6.3"
+
+[[projects]]
+  digest = "1:1d3ef3dd057d2eb1819e945f88cc83835296c9b7fb13ad3194c937c4e2891fee"
+  name = "github.com/urfave/cli"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "bfe2e925cfb6d44b40ad3a779165ea7e8aff9212"
+  version = "v1.22.0"
 
 [[projects]]
   branch = "master"
@@ -661,6 +704,7 @@
     "github.com/stretchr/testify/mock",
     "github.com/stretchr/testify/require",
     "github.com/swaggo/swag",
+    "github.com/swaggo/swag/cmd/swag",
     "github.com/vektra/mockery/cmd/mockery",
     "go.etcd.io/etcd/clientv3",
     "go.mongodb.org/mongo-driver/bson",
