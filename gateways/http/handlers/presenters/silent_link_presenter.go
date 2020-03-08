@@ -3,7 +3,7 @@ package presenters
 import (
 	"net/http"
 
-	"github.com/thewizardplusplus/go-link-shortener/entities"
+	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
 
 //go:generate mockery -name=LinkPresenter -inpkg -case=underscore -testonly

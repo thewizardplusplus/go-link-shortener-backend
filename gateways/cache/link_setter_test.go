@@ -9,7 +9,7 @@ import (
 	"github.com/caarlos0/env"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/thewizardplusplus/go-link-shortener/entities"
+	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
 
 func TestLinkSetter_SetLink(test *testing.T) {

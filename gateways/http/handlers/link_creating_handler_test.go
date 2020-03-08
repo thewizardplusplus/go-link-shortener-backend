@@ -11,7 +11,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/thewizardplusplus/go-link-shortener/entities"
+	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
 
 func TestLinkCreatingHandler_ServeHTTP(test *testing.T) {

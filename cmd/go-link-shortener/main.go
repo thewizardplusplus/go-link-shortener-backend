@@ -12,17 +12,17 @@ import (
 
 	"github.com/caarlos0/env"
 	middlewares "github.com/gorilla/handlers"
-	"github.com/thewizardplusplus/go-link-shortener/entities"
-	"github.com/thewizardplusplus/go-link-shortener/gateways/cache"
-	"github.com/thewizardplusplus/go-link-shortener/gateways/counter"
-	"github.com/thewizardplusplus/go-link-shortener/gateways/http/handlers"
-	"github.com/thewizardplusplus/go-link-shortener/gateways/http/handlers/presenters"
-	"github.com/thewizardplusplus/go-link-shortener/gateways/http/httputils"
-	"github.com/thewizardplusplus/go-link-shortener/gateways/http/router"
-	"github.com/thewizardplusplus/go-link-shortener/gateways/storage"
-	"github.com/thewizardplusplus/go-link-shortener/usecases"
-	"github.com/thewizardplusplus/go-link-shortener/usecases/generators"
-	"github.com/thewizardplusplus/go-link-shortener/usecases/generators/formatters"
+	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
+	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/cache"
+	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/counter"
+	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/http/handlers"
+	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/http/handlers/presenters"
+	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/http/httputils"
+	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/http/router"
+	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/storage"
+	"github.com/thewizardplusplus/go-link-shortener-backend/usecases"
+	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators"
+	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators/formatters"
 )
 
 type options struct {

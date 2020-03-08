@@ -5,7 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/pkg/errors"
-	"github.com/thewizardplusplus/go-link-shortener/entities"
+	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )

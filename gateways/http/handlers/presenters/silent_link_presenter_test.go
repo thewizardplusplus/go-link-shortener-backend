@@ -7,7 +7,7 @@ import (
 	"testing/iotest"
 
 	"github.com/stretchr/testify/mock"
-	"github.com/thewizardplusplus/go-link-shortener/entities"
+	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
 
 func TestSilentLinkPresenter_PresentLink(test *testing.T) {

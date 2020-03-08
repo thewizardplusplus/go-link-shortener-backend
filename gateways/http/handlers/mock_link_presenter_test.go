@@ -2,7 +2,7 @@
 
 package handlers
 
-import entities "github.com/thewizardplusplus/go-link-shortener/entities"
+import entities "github.com/thewizardplusplus/go-link-shortener-backend/entities"
 import http "net/http"
 import mock "github.com/stretchr/testify/mock"
 

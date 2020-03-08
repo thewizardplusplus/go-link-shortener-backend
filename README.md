@@ -1,14 +1,14 @@
-# go-link-shortener
+# go-link-shortener-backend
 
-[![GoDoc](https://godoc.org/github.com/thewizardplusplus/go-link-shortener?status.svg)](https://godoc.org/github.com/thewizardplusplus/go-link-shortener)
-[![Go Report Card](https://goreportcard.com/badge/github.com/thewizardplusplus/go-link-shortener)](https://goreportcard.com/report/github.com/thewizardplusplus/go-link-shortener)
-[![Build Status](https://travis-ci.org/thewizardplusplus/go-link-shortener.svg?branch=master)](https://travis-ci.org/thewizardplusplus/go-link-shortener)
-[![codecov](https://codecov.io/gh/thewizardplusplus/go-link-shortener/branch/master/graph/badge.svg)](https://codecov.io/gh/thewizardplusplus/go-link-shortener)
+[![GoDoc](https://godoc.org/github.com/thewizardplusplus/go-link-shortener-backend?status.svg)](https://godoc.org/github.com/thewizardplusplus/go-link-shortener-backend)
+[![Go Report Card](https://goreportcard.com/badge/github.com/thewizardplusplus/go-link-shortener-backend)](https://goreportcard.com/report/github.com/thewizardplusplus/go-link-shortener-backend)
+[![Build Status](https://travis-ci.org/thewizardplusplus/go-link-shortener-backend.svg?branch=master)](https://travis-ci.org/thewizardplusplus/go-link-shortener-backend)
+[![codecov](https://codecov.io/gh/thewizardplusplus/go-link-shortener-backend/branch/master/graph/badge.svg)](https://codecov.io/gh/thewizardplusplus/go-link-shortener-backend)
 
 ## Installation
 
 ```
-$ go get github.com/thewizardplusplus/go-link-shortener/...
+$ go get github.com/thewizardplusplus/go-link-shortener-backend/...
 ```
 
 ## Docs

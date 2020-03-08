@@ -8,7 +8,7 @@ import (
 	"testing/iotest"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/thewizardplusplus/go-link-shortener/entities"
+	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
 
 type TimeoutResponseRecorder struct {

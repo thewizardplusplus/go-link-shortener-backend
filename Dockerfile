@@ -5,7 +5,7 @@ RUN apk update && \
   curl -fsSL -o /usr/local/bin/dep https://github.com/golang/dep/releases/download/v0.5.4/dep-linux-amd64 && \
   chmod +x /usr/local/bin/dep
 
-WORKDIR /go/src/github.com/thewizardplusplus/go-link-shortener
+WORKDIR /go/src/github.com/thewizardplusplus/go-link-shortener-backend
 COPY Gopkg.toml Gopkg.lock ./
 RUN dep ensure -vendor-only
 

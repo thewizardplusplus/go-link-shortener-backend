@@ -2,7 +2,7 @@ package usecases
 
 import (
 	"github.com/pkg/errors"
-	"github.com/thewizardplusplus/go-link-shortener/entities"
+	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
 
 //go:generate mockery -name=LinkSetter -inpkg -case=underscore -testonly
