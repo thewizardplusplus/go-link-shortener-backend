@@ -7,13 +7,6 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/counters"
 )
 
-//go:generate mockery -name=DistributedCounter -inpkg -case=underscore -testonly
-
-// DistributedCounter ...
-type DistributedCounter interface {
-	NextCountChunk() (uint64, error)
-}
-
 // RandomSource ...
 //
 // It should NOT be concurrently safe, because it'll call only under lock.
@@ -26,7 +19,7 @@ type Formatter func(code uint64) string
 type DistributedGenerator struct {
 	locker              sync.Mutex
 	counter             counters.ChunkedCounter
-	distributedCounters []DistributedCounter
+	distributedCounters []counters.DistributedCounter
 	randomSource        RandomSource
 	formatter           Formatter
 }
@@ -34,7 +27,7 @@ type DistributedGenerator struct {
 // NewDistributedGenerator ...
 func NewDistributedGenerator(
 	chunkSize uint64,
-	distributedCounters []DistributedCounter,
+	distributedCounters []counters.DistributedCounter,
 	randomSource RandomSource,
 	formatter Formatter,
 ) *DistributedGenerator {
@@ -71,7 +64,7 @@ func (generator *DistributedGenerator) resetCounter() error {
 	return nil
 }
 
-func (generator *DistributedGenerator) selectCounter() DistributedCounter {
+func (generator *DistributedGenerator) selectCounter() counters.DistributedCounter {
 	index := generator.randomSource(len(generator.distributedCounters))
 	return generator.distributedCounters[index]
 }

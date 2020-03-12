@@ -24,7 +24,7 @@ func NewMarkedDistributedCounter(id int) *MarkedDistributedCounter {
 }
 
 func TestNewDistributedGenerator(test *testing.T) {
-	distributedCounters := []DistributedCounter{
+	distributedCounters := []counters.DistributedCounter{
 		NewMarkedDistributedCounter(1),
 		NewMarkedDistributedCounter(2),
 	}
@@ -46,7 +46,7 @@ func TestNewDistributedGenerator(test *testing.T) {
 func TestDistributedGenerator_GenerateCode(test *testing.T) {
 	type fields struct {
 		counter             counters.ChunkedCounter
-		distributedCounters []DistributedCounter
+		distributedCounters []counters.DistributedCounter
 		randomSource        RandomSource
 		formatter           Formatter
 	}
@@ -67,7 +67,7 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 
 					return counter
 				}(),
-				distributedCounters: []DistributedCounter{
+				distributedCounters: []counters.DistributedCounter{
 					NewMarkedDistributedCounter(1),
 					NewMarkedDistributedCounter(2),
 				},
@@ -96,13 +96,13 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 
 					return counter
 				}(),
-				distributedCounters: func() []DistributedCounter {
+				distributedCounters: func() []counters.DistributedCounter {
 					firstCounter := NewMarkedDistributedCounter(1)
 
 					secondCounter := NewMarkedDistributedCounter(2)
 					secondCounter.On("NextCountChunk").Return(uint64(100), nil)
 
-					return []DistributedCounter{firstCounter, secondCounter}
+					return []counters.DistributedCounter{firstCounter, secondCounter}
 				}(),
 				randomSource: rand.New(rand.NewSource(1)).Intn,
 				formatter:    func(code uint64) string { return fmt.Sprintf("[%d]", code) },
@@ -129,13 +129,13 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 
 					return counter
 				}(),
-				distributedCounters: func() []DistributedCounter {
+				distributedCounters: func() []counters.DistributedCounter {
 					firstCounter := NewMarkedDistributedCounter(1)
 
 					secondCounter := NewMarkedDistributedCounter(2)
 					secondCounter.On("NextCountChunk").Return(uint64(0), iotest.ErrTimeout)
 
-					return []DistributedCounter{firstCounter, secondCounter}
+					return []counters.DistributedCounter{firstCounter, secondCounter}
 				}(),
 				randomSource: rand.New(rand.NewSource(1)).Intn,
 				formatter:    func(code uint64) string { panic("not implemented") },
@@ -175,7 +175,7 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 func TestDistributedGenerator_resetCounter(test *testing.T) {
 	type fields struct {
 		counter             counters.ChunkedCounter
-		distributedCounters []DistributedCounter
+		distributedCounters []counters.DistributedCounter
 		randomSource        RandomSource
 		formatter           Formatter
 	}
@@ -195,13 +195,13 @@ func TestDistributedGenerator_resetCounter(test *testing.T) {
 
 					return counter
 				}(),
-				distributedCounters: func() []DistributedCounter {
+				distributedCounters: func() []counters.DistributedCounter {
 					firstCounter := NewMarkedDistributedCounter(1)
 
 					secondCounter := NewMarkedDistributedCounter(2)
 					secondCounter.On("NextCountChunk").Return(uint64(100), nil)
 
-					return []DistributedCounter{firstCounter, secondCounter}
+					return []counters.DistributedCounter{firstCounter, secondCounter}
 				}(),
 				randomSource: rand.New(rand.NewSource(1)).Intn,
 				formatter:    func(code uint64) string { panic("not implemented") },
@@ -223,13 +223,13 @@ func TestDistributedGenerator_resetCounter(test *testing.T) {
 
 					return counter
 				}(),
-				distributedCounters: func() []DistributedCounter {
+				distributedCounters: func() []counters.DistributedCounter {
 					firstCounter := NewMarkedDistributedCounter(1)
 
 					secondCounter := NewMarkedDistributedCounter(2)
 					secondCounter.On("NextCountChunk").Return(uint64(0), iotest.ErrTimeout)
 
-					return []DistributedCounter{firstCounter, secondCounter}
+					return []counters.DistributedCounter{firstCounter, secondCounter}
 				}(),
 				randomSource: rand.New(rand.NewSource(1)).Intn,
 				formatter:    func(code uint64) string { panic("not implemented") },
@@ -262,7 +262,7 @@ func TestDistributedGenerator_resetCounter(test *testing.T) {
 }
 
 func TestDistributedGenerator_selectCounter(test *testing.T) {
-	distributedCounters := []DistributedCounter{
+	distributedCounters := []counters.DistributedCounter{
 		NewMarkedDistributedCounter(1),
 		NewMarkedDistributedCounter(2),
 	}
