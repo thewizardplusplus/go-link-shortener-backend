@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/counters"
 )
 
 type MarkedDistributedCounter struct {
@@ -36,7 +37,7 @@ func TestNewDistributedGenerator(test *testing.T) {
 		mock.AssertExpectationsForObjects(test, distributedCounter)
 	}
 	require.NotNil(test, got)
-	assert.Equal(test, chunkedCounter{step: 23}, got.counter)
+	assert.Equal(test, counters.NewChunkedCounter(23), got.counter)
 	assert.Equal(test, distributedCounters, got.distributedCounters)
 	assert.Equal(test, getPointer(randomSource), getPointer(got.randomSource))
 	assert.Equal(test, getPointer(formatter), getPointer(got.formatter))
@@ -44,7 +45,7 @@ func TestNewDistributedGenerator(test *testing.T) {
 
 func TestDistributedGenerator_GenerateCode(test *testing.T) {
 	type fields struct {
-		counter             chunkedCounter
+		counter             counters.ChunkedCounter
 		distributedCounters []DistributedCounter
 		randomSource        RandomSource
 		formatter           Formatter
@@ -53,14 +54,19 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 	for _, data := range []struct {
 		name        string
 		fields      fields
-		wantCounter chunkedCounter
+		wantCounter counters.ChunkedCounter
 		wantCode    string
 		wantErr     assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success with incrementing",
 			fields: fields{
-				counter: chunkedCounter{step: 23, current: 42, final: 65},
+				counter: func() counters.ChunkedCounter {
+					counter := counters.NewChunkedCounter(23)
+					counter.Reset(42)
+
+					return counter
+				}(),
 				distributedCounters: []DistributedCounter{
 					NewMarkedDistributedCounter(1),
 					NewMarkedDistributedCounter(2),
@@ -68,14 +74,28 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 				randomSource: func(maximum int) int { panic("not implemented") },
 				formatter:    func(code uint64) string { return fmt.Sprintf("[%d]", code) },
 			},
-			wantCounter: chunkedCounter{step: 23, current: 43, final: 65},
-			wantCode:    "[42]",
-			wantErr:     assert.NoError,
+			wantCounter: func() counters.ChunkedCounter {
+				counter := counters.NewChunkedCounter(23)
+				counter.Reset(42)
+				counter.Increase()
+
+				return counter
+			}(),
+			wantCode: "[42]",
+			wantErr:  assert.NoError,
 		},
 		{
 			name: "success with resetting",
 			fields: fields{
-				counter: chunkedCounter{step: 23, current: 65, final: 65},
+				counter: func() counters.ChunkedCounter {
+					counter := counters.NewChunkedCounter(23)
+					counter.Reset(42)
+					for !counter.IsOver() {
+						counter.Increase()
+					}
+
+					return counter
+				}(),
 				distributedCounters: func() []DistributedCounter {
 					firstCounter := NewMarkedDistributedCounter(1)
 
@@ -87,14 +107,28 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 				randomSource: rand.New(rand.NewSource(1)).Intn,
 				formatter:    func(code uint64) string { return fmt.Sprintf("[%d]", code) },
 			},
-			wantCounter: chunkedCounter{step: 23, current: 101, final: 123},
-			wantCode:    "[100]",
-			wantErr:     assert.NoError,
+			wantCounter: func() counters.ChunkedCounter {
+				counter := counters.NewChunkedCounter(23)
+				counter.Reset(100)
+				counter.Increase()
+
+				return counter
+			}(),
+			wantCode: "[100]",
+			wantErr:  assert.NoError,
 		},
 		{
 			name: "error with resetting",
 			fields: fields{
-				counter: chunkedCounter{step: 23, current: 65, final: 65},
+				counter: func() counters.ChunkedCounter {
+					counter := counters.NewChunkedCounter(23)
+					counter.Reset(42)
+					for !counter.IsOver() {
+						counter.Increase()
+					}
+
+					return counter
+				}(),
 				distributedCounters: func() []DistributedCounter {
 					firstCounter := NewMarkedDistributedCounter(1)
 
@@ -106,9 +140,17 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 				randomSource: rand.New(rand.NewSource(1)).Intn,
 				formatter:    func(code uint64) string { panic("not implemented") },
 			},
-			wantCounter: chunkedCounter{step: 23, current: 65, final: 65},
-			wantCode:    "",
-			wantErr:     assert.Error,
+			wantCounter: func() counters.ChunkedCounter {
+				counter := counters.NewChunkedCounter(23)
+				counter.Reset(42)
+				for !counter.IsOver() {
+					counter.Increase()
+				}
+
+				return counter
+			}(),
+			wantCode: "",
+			wantErr:  assert.Error,
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
@@ -132,7 +174,7 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 
 func TestDistributedGenerator_resetCounter(test *testing.T) {
 	type fields struct {
-		counter             chunkedCounter
+		counter             counters.ChunkedCounter
 		distributedCounters []DistributedCounter
 		randomSource        RandomSource
 		formatter           Formatter
@@ -141,13 +183,18 @@ func TestDistributedGenerator_resetCounter(test *testing.T) {
 	for _, data := range []struct {
 		name        string
 		fields      fields
-		wantCounter chunkedCounter
+		wantCounter counters.ChunkedCounter
 		wantErr     assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			fields: fields{
-				counter: chunkedCounter{step: 23, current: 42, final: 65},
+				counter: func() counters.ChunkedCounter {
+					counter := counters.NewChunkedCounter(23)
+					counter.Reset(42)
+
+					return counter
+				}(),
 				distributedCounters: func() []DistributedCounter {
 					firstCounter := NewMarkedDistributedCounter(1)
 
@@ -159,13 +206,23 @@ func TestDistributedGenerator_resetCounter(test *testing.T) {
 				randomSource: rand.New(rand.NewSource(1)).Intn,
 				formatter:    func(code uint64) string { panic("not implemented") },
 			},
-			wantCounter: chunkedCounter{step: 23, current: 100, final: 123},
-			wantErr:     assert.NoError,
+			wantCounter: func() counters.ChunkedCounter {
+				counter := counters.NewChunkedCounter(23)
+				counter.Reset(100)
+
+				return counter
+			}(),
+			wantErr: assert.NoError,
 		},
 		{
 			name: "error",
 			fields: fields{
-				counter: chunkedCounter{step: 23, current: 42, final: 65},
+				counter: func() counters.ChunkedCounter {
+					counter := counters.NewChunkedCounter(23)
+					counter.Reset(42)
+
+					return counter
+				}(),
 				distributedCounters: func() []DistributedCounter {
 					firstCounter := NewMarkedDistributedCounter(1)
 
@@ -177,8 +234,13 @@ func TestDistributedGenerator_resetCounter(test *testing.T) {
 				randomSource: rand.New(rand.NewSource(1)).Intn,
 				formatter:    func(code uint64) string { panic("not implemented") },
 			},
-			wantCounter: chunkedCounter{step: 23, current: 42, final: 65},
-			wantErr:     assert.Error,
+			wantCounter: func() counters.ChunkedCounter {
+				counter := counters.NewChunkedCounter(23)
+				counter.Reset(42)
+
+				return counter
+			}(),
+			wantErr: assert.Error,
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
@@ -205,7 +267,7 @@ func TestDistributedGenerator_selectCounter(test *testing.T) {
 		NewMarkedDistributedCounter(2),
 	}
 	generator := &DistributedGenerator{
-		counter:             chunkedCounter{step: 23},
+		counter:             counters.NewChunkedCounter(23),
 		distributedCounters: distributedCounters,
 		randomSource:        rand.New(rand.NewSource(1)).Intn,
 		formatter:           func(code uint64) string { panic("not implemented") },
