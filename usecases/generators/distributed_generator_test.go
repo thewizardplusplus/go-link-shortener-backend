@@ -1,5 +1,6 @@
 package generators
 
+// nolint: lll
 import (
 	"fmt"
 	"math/rand"
@@ -10,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/counters"
+	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators/counters"
 )
 
 type MarkedDistributedCounter struct {

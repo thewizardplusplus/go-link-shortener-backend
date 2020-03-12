@@ -23,6 +23,7 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/storage"
 	"github.com/thewizardplusplus/go-link-shortener-backend/usecases"
 	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators"
+	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators/counters"
 	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators/formatters"
 )
 
@@ -80,7 +81,7 @@ func main() {
 		errorLogger.Fatalf("error with creating the counter client: %v", err)
 	}
 
-	var counters []generators.DistributedCounter
+	var counters []counters.DistributedCounter
 	for i := 0; i < options.Counter.Count; i++ {
 		counters = append(counters, counter.Counter{
 			Client: counterClient,

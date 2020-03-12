@@ -1,10 +1,11 @@
 package generators
 
+// nolint: lll
 import (
 	"sync"
 
 	"github.com/pkg/errors"
-	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/counters"
+	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators/counters"
 )
 
 // RandomSource ...
@@ -64,7 +65,9 @@ func (generator *DistributedGenerator) resetCounter() error {
 	return nil
 }
 
-func (generator *DistributedGenerator) selectCounter() counters.DistributedCounter {
+func (
+	generator *DistributedGenerator,
+) selectCounter() counters.DistributedCounter {
 	index := generator.randomSource(len(generator.distributedCounters))
 	return generator.distributedCounters[index]
 }
