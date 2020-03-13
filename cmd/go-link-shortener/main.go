@@ -81,11 +81,14 @@ func main() {
 		errorLogger.Fatalf("error with creating the counter client: %v", err)
 	}
 
-	var counters []counters.DistributedCounter
+	var distributedCounters []counters.DistributedCounter
 	for i := 0; i < options.Counter.Count; i++ {
-		counters = append(counters, counter.Counter{
-			Client: counterClient,
-			Name:   fmt.Sprintf(counterNameTemplate, i),
+		distributedCounters = append(distributedCounters, counters.MultipliedCounter{
+			DistributedCounter: counter.Counter{
+				Client: counterClient,
+				Name:   fmt.Sprintf(counterNameTemplate, i),
+			},
+			Factor: options.Counter.Chunk,
 		})
 	}
 
@@ -168,7 +171,7 @@ func main() {
 				},
 				CodeGenerator: generators.NewDistributedGenerator(
 					options.Counter.Chunk,
-					counters,
+					distributedCounters,
 					rand.New(rand.NewSource(time.Now().UnixNano())).Intn,
 					formatters.InBase62,
 				),
