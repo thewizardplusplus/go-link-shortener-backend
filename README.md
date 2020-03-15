@@ -51,7 +51,8 @@ Environment variables:
 - `STORAGE_ADDRESS` &mdash; [MongoDB](https://www.mongodb.com/) connection URI (default: `mongodb://localhost:27017`);
 - `COUNTER_ADDRESS` &mdash; [etcd](https://etcd.io/) connection URI (default: `localhost:2379`);
 - `COUNTER_COUNT` &mdash; count of distributed counters (default: `2`);
-- `COUNTER_CHUNK` &mdash; step of a distributed counter (default: `1000`).
+- `COUNTER_CHUNK` &mdash; step of a distributed counter (default: `1000`);
+- `COUNTER_RANGE` &mdash; range of a distributed counter (default: `1000000000`).
 
 ## API Description
 

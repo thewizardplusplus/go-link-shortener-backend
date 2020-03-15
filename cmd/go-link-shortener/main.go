@@ -46,6 +46,7 @@ type options struct {
 		Address string `env:"COUNTER_ADDRESS" envDefault:"localhost:2379"`
 		Count   int    `env:"COUNTER_COUNT" envDefault:"2"`
 		Chunk   uint64 `env:"COUNTER_CHUNK" envDefault:"1000"`
+		Range   uint64 `env:"COUNTER_RANGE" envDefault:"1000000000"`
 	}
 }
 
@@ -55,7 +56,6 @@ const (
 	storageDatabase        = "go-link-shortener"
 	storageCollection      = "links"
 	counterNameTemplate    = "distributed-counter-%d"
-	counterRange           = 1e9
 )
 
 func main() {
@@ -92,7 +92,7 @@ func main() {
 				},
 				Factor: options.Counter.Chunk,
 			},
-			Offset: uint64(i * counterRange),
+			Offset: uint64(i) * options.Counter.Range,
 		})
 	}
 
