@@ -55,6 +55,7 @@ const (
 	storageDatabase        = "go-link-shortener"
 	storageCollection      = "links"
 	counterNameTemplate    = "distributed-counter-%d"
+	counterRange           = 1e9
 )
 
 func main() {
@@ -83,12 +84,15 @@ func main() {
 
 	var distributedCounters []counters.DistributedCounter
 	for i := 0; i < options.Counter.Count; i++ {
-		distributedCounters = append(distributedCounters, counters.MultipliedCounter{
-			DistributedCounter: counter.Counter{
-				Client: counterClient,
-				Name:   fmt.Sprintf(counterNameTemplate, i),
+		distributedCounters = append(distributedCounters, counters.ShiftedCounter{
+			DistributedCounter: counters.MultipliedCounter{
+				DistributedCounter: counter.Counter{
+					Client: counterClient,
+					Name:   fmt.Sprintf(counterNameTemplate, i),
+				},
+				Factor: options.Counter.Chunk,
 			},
-			Factor: options.Counter.Chunk,
+			Offset: uint64(i * counterRange),
 		})
 	}
 
