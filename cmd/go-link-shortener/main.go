@@ -128,7 +128,6 @@ func main() {
 		Printer:        errorLogger,
 	}
 
-	staticFileHandler := http.FileServer(http.Dir(options.Server.StaticPath))
 	routerHandler := router.NewRouter(redirectEndpointPrefix, router.Handlers{
 		LinkRedirectHandler: handlers.LinkGettingHandler{
 			LinkGetter:     linkByCodeGetter,
@@ -184,19 +183,10 @@ func main() {
 			LinkPresenter:  jsonLinkPresenter,
 			ErrorPresenter: jsonErrorPresenter,
 		},
-		StaticFileHandler: http.HandlerFunc(func(
-			writer http.ResponseWriter,
-			request *http.Request,
-		) {
-			catchingWriter := httputils.NewCatchingResponseWriter(writer)
-			staticFileHandler.ServeHTTP(catchingWriter, request)
-
-			// errors with writing to the http.ResponseWriter is important to handle,
-			// see for details: https://stackoverflow.com/a/43976633
-			if err := catchingWriter.LastError(); err != nil {
-				errorLogger.Printf("unable to handle the static file: %v", err)
-			}
-		}),
+		StaticFileHandler: httputils.CatchingHandler{
+			Handler: http.FileServer(http.Dir(options.Server.StaticPath)),
+			Printer: errorLogger,
+		},
 	})
 	routerHandler.
 		Use(middlewares.RecoveryHandler(middlewares.RecoveryLogger(errorLogger)))
