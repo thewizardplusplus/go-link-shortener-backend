@@ -90,13 +90,10 @@ func main() {
 				Client: counterClient,
 				Name:   fmt.Sprintf(counterNameTemplate, i),
 			},
-			Transformer: func(countChunk uint64) uint64 {
-				return transformers.Linear(
-					countChunk,
-					transformers.WithFactor(options.Counter.Chunk),
-					transformers.WithOffset(uint64(i)*options.Counter.Range),
-				)
-			},
+			Transformer: transformers.NewLinear(
+				transformers.WithFactor(options.Counter.Chunk),
+				transformers.WithOffset(uint64(i)*options.Counter.Range),
+			),
 		})
 	}
 

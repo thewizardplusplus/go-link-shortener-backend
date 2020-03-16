@@ -1,5 +1,10 @@
 package transformers
 
+// nolint: lll
+import (
+	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators/counters"
+)
+
 // LinearConfig ...
 type LinearConfig struct {
 	factor uint64
@@ -19,8 +24,8 @@ func WithOffset(offset uint64) LinearOption {
 	return func(config *LinearConfig) { config.offset = offset }
 }
 
-// Linear ...
-func Linear(countChunk uint64, options ...LinearOption) uint64 {
+// NewLinear ...
+func NewLinear(options ...LinearOption) counters.Transformer {
 	config := LinearConfig{
 		factor: 1,
 		offset: 0,
@@ -29,5 +34,7 @@ func Linear(countChunk uint64, options ...LinearOption) uint64 {
 		option(&config)
 	}
 
-	return countChunk*config.factor + config.offset
+	return func(countChunk uint64) uint64 {
+		return countChunk*config.factor + config.offset
+	}
 }
