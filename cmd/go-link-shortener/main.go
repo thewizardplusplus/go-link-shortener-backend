@@ -84,15 +84,15 @@ func main() {
 
 	var distributedCounters []counters.DistributedCounter
 	for i := 0; i < options.Counter.Count; i++ {
-		distributedCounters = append(distributedCounters, counters.ShiftedCounter{
-			DistributedCounter: counters.MultipliedCounter{
-				DistributedCounter: counter.Counter{
-					Client: counterClient,
-					Name:   fmt.Sprintf(counterNameTemplate, i),
-				},
-				Factor: options.Counter.Chunk,
+		distributedCounters = append(distributedCounters, counters.TransformedCounter{
+			DistributedCounter: counter.Counter{
+				Client: counterClient,
+				Name:   fmt.Sprintf(counterNameTemplate, i),
 			},
-			Offset: uint64(i) * options.Counter.Range,
+			Transformer: func(countChunk uint64) uint64 {
+				offset := uint64(i) * options.Counter.Range
+				return countChunk*options.Counter.Chunk + offset
+			},
 		})
 	}
 

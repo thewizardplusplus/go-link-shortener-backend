@@ -8,10 +8,10 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestMultipliedCounter_NextCountChunk(test *testing.T) {
+func TestTransformedCounter_NextCountChunk(test *testing.T) {
 	type fields struct {
 		DistributedCounter DistributedCounter
-		Factor             uint64
+		Transformer        Transformer
 	}
 
 	for _, data := range []struct {
@@ -29,9 +29,9 @@ func TestMultipliedCounter_NextCountChunk(test *testing.T) {
 
 					return counter
 				}(),
-				Factor: 1000,
+				Transformer: func(countChunk uint64) uint64 { return countChunk * 2 },
 			},
-			wantChunk: 5000,
+			wantChunk: 10,
 			wantErr:   assert.NoError,
 		},
 		{
@@ -43,16 +43,16 @@ func TestMultipliedCounter_NextCountChunk(test *testing.T) {
 
 					return counter
 				}(),
-				Factor: 1000,
+				Transformer: func(countChunk uint64) uint64 { panic("not implemented") },
 			},
 			wantChunk: 0,
 			wantErr:   assert.Error,
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
-			counter := MultipliedCounter{
+			counter := TransformedCounter{
 				DistributedCounter: data.fields.DistributedCounter,
-				Factor:             data.fields.Factor,
+				Transformer:        data.fields.Transformer,
 			}
 			gotChunk, gotErr := counter.NextCountChunk()
 
