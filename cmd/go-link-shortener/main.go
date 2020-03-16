@@ -24,6 +24,7 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener-backend/usecases"
 	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators"
 	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators/counters"
+	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators/counters/transformers"
 	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators/formatters"
 )
 
@@ -90,8 +91,11 @@ func main() {
 				Name:   fmt.Sprintf(counterNameTemplate, i),
 			},
 			Transformer: func(countChunk uint64) uint64 {
-				offset := uint64(i) * options.Counter.Range
-				return countChunk*options.Counter.Chunk + offset
+				return transformers.Linear(
+					countChunk,
+					transformers.WithFactor(options.Counter.Chunk),
+					transformers.WithOffset(uint64(i)*options.Counter.Range),
+				)
 			},
 		})
 	}
