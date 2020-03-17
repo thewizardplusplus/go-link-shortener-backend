@@ -111,14 +111,6 @@ func main() {
 		ErrorURL: errorURL,
 		Printer:  errorLogger,
 	}
-	redirectLinkPresenter := presenters.SilentLinkPresenter{
-		LinkPresenter: redirectPresenter,
-		Printer:       errorLogger,
-	}
-	redirectErrorPresenter := presenters.SilentErrorPresenter{
-		ErrorPresenter: redirectPresenter,
-		Printer:        errorLogger,
-	}
 	jsonLinkPresenter := presenters.SilentLinkPresenter{
 		LinkPresenter: presenters.JSONPresenter{},
 		Printer:       errorLogger,
@@ -130,9 +122,15 @@ func main() {
 
 	routerHandler := router.NewRouter(redirectEndpointPrefix, router.Handlers{
 		LinkRedirectHandler: handlers.LinkGettingHandler{
-			LinkGetter:     linkByCodeGetter,
-			LinkPresenter:  redirectLinkPresenter,
-			ErrorPresenter: redirectErrorPresenter,
+			LinkGetter: linkByCodeGetter,
+			LinkPresenter: presenters.SilentLinkPresenter{
+				LinkPresenter: redirectPresenter,
+				Printer:       errorLogger,
+			},
+			ErrorPresenter: presenters.SilentErrorPresenter{
+				ErrorPresenter: redirectPresenter,
+				Printer:        errorLogger,
+			},
 		},
 		LinkGettingHandler: handlers.LinkGettingHandler{
 			LinkGetter:     linkByCodeGetter,
