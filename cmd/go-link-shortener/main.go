@@ -175,8 +175,10 @@ func main() {
 				},
 				CodeGenerator: generators.NewDistributedGenerator(
 					options.Counter.Chunk,
-					distributedCounters,
-					rand.New(rand.NewSource(time.Now().UnixNano())).Intn,
+					counters.CounterGroup{
+						DistributedCounters: distributedCounters,
+						RandomSource:        rand.New(rand.NewSource(time.Now().UnixNano())).Intn,
+					},
 					formatters.InBase62,
 				),
 			},
