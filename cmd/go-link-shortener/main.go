@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"os/signal"
 	"time"
 
 	"github.com/caarlos0/env"
@@ -195,29 +194,15 @@ func main() {
 			return middlewares.LoggingHandler(os.Stdout, handler)
 		})
 
-	server := http.Server{
-		Addr:    options.Server.Address,
-		Handler: routerHandler,
-	}
-
-	done := make(chan struct{})
-	go func() {
-		interrupt := make(chan os.Signal, 1)
-		signal.Notify(interrupt, os.Interrupt)
-		<-interrupt
-
-		if err := server.Shutdown(context.Background()); err != nil {
-			// error with closing listeners
-			errorLogger.Printf("error with shutdown: %v", err)
-		}
-
-		close(done)
-	}()
-
-	if err := server.ListenAndServe(); err != http.ErrServerClosed {
-		// error with starting or closing listeners
-		errorLogger.Fatalf("error with listening and serving: %v", err)
-	}
-
-	<-done
+	httputils.RunServer(
+		context.Background(),
+		httputils.RunServerDependencies{
+			Server: &http.Server{
+				Addr:    options.Server.Address,
+				Handler: routerHandler,
+			},
+			Printer: errorLogger,
+		},
+		os.Interrupt,
+	)
 }
