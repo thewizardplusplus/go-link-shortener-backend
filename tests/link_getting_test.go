@@ -191,7 +191,8 @@ func TestLinkGetting(test *testing.T) {
 			require.NoError(test, err)
 			defer response.Body.Close()
 
-			json.NewDecoder(response.Body).Decode(data.response)
+			err = json.NewDecoder(response.Body).Decode(data.response)
+			require.NoError(test, err)
 
 			assert.Equal(test, data.wantStatus, response.StatusCode)
 			assert.Equal(test, "application/json", response.Header.Get("Content-Type"))

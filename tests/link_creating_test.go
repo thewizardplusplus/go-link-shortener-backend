@@ -117,7 +117,8 @@ func TestLinkCreating(test *testing.T) {
 					require.NoError(test, err)
 
 					var link entities.Link
-					json.NewDecoder(strings.NewReader(data)).Decode(&link)
+					err = json.NewDecoder(strings.NewReader(data)).Decode(&link)
+					require.NoError(test, err)
 
 					assert.Equal(test, expectedLink, link)
 					assert.InDelta(test, time.Hour, duration, float64(10*time.Second))
@@ -219,7 +220,8 @@ func TestLinkCreating(test *testing.T) {
 				require.NoError(test, err)
 
 				var link entities.Link
-				json.NewDecoder(strings.NewReader(data)).Decode(&link)
+				err = json.NewDecoder(strings.NewReader(data)).Decode(&link)
+				require.NoError(test, err)
 
 				err = storage.
 					Database("go-link-shortener").
@@ -398,7 +400,8 @@ func TestLinkCreating(test *testing.T) {
 				require.NoError(test, err)
 
 				var link entities.Link
-				json.NewDecoder(strings.NewReader(data)).Decode(&link)
+				err = json.NewDecoder(strings.NewReader(data)).Decode(&link)
+				require.NoError(test, err)
 
 				err = storage.
 					Database("go-link-shortener").
@@ -432,7 +435,8 @@ func TestLinkCreating(test *testing.T) {
 			defer response.Body.Close()
 
 			var link entities.Link
-			json.NewDecoder(response.Body).Decode(&link)
+			err = json.NewDecoder(response.Body).Decode(&link)
+			require.NoError(test, err)
 
 			assert.Equal(test, data.wantStatus, response.StatusCode)
 			assert.Equal(test, "application/json", response.Header.Get("Content-Type"))
