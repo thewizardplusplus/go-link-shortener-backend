@@ -15,6 +15,7 @@ import (
 
 	"github.com/caarlos0/env"
 	"github.com/go-redis/redis"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 	"go.etcd.io/etcd/clientv3"
@@ -32,6 +33,8 @@ func TestLinkCreating_bulky(test *testing.T) {
 		Counter        struct {
 			Address string `env:"COUNTER_ADDRESS" envDefault:"localhost:2379"`
 			Count   int    `env:"COUNTER_COUNT" envDefault:"2"`
+			Chunk   uint64 `env:"COUNTER_CHUNK" envDefault:"1000"`
+			Range   uint64 `env:"COUNTER_RANGE" envDefault:"1000000000"`
 		}
 	}
 
@@ -87,7 +90,41 @@ func TestLinkCreating_bulky(test *testing.T) {
 			},
 			count: 10000,
 			check: func(test *testing.T, preparedData interface{}, codes []uint64) {
-				test.Log(codes)
+				var testedCodeCount int
+				for i := 0; i < opts.Counter.Count; i++ {
+					var counterCodes []uint64
+					minimum := uint64(i) * opts.Counter.Range
+					maximum := uint64(i+1) * opts.Counter.Range
+					for _, code := range codes {
+						if code >= minimum && code < maximum {
+							counterCodes = append(counterCodes, code)
+						}
+					}
+					if len(counterCodes) == 0 {
+						continue
+					}
+
+					// check that the row start differs from the counter
+					// by no more than the chunk size
+					assert.InDelta(
+						test,
+						preparedData.([]uint64)[i]*opts.Counter.Chunk+minimum,
+						counterCodes[0],
+						float64(opts.Counter.Chunk),
+					)
+
+					// check that codes in the row increase and differ
+					// by either 1 or the chunk size
+					for j := 1; j < len(counterCodes); j++ {
+						delta := counterCodes[j] - counterCodes[j-1]
+						assert.Contains(test, []uint64{1, opts.Counter.Chunk + 1}, delta)
+					}
+
+					testedCodeCount += len(counterCodes)
+				}
+
+				// check that all codes are in the range of any counter
+				assert.Equal(test, len(codes), testedCodeCount)
 			},
 		},
 	} {
