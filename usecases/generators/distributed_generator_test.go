@@ -172,14 +172,26 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 }
 
 func TestDistributedGenerator_GenerateCode_bulky(test *testing.T) {
-	var countChunk uint64
-	counter := new(MockDistributedCounter)
-	counter.
+	var countChunkOne uint64
+	counterOne := new(MockDistributedCounter)
+	counterOne.
 		On("NextCountChunk").
 		Return(
 			func() uint64 {
-				defer func() { countChunk++ }()
-				return countChunk * 10
+				defer func() { countChunkOne++ }()
+				return countChunkOne * 10
+			},
+			nil,
+		)
+
+	var countChunkTwo uint64
+	counterTwo := new(MockDistributedCounter)
+	counterTwo.
+		On("NextCountChunk").
+		Return(
+			func() uint64 {
+				defer func() { countChunkTwo++ }()
+				return countChunkTwo*10 + 100
 			},
 			nil,
 		)
@@ -187,8 +199,8 @@ func TestDistributedGenerator_GenerateCode_bulky(test *testing.T) {
 	generator := NewDistributedGenerator(
 		10,
 		counters.CounterGroup{
-			DistributedCounters: []counters.DistributedCounter{counter},
-			RandomSource:        rand.Intn,
+			DistributedCounters: []counters.DistributedCounter{counterOne, counterTwo},
+			RandomSource:        rand.New(rand.NewSource(1)).Intn,
 		},
 		formatters.InBase10,
 	)
@@ -202,8 +214,24 @@ func TestDistributedGenerator_GenerateCode_bulky(test *testing.T) {
 	}
 
 	var wantCodes []string
+	var counterIndex, counterValueOne, counterValueTwo int
+	random := rand.New(rand.NewSource(1))
 	for i := 0; i < 100; i++ {
-		wantCodes = append(wantCodes, strconv.Itoa(i))
+		if i%10 == 0 {
+			counterIndex = random.Intn(2)
+		}
+
+		var code int
+		switch counterIndex {
+		case 0:
+			code = counterValueOne
+			counterValueOne++
+		case 1:
+			code = counterValueTwo + 100
+			counterValueTwo++
+		}
+
+		wantCodes = append(wantCodes, strconv.Itoa(code))
 	}
 
 	assert.Equal(test, wantCodes, gotCodes)
