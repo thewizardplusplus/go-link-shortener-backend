@@ -3,7 +3,9 @@ package generators
 // nolint: lll
 import (
 	"fmt"
+	"math/rand"
 	"reflect"
+	"strconv"
 	"testing"
 	"testing/iotest"
 
@@ -11,6 +13,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators/counters"
+	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators/formatters"
 )
 
 type MemorableDistributedCounter struct {
@@ -166,6 +169,44 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 			data.wantErr(test, gotErr)
 		})
 	}
+}
+
+func TestDistributedGenerator_GenerateCode_bulky(test *testing.T) {
+	var countChunk uint64
+	counter := new(MockDistributedCounter)
+	counter.
+		On("NextCountChunk").
+		Return(
+			func() uint64 {
+				defer func() { countChunk++ }()
+				return countChunk * 10
+			},
+			nil,
+		)
+
+	generator := NewDistributedGenerator(
+		10,
+		counters.CounterGroup{
+			DistributedCounters: []counters.DistributedCounter{counter},
+			RandomSource:        rand.Intn,
+		},
+		formatters.InBase10,
+	)
+
+	var gotCodes []string
+	for i := 0; i < 100; i++ {
+		code, err := generator.GenerateCode()
+		require.NoError(test, err)
+
+		gotCodes = append(gotCodes, code)
+	}
+
+	var wantCodes []string
+	for i := 0; i < 100; i++ {
+		wantCodes = append(wantCodes, strconv.Itoa(i))
+	}
+
+	assert.Equal(test, wantCodes, gotCodes)
 }
 
 func TestDistributedGenerator_resetCounter(test *testing.T) {
