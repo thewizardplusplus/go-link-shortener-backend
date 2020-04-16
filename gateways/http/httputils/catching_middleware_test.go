@@ -9,27 +9,31 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestCatchingHandler_ServeHTTP(test *testing.T) {
-	type fields struct {
-		Handler http.Handler
-		Printer Printer
-	}
+func TestCatchingMiddleware(test *testing.T) {
 	type args struct {
+		printer Printer
+	}
+	type middlewareArgs struct {
+		next http.Handler
+	}
+	type handlerArgs struct {
 		writer  http.ResponseWriter
 		request *http.Request
 	}
 
 	for _, data := range []struct {
-		name   string
-		fields fields
-		args   args
+		name           string
+		args           args
+		middlewareArgs middlewareArgs
+		handlerArgs    handlerArgs
 	}{
 		{
 			name: "success",
-			fields: fields{
-				Handler: func() http.Handler {
-					request := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
-
+			args: args{
+				printer: new(MockPrinter),
+			},
+			middlewareArgs: middlewareArgs{
+				next: func() http.Handler {
 					handler := new(MockHandler)
 					handler.
 						On(
@@ -38,15 +42,14 @@ func TestCatchingHandler_ServeHTTP(test *testing.T) {
 								writer.Write([]byte("test"))
 								return true
 							}),
-							request,
+							httptest.NewRequest(http.MethodGet, "http://example.com/", nil),
 						).
 						Return()
 
 					return handler
 				}(),
-				Printer: new(MockPrinter),
 			},
-			args: args{
+			handlerArgs: handlerArgs{
 				writer: func() http.ResponseWriter {
 					writer := new(MockResponseWriter)
 					writer.On("Write", []byte("test")).Return(4, nil)
@@ -58,25 +61,8 @@ func TestCatchingHandler_ServeHTTP(test *testing.T) {
 		},
 		{
 			name: "error",
-			fields: fields{
-				Handler: func() http.Handler {
-					request := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
-
-					handler := new(MockHandler)
-					handler.
-						On(
-							"ServeHTTP",
-							mock.MatchedBy(func(writer http.ResponseWriter) bool {
-								writer.Write([]byte("test"))
-								return true
-							}),
-							request,
-						).
-						Return()
-
-					return handler
-				}(),
-				Printer: func() Printer {
+			args: args{
+				printer: func() Printer {
 					printer := new(MockPrinter)
 					printer.
 						On(
@@ -89,7 +75,24 @@ func TestCatchingHandler_ServeHTTP(test *testing.T) {
 					return printer
 				}(),
 			},
-			args: args{
+			middlewareArgs: middlewareArgs{
+				next: func() http.Handler {
+					handler := new(MockHandler)
+					handler.
+						On(
+							"ServeHTTP",
+							mock.MatchedBy(func(writer http.ResponseWriter) bool {
+								writer.Write([]byte("test"))
+								return true
+							}),
+							httptest.NewRequest(http.MethodGet, "http://example.com/", nil),
+						).
+						Return()
+
+					return handler
+				}(),
+			},
+			handlerArgs: handlerArgs{
 				writer: func() http.ResponseWriter {
 					writer := new(MockResponseWriter)
 					writer.On("Write", []byte("test")).Return(2, iotest.ErrTimeout)
@@ -101,17 +104,15 @@ func TestCatchingHandler_ServeHTTP(test *testing.T) {
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
-			handler := CatchingHandler{
-				Handler: data.fields.Handler,
-				Printer: data.fields.Printer,
-			}
-			handler.ServeHTTP(data.args.writer, data.args.request)
+			middleware := CatchingMiddleware(data.args.printer)
+			handler := middleware(data.middlewareArgs.next)
+			handler.ServeHTTP(data.handlerArgs.writer, data.handlerArgs.request)
 
 			mock.AssertExpectationsForObjects(
 				test,
-				data.fields.Handler,
-				data.fields.Printer,
-				data.args.writer,
+				data.args.printer,
+				data.middlewareArgs.next,
+				data.handlerArgs.writer,
 			)
 		})
 	}
