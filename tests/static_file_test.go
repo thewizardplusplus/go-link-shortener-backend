@@ -43,7 +43,7 @@ func TestStaticFile(test *testing.T) {
 		wantBody        string
 	}{
 		{
-			name: "with a file",
+			name: "with a file/without the SPA fallback",
 			prepare: func(test *testing.T) {
 				path := filepath.Join(opts.ServerStaticPath, "page.html")
 				err := ioutil.WriteFile(path, []byte(staticFileContent), 0644)
@@ -60,6 +60,32 @@ func TestStaticFile(test *testing.T) {
 					opts.ServerAddress+"/page.html",
 					nil,
 				)
+				return request
+			}(),
+			wantStatus:      http.StatusOK,
+			wantContentType: "text/html; charset=utf-8",
+			wantBody:        staticFileContent,
+		},
+		{
+			name: "with a file/with the SPA fallback",
+			prepare: func(test *testing.T) {
+				path := filepath.Join(opts.ServerStaticPath, "index.html")
+				err := ioutil.WriteFile(path, []byte(staticFileContent), 0644)
+				require.NoError(test, err)
+			},
+			restore: func(test *testing.T) {
+				path := filepath.Join(opts.ServerStaticPath, "index.html")
+				err := os.Remove(path)
+				require.NoError(test, err)
+			},
+			request: func() *http.Request {
+				request, _ := http.NewRequest(
+					http.MethodGet,
+					opts.ServerAddress+"/page.html",
+					nil,
+				)
+				request.Header.Set("Accept", "text/html")
+
 				return request
 			}(),
 			wantStatus:      http.StatusOK,
