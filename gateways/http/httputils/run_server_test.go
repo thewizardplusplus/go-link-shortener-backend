@@ -8,6 +8,7 @@ import (
 	"testing/iotest"
 	"time"
 
+	"github.com/go-log/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -43,7 +44,7 @@ func TestRunServer(test *testing.T) {
 
 						return server
 					}(),
-					Printer: new(MockPrinter),
+					Logger: new(MockLogger),
 				},
 				interruptSignals: []os.Signal{os.Interrupt},
 			},
@@ -69,17 +70,17 @@ func TestRunServer(test *testing.T) {
 
 						return server
 					}(),
-					Printer: func() Printer {
-						printer := new(MockPrinter)
-						printer.
+					Logger: func() log.Logger {
+						logger := new(MockLogger)
+						logger.
 							On(
-								"Printf",
+								"Logf",
 								mock.MatchedBy(func(string) bool { return true }),
 								iotest.ErrTimeout,
 							).
 							Return()
 
-						return printer
+						return logger
 					}(),
 				},
 				interruptSignals: []os.Signal{os.Interrupt},
@@ -104,17 +105,17 @@ func TestRunServer(test *testing.T) {
 
 						return server
 					}(),
-					Printer: func() Printer {
-						printer := new(MockPrinter)
-						printer.
+					Logger: func() log.Logger {
+						logger := new(MockLogger)
+						logger.
 							On(
-								"Printf",
+								"Logf",
 								mock.MatchedBy(func(string) bool { return true }),
 								iotest.ErrTimeout,
 							).
 							Return()
 
-						return printer
+						return logger
 					}(),
 				},
 				interruptSignals: []os.Signal{os.Interrupt},
@@ -143,7 +144,7 @@ func TestRunServer(test *testing.T) {
 			mock.AssertExpectationsForObjects(
 				test,
 				data.args.dependencies.Server,
-				data.args.dependencies.Printer,
+				data.args.dependencies.Logger,
 			)
 			data.wantOk(test, gotOk)
 		})

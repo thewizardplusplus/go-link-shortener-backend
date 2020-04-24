@@ -3,18 +3,12 @@ package httputils
 import (
 	"net/http"
 
+	"github.com/go-log/log"
 	"github.com/gorilla/mux"
 )
 
-//go:generate mockery -name=Printer -inpkg -case=underscore -testonly
-
-// Printer ...
-type Printer interface {
-	Printf(template string, arguments ...interface{})
-}
-
 // CatchingMiddleware ...
-func CatchingMiddleware(printer Printer) mux.MiddlewareFunc {
+func CatchingMiddleware(logger log.Logger) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(
 			writer http.ResponseWriter,
@@ -24,7 +18,7 @@ func CatchingMiddleware(printer Printer) mux.MiddlewareFunc {
 			next.ServeHTTP(catchingWriter, request)
 
 			if err := catchingWriter.LastError(); err != nil {
-				printer.Printf("unable to handle the request: %v", err)
+				logger.Logf("unable to handle the request: %v", err)
 			}
 		})
 	}

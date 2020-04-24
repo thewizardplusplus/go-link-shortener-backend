@@ -6,12 +6,13 @@ import (
 	"testing"
 	"testing/iotest"
 
+	"github.com/go-log/log"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestCatchingMiddleware(test *testing.T) {
 	type args struct {
-		printer Printer
+		logger log.Logger
 	}
 	type middlewareArgs struct {
 		next http.Handler
@@ -30,7 +31,7 @@ func TestCatchingMiddleware(test *testing.T) {
 		{
 			name: "success",
 			args: args{
-				printer: new(MockPrinter),
+				logger: new(MockLogger),
 			},
 			middlewareArgs: middlewareArgs{
 				next: func() http.Handler {
@@ -62,17 +63,17 @@ func TestCatchingMiddleware(test *testing.T) {
 		{
 			name: "error",
 			args: args{
-				printer: func() Printer {
-					printer := new(MockPrinter)
-					printer.
+				logger: func() log.Logger {
+					logger := new(MockLogger)
+					logger.
 						On(
-							"Printf",
+							"Logf",
 							mock.MatchedBy(func(string) bool { return true }),
 							iotest.ErrTimeout,
 						).
 						Return()
 
-					return printer
+					return logger
 				}(),
 			},
 			middlewareArgs: middlewareArgs{
@@ -104,13 +105,13 @@ func TestCatchingMiddleware(test *testing.T) {
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
-			middleware := CatchingMiddleware(data.args.printer)
+			middleware := CatchingMiddleware(data.args.logger)
 			handler := middleware(data.middlewareArgs.next)
 			handler.ServeHTTP(data.handlerArgs.writer, data.handlerArgs.request)
 
 			mock.AssertExpectationsForObjects(
 				test,
-				data.args.printer,
+				data.args.logger,
 				data.middlewareArgs.next,
 				data.handlerArgs.writer,
 			)

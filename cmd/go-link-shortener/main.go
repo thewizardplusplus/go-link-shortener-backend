@@ -123,7 +123,7 @@ func main() {
 
 	staticFileHandler := http.FileServer(http.Dir(options.Server.StaticPath))
 	staticFileHandler =
-		httputils.CatchingMiddleware(errorLogger)(staticFileHandler)
+		httputils.CatchingMiddleware(errorPrinter)(staticFileHandler)
 	staticFileHandler =
 		httputils.SPAFallbackMiddleware()(staticFileHandler)
 
@@ -206,7 +206,7 @@ func main() {
 				Addr:    options.Server.Address,
 				Handler: routerHandler,
 			},
-			Printer: errorLogger,
+			Logger: errorPrinter,
 		},
 		os.Interrupt,
 	)

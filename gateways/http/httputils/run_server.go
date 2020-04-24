@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+
+	"github.com/go-log/log"
 )
 
 //go:generate mockery -name=Server -inpkg -case=underscore -testonly
@@ -18,8 +20,8 @@ type Server interface {
 
 // RunServerDependencies ...
 type RunServerDependencies struct {
-	Server  Server
-	Printer Printer
+	Server Server
+	Logger log.Logger
 }
 
 // RunServer ...
@@ -49,13 +51,13 @@ func RunServer(
 		err := dependencies.Server.Shutdown(shutdownCtx)
 		if ok = err == nil; !ok {
 			// error with closing listeners
-			dependencies.Printer.Printf("error with shutdown: %v", err)
+			dependencies.Logger.Logf("error with shutdown: %v", err)
 		}
 	}()
 
 	if err := dependencies.Server.ListenAndServe(); err != http.ErrServerClosed {
 		// error with starting or closing listeners
-		dependencies.Printer.Printf("error with listening and serving: %v", err)
+		dependencies.Logger.Logf("error with listening and serving: %v", err)
 		return false
 	}
 
