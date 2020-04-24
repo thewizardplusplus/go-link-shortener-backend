@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/caarlos0/env"
+	"github.com/go-log/log/print"
 	middlewares "github.com/gorilla/handlers"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/cache"
@@ -60,6 +61,7 @@ const (
 
 func main() {
 	errorLogger := log.New(os.Stderr, "", log.LstdFlags|log.Lmicroseconds)
+	errorPrinter := print.New(errorLogger)
 
 	var options options // nolint: vetshadow
 	if err := env.Parse(&options); err != nil {
@@ -69,7 +71,7 @@ func main() {
 	cacheClient := cache.NewClient(options.Cache.Address)
 	cacheGetter := usecases.SilentLinkGetter{
 		LinkGetter: cache.LinkGetter{Client: cacheClient},
-		Printer:    errorLogger,
+		Logger:     errorPrinter,
 	}
 
 	storageClient, err := storage.NewClient(options.Storage.Address)
@@ -160,7 +162,7 @@ func main() {
 							Client:       cacheClient,
 							Expiration:   options.Cache.TTL.Code,
 						},
-						Printer: errorLogger,
+						Logger: errorPrinter,
 					},
 					usecases.SilentLinkSetter{
 						LinkSetter: cache.LinkSetter{
@@ -168,7 +170,7 @@ func main() {
 							Client:       cacheClient,
 							Expiration:   options.Cache.TTL.URL,
 						},
-						Printer: errorLogger,
+						Logger: errorPrinter,
 					},
 					storage.LinkSetter{
 						Client:     storageClient,

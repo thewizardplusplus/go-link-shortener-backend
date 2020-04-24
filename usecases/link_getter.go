@@ -3,6 +3,7 @@ package usecases
 import (
 	"database/sql"
 
+	"github.com/go-log/log"
 	"github.com/pkg/errors"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
@@ -14,17 +15,10 @@ type LinkGetter interface {
 	GetLink(query string) (entities.Link, error)
 }
 
-//go:generate mockery -name=Printer -inpkg -case=underscore -testonly
-
-// Printer ...
-type Printer interface {
-	Printf(template string, arguments ...interface{})
-}
-
 // SilentLinkGetter ...
 type SilentLinkGetter struct {
 	LinkGetter LinkGetter
-	Printer    Printer
+	Logger     log.Logger
 }
 
 // GetLink ...
@@ -35,7 +29,7 @@ func (getter SilentLinkGetter) GetLink(query string) (entities.Link, error) {
 		return link, nil
 	default:
 		if err != sql.ErrNoRows {
-			getter.Printer.Printf("unable to get the link: %v", err)
+			getter.Logger.Logf("unable to get the link: %v", err)
 		}
 
 		return entities.Link{}, sql.ErrNoRows

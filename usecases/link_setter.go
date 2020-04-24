@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"github.com/go-log/log"
 	"github.com/pkg/errors"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
@@ -15,13 +16,13 @@ type LinkSetter interface {
 // SilentLinkSetter ...
 type SilentLinkSetter struct {
 	LinkSetter LinkSetter
-	Printer    Printer
+	Logger     log.Logger
 }
 
 // SetLink ...
 func (setter SilentLinkSetter) SetLink(link entities.Link) error {
 	if err := setter.LinkSetter.SetLink(link); err != nil {
-		setter.Printer.Printf("unable to set the link: %v", err)
+		setter.Logger.Logf("unable to set the link: %v", err)
 	}
 
 	return nil

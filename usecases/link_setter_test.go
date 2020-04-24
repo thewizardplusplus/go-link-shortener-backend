@@ -4,6 +4,7 @@ import (
 	"testing"
 	"testing/iotest"
 
+	"github.com/go-log/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
@@ -12,7 +13,7 @@ import (
 func TestSilentLinkSetter_SetLink(test *testing.T) {
 	type fields struct {
 		LinkSetter LinkSetter
-		Printer    Printer
+		Logger     log.Logger
 	}
 	type args struct {
 		link entities.Link
@@ -33,7 +34,7 @@ func TestSilentLinkSetter_SetLink(test *testing.T) {
 
 					return getter
 				}(),
-				Printer: new(MockPrinter),
+				Logger: new(MockLogger),
 			},
 			args: args{
 				link: entities.Link{Code: "code", URL: "url"},
@@ -51,15 +52,15 @@ func TestSilentLinkSetter_SetLink(test *testing.T) {
 
 					return getter
 				}(),
-				Printer: func() Printer {
-					printer := new(MockPrinter)
-					printer.On(
-						"Printf",
+				Logger: func() log.Logger {
+					logger := new(MockLogger)
+					logger.On(
+						"Logf",
 						mock.MatchedBy(func(string) bool { return true }),
 						iotest.ErrTimeout,
 					)
 
-					return printer
+					return logger
 				}(),
 			},
 			args: args{
@@ -71,14 +72,14 @@ func TestSilentLinkSetter_SetLink(test *testing.T) {
 		test.Run(data.name, func(test *testing.T) {
 			setter := SilentLinkSetter{
 				LinkSetter: data.fields.LinkSetter,
-				Printer:    data.fields.Printer,
+				Logger:     data.fields.Logger,
 			}
 			gotErr := setter.SetLink(data.args.link)
 
 			mock.AssertExpectationsForObjects(
 				test,
 				data.fields.LinkSetter,
-				data.fields.Printer,
+				data.fields.Logger,
 			)
 			data.wantErr(test, gotErr)
 		})
