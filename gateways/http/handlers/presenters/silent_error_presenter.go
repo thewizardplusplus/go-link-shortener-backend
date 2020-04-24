@@ -2,6 +2,8 @@ package presenters
 
 import (
 	"net/http"
+
+	"github.com/go-log/log"
 )
 
 //go:generate mockery -name=ErrorPresenter -inpkg -case=underscore -testonly
@@ -19,7 +21,7 @@ type ErrorPresenter interface {
 // SilentErrorPresenter ...
 type SilentErrorPresenter struct {
 	ErrorPresenter ErrorPresenter
-	Printer        Printer
+	Logger         log.Logger
 }
 
 // PresentError ...
@@ -31,6 +33,6 @@ func (presenter SilentErrorPresenter) PresentError(
 ) {
 	err = presenter.ErrorPresenter.PresentError(writer, request, statusCode, err)
 	if err != nil {
-		presenter.Printer.Printf("unable to present the error: %v", err)
+		presenter.Logger.Logf("unable to present the error: %v", err)
 	}
 }

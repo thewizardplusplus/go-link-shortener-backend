@@ -110,15 +110,15 @@ func main() {
 
 	redirectPresenter := presenters.RedirectPresenter{
 		ErrorURL: errorURL,
-		Printer:  errorLogger,
+		Logger:   errorPrinter,
 	}
 	jsonLinkPresenter := presenters.SilentLinkPresenter{
 		LinkPresenter: presenters.JSONPresenter{},
-		Printer:       errorLogger,
+		Logger:        errorPrinter,
 	}
 	jsonErrorPresenter := presenters.SilentErrorPresenter{
 		ErrorPresenter: presenters.JSONPresenter{},
-		Printer:        errorLogger,
+		Logger:         errorPrinter,
 	}
 
 	staticFileHandler := http.FileServer(http.Dir(options.Server.StaticPath))
@@ -132,11 +132,11 @@ func main() {
 			LinkGetter: linkByCodeGetter,
 			LinkPresenter: presenters.SilentLinkPresenter{
 				LinkPresenter: redirectPresenter,
-				Printer:       errorLogger,
+				Logger:        errorPrinter,
 			},
 			ErrorPresenter: presenters.SilentErrorPresenter{
 				ErrorPresenter: redirectPresenter,
-				Printer:        errorLogger,
+				Logger:         errorPrinter,
 			},
 		},
 		LinkGettingHandler: handlers.LinkGettingHandler{

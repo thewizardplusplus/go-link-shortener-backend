@@ -6,6 +6,7 @@ import (
 	"testing"
 	"testing/iotest"
 
+	"github.com/go-log/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
@@ -14,7 +15,7 @@ import (
 func TestRedirectPresenter_PresentLink(test *testing.T) {
 	type fields struct {
 		ErrorURL string
-		Printer  Printer
+		Logger   log.Logger
 	}
 	type args struct {
 		writer  http.ResponseWriter
@@ -33,7 +34,7 @@ func TestRedirectPresenter_PresentLink(test *testing.T) {
 			name: "success",
 			fields: fields{
 				ErrorURL: "/error",
-				Printer:  new(MockPrinter),
+				Logger:   new(MockLogger),
 			},
 			args: args{
 				writer: httptest.NewRecorder(),
@@ -60,7 +61,7 @@ func TestRedirectPresenter_PresentLink(test *testing.T) {
 			name: "error",
 			fields: fields{
 				ErrorURL: "/error",
-				Printer:  new(MockPrinter),
+				Logger:   new(MockLogger),
 			},
 			args: args{
 				writer: NewTimeoutResponseRecorder(),
@@ -87,12 +88,12 @@ func TestRedirectPresenter_PresentLink(test *testing.T) {
 		test.Run(data.name, func(test *testing.T) {
 			presenter := RedirectPresenter{
 				ErrorURL: data.fields.ErrorURL,
-				Printer:  data.fields.Printer,
+				Logger:   data.fields.Logger,
 			}
 			gotErr :=
 				presenter.PresentLink(data.args.writer, data.args.request, data.args.link)
 
-			mock.AssertExpectationsForObjects(test, data.fields.Printer)
+			mock.AssertExpectationsForObjects(test, data.fields.Logger)
 			data.wantErr(test, gotErr)
 			data.check(test, data.args.writer)
 		})
@@ -102,7 +103,7 @@ func TestRedirectPresenter_PresentLink(test *testing.T) {
 func TestRedirectPresenter_PresentError(test *testing.T) {
 	type fields struct {
 		ErrorURL string
-		Printer  Printer
+		Logger   log.Logger
 	}
 	type args struct {
 		writer     http.ResponseWriter
@@ -122,17 +123,17 @@ func TestRedirectPresenter_PresentError(test *testing.T) {
 			name: "success",
 			fields: fields{
 				ErrorURL: "/error",
-				Printer: func() Printer {
-					printer := new(MockPrinter)
-					printer.
+				Logger: func() log.Logger {
+					logger := new(MockLogger)
+					logger.
 						On(
-							"Printf",
+							"Logf",
 							mock.MatchedBy(func(string) bool { return true }),
 							iotest.ErrTimeout,
 						).
 						Return()
 
-					return printer
+					return logger
 				}(),
 			},
 			args: args{
@@ -157,7 +158,7 @@ func TestRedirectPresenter_PresentError(test *testing.T) {
 			name: "error",
 			fields: fields{
 				ErrorURL: "/error",
-				Printer:  new(MockPrinter),
+				Logger:   new(MockLogger),
 			},
 			args: args{
 				writer: NewTimeoutResponseRecorder(),
@@ -181,7 +182,7 @@ func TestRedirectPresenter_PresentError(test *testing.T) {
 		test.Run(data.name, func(test *testing.T) {
 			presenter := RedirectPresenter{
 				ErrorURL: data.fields.ErrorURL,
-				Printer:  data.fields.Printer,
+				Logger:   data.fields.Logger,
 			}
 			gotErr := presenter.PresentError(
 				data.args.writer,
@@ -190,7 +191,7 @@ func TestRedirectPresenter_PresentError(test *testing.T) {
 				data.args.err,
 			)
 
-			mock.AssertExpectationsForObjects(test, data.fields.Printer)
+			mock.AssertExpectationsForObjects(test, data.fields.Logger)
 			data.wantErr(test, gotErr)
 			data.check(test, data.args.writer)
 		})

@@ -3,6 +3,7 @@ package presenters
 import (
 	"net/http"
 
+	"github.com/go-log/log"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
 
@@ -17,17 +18,10 @@ type LinkPresenter interface {
 	) error
 }
 
-//go:generate mockery -name=Printer -inpkg -case=underscore -testonly
-
-// Printer ...
-type Printer interface {
-	Printf(template string, arguments ...interface{})
-}
-
 // SilentLinkPresenter ...
 type SilentLinkPresenter struct {
 	LinkPresenter LinkPresenter
-	Printer       Printer
+	Logger        log.Logger
 }
 
 // PresentLink ...
@@ -38,6 +32,6 @@ func (presenter SilentLinkPresenter) PresentLink(
 ) {
 	err := presenter.LinkPresenter.PresentLink(writer, request, link)
 	if err != nil {
-		presenter.Printer.Printf("unable to present the link: %v", err)
+		presenter.Logger.Logf("unable to present the link: %v", err)
 	}
 }

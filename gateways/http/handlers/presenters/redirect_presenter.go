@@ -4,6 +4,7 @@ package presenters
 import (
 	"net/http"
 
+	"github.com/go-log/log"
 	"github.com/pkg/errors"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/http/httputils"
@@ -12,7 +13,7 @@ import (
 // RedirectPresenter ...
 type RedirectPresenter struct {
 	ErrorURL string
-	Printer  Printer
+	Logger   log.Logger
 }
 
 // PresentLink ...
@@ -43,6 +44,6 @@ func (presenter RedirectPresenter) PresentError(
 		return errors.Wrap(err2, "unable to redirect to the error")
 	}
 
-	presenter.Printer.Printf("redirect because of the error: %v", err)
+	presenter.Logger.Logf("redirect because of the error: %v", err)
 	return nil
 }

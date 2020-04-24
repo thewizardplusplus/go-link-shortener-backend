@@ -6,6 +6,7 @@ import (
 	"testing"
 	"testing/iotest"
 
+	"github.com/go-log/log"
 	"github.com/stretchr/testify/mock"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
@@ -13,7 +14,7 @@ import (
 func TestSilentLinkPresenter_PresentLink(test *testing.T) {
 	type fields struct {
 		LinkPresenter LinkPresenter
-		Printer       Printer
+		Logger        log.Logger
 	}
 	type args struct {
 		writer  http.ResponseWriter
@@ -45,7 +46,7 @@ func TestSilentLinkPresenter_PresentLink(test *testing.T) {
 
 					return presenter
 				}(),
-				Printer: new(MockPrinter),
+				Logger: new(MockLogger),
 			},
 			args: args{
 				writer: new(MockResponseWriter),
@@ -76,17 +77,17 @@ func TestSilentLinkPresenter_PresentLink(test *testing.T) {
 
 					return presenter
 				}(),
-				Printer: func() Printer {
-					printer := new(MockPrinter)
-					printer.
+				Logger: func() log.Logger {
+					logger := new(MockLogger)
+					logger.
 						On(
-							"Printf",
+							"Logf",
 							mock.MatchedBy(func(string) bool { return true }),
 							iotest.ErrTimeout,
 						).
 						Return()
 
-					return printer
+					return logger
 				}(),
 			},
 			args: args{
@@ -103,14 +104,14 @@ func TestSilentLinkPresenter_PresentLink(test *testing.T) {
 		test.Run(data.name, func(t *testing.T) {
 			presenter := SilentLinkPresenter{
 				LinkPresenter: data.fields.LinkPresenter,
-				Printer:       data.fields.Printer,
+				Logger:        data.fields.Logger,
 			}
 			presenter.PresentLink(data.args.writer, data.args.request, data.args.link)
 
 			mock.AssertExpectationsForObjects(
 				test,
 				data.fields.LinkPresenter,
-				data.fields.Printer,
+				data.fields.Logger,
 				data.args.writer,
 			)
 		})

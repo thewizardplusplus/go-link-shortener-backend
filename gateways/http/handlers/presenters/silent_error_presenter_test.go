@@ -6,13 +6,14 @@ import (
 	"testing"
 	"testing/iotest"
 
+	"github.com/go-log/log"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestSilentErrorPresenter_PresentError(test *testing.T) {
 	type fields struct {
 		ErrorPresenter ErrorPresenter
-		Printer        Printer
+		Logger         log.Logger
 	}
 	type args struct {
 		writer     http.ResponseWriter
@@ -46,7 +47,7 @@ func TestSilentErrorPresenter_PresentError(test *testing.T) {
 
 					return presenter
 				}(),
-				Printer: new(MockPrinter),
+				Logger: new(MockLogger),
 			},
 			args: args{
 				writer: new(MockResponseWriter),
@@ -79,17 +80,17 @@ func TestSilentErrorPresenter_PresentError(test *testing.T) {
 
 					return presenter
 				}(),
-				Printer: func() Printer {
-					printer := new(MockPrinter)
-					printer.
+				Logger: func() log.Logger {
+					logger := new(MockLogger)
+					logger.
 						On(
-							"Printf",
+							"Logf",
 							mock.MatchedBy(func(string) bool { return true }),
 							iotest.ErrTimeout,
 						).
 						Return()
 
-					return printer
+					return logger
 				}(),
 			},
 			args: args{
@@ -107,7 +108,7 @@ func TestSilentErrorPresenter_PresentError(test *testing.T) {
 		test.Run(data.name, func(test *testing.T) {
 			presenter := SilentErrorPresenter{
 				ErrorPresenter: data.fields.ErrorPresenter,
-				Printer:        data.fields.Printer,
+				Logger:         data.fields.Logger,
 			}
 			presenter.PresentError(
 				data.args.writer,
@@ -119,7 +120,7 @@ func TestSilentErrorPresenter_PresentError(test *testing.T) {
 			mock.AssertExpectationsForObjects(
 				test,
 				data.fields.ErrorPresenter,
-				data.fields.Printer,
+				data.fields.Logger,
 				data.args.writer,
 			)
 		})
