@@ -6,7 +6,126 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
+
+func TestSPAFallbackMiddleware(test *testing.T) {
+	type middlewareArgs struct {
+		next http.Handler
+	}
+	type handlerArgs struct {
+		writer  http.ResponseWriter
+		request *http.Request
+	}
+
+	for _, data := range []struct {
+		name           string
+		middlewareArgs middlewareArgs
+		handlerArgs    handlerArgs
+	}{
+		{
+			name: "API request",
+			middlewareArgs: middlewareArgs{
+				next: func() http.Handler {
+					handler := new(MockHandler)
+					handler.
+						On(
+							"ServeHTTP",
+							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							httptest.NewRequest(
+								http.MethodGet,
+								"http://example.com/api/v1/endpoint",
+								nil,
+							),
+						).
+						Return()
+
+					return handler
+				}(),
+			},
+			handlerArgs: handlerArgs{
+				writer: new(MockResponseWriter),
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/api/v1/endpoint",
+					nil,
+				),
+			},
+		},
+		{
+			name: "static asset request/on the path",
+			middlewareArgs: middlewareArgs{
+				next: func() http.Handler {
+					request := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
+					request.Header.Set("Accept", "text/html")
+					request.RequestURI = "http://example.com/path"
+
+					handler := new(MockHandler)
+					handler.
+						On(
+							"ServeHTTP",
+							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							request,
+						).
+						Return()
+
+					return handler
+				}(),
+			},
+			handlerArgs: handlerArgs{
+				writer: new(MockResponseWriter),
+				request: func() *http.Request {
+					request :=
+						httptest.NewRequest(http.MethodGet, "http://example.com/path", nil)
+					request.Header.Set("Accept", "text/html")
+
+					return request
+				}(),
+			},
+		},
+		{
+			name: "static asset request/to the root",
+			middlewareArgs: middlewareArgs{
+				next: func() http.Handler {
+					request := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
+					request.Header.Set("Accept", "text/html")
+
+					handler := new(MockHandler)
+					handler.
+						On(
+							"ServeHTTP",
+							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							request,
+						).
+						Return()
+
+					return handler
+				}(),
+			},
+			handlerArgs: handlerArgs{
+				writer: new(MockResponseWriter),
+				request: func() *http.Request {
+					request := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
+					request.Header.Set("Accept", "text/html")
+
+					return request
+				}(),
+			},
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			middleware := SPAFallbackMiddleware()
+			handler := middleware(data.middlewareArgs.next)
+			handler.ServeHTTP(data.handlerArgs.writer, data.handlerArgs.request)
+
+			mock.AssertExpectationsForObjects(
+				test,
+				data.middlewareArgs.next,
+				data.handlerArgs.writer,
+			)
+		})
+	}
+}
 
 func Test_isStaticAssetRequest(test *testing.T) {
 	type args struct {

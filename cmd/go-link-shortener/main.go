@@ -122,6 +122,8 @@ func main() {
 	staticFileHandler := http.FileServer(http.Dir(options.Server.StaticPath))
 	staticFileHandler =
 		httputils.CatchingMiddleware(errorLogger)(staticFileHandler)
+	staticFileHandler =
+		httputils.SPAFallbackMiddleware()(staticFileHandler)
 
 	routerHandler := router.NewRouter(redirectEndpointPrefix, router.Handlers{
 		LinkRedirectHandler: handlers.LinkGettingHandler{
