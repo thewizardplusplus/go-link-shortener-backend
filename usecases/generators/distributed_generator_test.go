@@ -3,9 +3,9 @@ package generators
 // nolint: lll
 import (
 	"fmt"
+	"math/big"
 	"math/rand"
 	"reflect"
-	"strconv"
 	"testing"
 	"testing/iotest"
 
@@ -202,26 +202,31 @@ func TestDistributedGenerator_GenerateCode_bulky(test *testing.T) {
 			DistributedCounters: []counters.DistributedCounter{counterOne, counterTwo},
 			RandomSource:        rand.New(rand.NewSource(1)).Intn,
 		},
-		formatters.InBase10,
+		formatters.InBase62,
 	)
 
-	var gotCodes []string
+	var gotCodes []uint64
 	for i := 0; i < 100; i++ {
 		code, err := generator.GenerateCode()
 		require.NoError(test, err)
 
-		gotCodes = append(gotCodes, code)
+		parsedCode := new(big.Int)
+		_, ok := parsedCode.SetString(code, 62)
+		require.True(test, ok)
+
+		gotCodes = append(gotCodes, parsedCode.Uint64())
 	}
 
-	var wantCodes []string
-	var counterIndex, counterValueOne, counterValueTwo int
+	var wantCodes []uint64
+	var counterIndex int
+	var counterValueOne, counterValueTwo uint64
 	random := rand.New(rand.NewSource(1))
 	for i := 0; i < 100; i++ {
 		if i%10 == 0 {
 			counterIndex = random.Intn(2)
 		}
 
-		var code int
+		var code uint64
 		switch counterIndex {
 		case 0:
 			code = counterValueOne
@@ -231,7 +236,7 @@ func TestDistributedGenerator_GenerateCode_bulky(test *testing.T) {
 			counterValueTwo++
 		}
 
-		wantCodes = append(wantCodes, strconv.Itoa(code))
+		wantCodes = append(wantCodes, code)
 	}
 
 	assert.Equal(test, wantCodes, gotCodes)
