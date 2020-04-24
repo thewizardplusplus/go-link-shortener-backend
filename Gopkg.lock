@@ -126,6 +126,17 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:85138d5daba3306acc15e3b1c9226a2866e068c4822bbf0875d5143db225face"
+  name = "github.com/go-log/log"
+  packages = [
+    ".",
+    "print",
+  ]
+  pruneopts = "UT"
+  revision = "cbf5cacfbfff319fd20a42367df566e0ace3d4ee"
+  version = "v0.2.0"
+
+[[projects]]
   digest = "1:ed15647db08b6d63666bf9755d337725960c302bbfa5e23754b4b915a4797e42"
   name = "github.com/go-openapi/jsonpointer"
   packages = ["."]
@@ -194,7 +205,6 @@
   version = "v1.3.1"
 
 [[projects]]
-  branch = "master"
   digest = "1:01745416ed734d0dbd8f2a25344536e399ee60319654873da12b107e9e3cb309"
   name = "github.com/golang/gddo"
   packages = ["httputil/header"]
@@ -703,6 +713,8 @@
     "github.com/alecthomas/template",
     "github.com/caarlos0/env",
     "github.com/cweill/gotests/gotests",
+    "github.com/go-log/log",
+    "github.com/go-log/log/print",
     "github.com/go-redis/redis",
     "github.com/golang/gddo/httputil/header",
     "github.com/google/uuid",

@@ -56,3 +56,7 @@ required = [
 [[constraint]]
   name = "github.com/golang/gddo"
   revision = "3c2cc9a6329d9842b3bbdaf307a8110d740cf94c"
+
+[[constraint]]
+  name = "github.com/go-log/log"
+  version = "0.2.0"
