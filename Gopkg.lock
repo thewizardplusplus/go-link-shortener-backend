@@ -194,6 +194,14 @@
   version = "v1.3.1"
 
 [[projects]]
+  branch = "master"
+  digest = "1:01745416ed734d0dbd8f2a25344536e399ee60319654873da12b107e9e3cb309"
+  name = "github.com/golang/gddo"
+  packages = ["httputil/header"]
+  pruneopts = "UT"
+  revision = "3c2cc9a6329d9842b3bbdaf307a8110d740cf94c"
+
+[[projects]]
   digest = "1:f5ce1529abc1204444ec73779f44f94e2fa8fcdb7aca3c355b0c95947e4005c6"
   name = "github.com/golang/protobuf"
   packages = [
@@ -696,6 +704,7 @@
     "github.com/caarlos0/env",
     "github.com/cweill/gotests/gotests",
     "github.com/go-redis/redis",
+    "github.com/golang/gddo/httputil/header",
     "github.com/google/uuid",
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",

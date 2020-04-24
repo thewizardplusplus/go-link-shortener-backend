@@ -52,3 +52,7 @@ required = [
 [[constraint]]
   name = "github.com/gorilla/handlers"
   version = "1.4.2"
+
+[[constraint]]
+  name = "github.com/golang/gddo"
+  revision = "3c2cc9a6329d9842b3bbdaf307a8110d740cf94c"
