@@ -16,14 +16,14 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators/formatters"
 )
 
-type MemorableDistributedCounter struct {
+type MemorableDistributedCounterGroup struct {
 	MockDistributedCounterGroup
 
 	Counters []counters.DistributedCounter
 }
 
 func (
-	group *MemorableDistributedCounter,
+	group *MemorableDistributedCounterGroup,
 ) SelectCounter() counters.DistributedCounter {
 	counter := group.MockDistributedCounterGroup.SelectCounter()
 	group.Counters = append(group.Counters, counter)
@@ -32,7 +32,7 @@ func (
 }
 
 func TestNewDistributedGenerator(test *testing.T) {
-	distributedCounters := new(MemorableDistributedCounter)
+	distributedCounters := new(MemorableDistributedCounterGroup)
 	formatter := func(code uint64) string { panic("not implemented") }
 	got := NewDistributedGenerator(23, distributedCounters, formatter)
 
@@ -66,7 +66,7 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 
 					return counter
 				}(),
-				distributedCounters: new(MemorableDistributedCounter),
+				distributedCounters: new(MemorableDistributedCounterGroup),
 				formatter: func(code uint64) string {
 					return fmt.Sprintf("[%d]", code)
 				},
@@ -97,7 +97,7 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 					counter := new(MockDistributedCounter)
 					counter.On("NextCountChunk").Return(uint64(100), nil)
 
-					group := new(MemorableDistributedCounter)
+					group := new(MemorableDistributedCounterGroup)
 					group.On("SelectCounter").Return(counter)
 
 					return group
@@ -130,7 +130,7 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 					counter := new(MockDistributedCounter)
 					counter.On("NextCountChunk").Return(uint64(0), iotest.ErrTimeout)
 
-					group := new(MemorableDistributedCounter)
+					group := new(MemorableDistributedCounterGroup)
 					group.On("SelectCounter").Return(counter)
 
 					return group
@@ -160,7 +160,7 @@ func TestDistributedGenerator_GenerateCode(test *testing.T) {
 
 			mock.AssertExpectationsForObjects(test, data.fields.distributedCounters)
 			counters :=
-				data.fields.distributedCounters.(*MemorableDistributedCounter).Counters
+				data.fields.distributedCounters.(*MemorableDistributedCounterGroup).Counters
 			for _, counter := range counters {
 				mock.AssertExpectationsForObjects(test, counter)
 			}
@@ -268,7 +268,7 @@ func TestDistributedGenerator_resetCounter(test *testing.T) {
 					counter := new(MockDistributedCounter)
 					counter.On("NextCountChunk").Return(uint64(100), nil)
 
-					group := new(MemorableDistributedCounter)
+					group := new(MemorableDistributedCounterGroup)
 					group.On("SelectCounter").Return(counter)
 
 					return group
@@ -296,7 +296,7 @@ func TestDistributedGenerator_resetCounter(test *testing.T) {
 					counter := new(MockDistributedCounter)
 					counter.On("NextCountChunk").Return(uint64(0), iotest.ErrTimeout)
 
-					group := new(MemorableDistributedCounter)
+					group := new(MemorableDistributedCounterGroup)
 					group.On("SelectCounter").Return(counter)
 
 					return group
@@ -322,7 +322,7 @@ func TestDistributedGenerator_resetCounter(test *testing.T) {
 
 			mock.AssertExpectationsForObjects(test, data.fields.distributedCounters)
 			counters :=
-				data.fields.distributedCounters.(*MemorableDistributedCounter).Counters
+				data.fields.distributedCounters.(*MemorableDistributedCounterGroup).Counters
 			for _, counter := range counters {
 				mock.AssertExpectationsForObjects(test, counter)
 			}
