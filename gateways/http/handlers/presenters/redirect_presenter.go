@@ -6,8 +6,8 @@ import (
 
 	"github.com/go-log/log"
 	"github.com/pkg/errors"
+	httputils "github.com/thewizardplusplus/go-http-utils"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
-	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/http/httputils"
 )
 
 // RedirectPresenter ...

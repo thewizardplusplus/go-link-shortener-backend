@@ -258,12 +258,12 @@
   version = "v1.4.2"
 
 [[projects]]
-  digest = "1:cbec35fe4d5a4fba369a656a8cd65e244ea2c743007d8f6c1ccb132acf9d1296"
+  digest = "1:25ebe6496abb289ef977c081b2d49f56dd97c32db4ca083d37f95923909ced02"
   name = "github.com/gorilla/mux"
   packages = ["."]
   pruneopts = "UT"
-  revision = "00bdffe0f3c77e27d2cf6f5c70232a2d3e4d9c15"
-  version = "v1.7.3"
+  revision = "75dcda0896e109a2a22c9315bca3bb21b87b2ba5"
+  version = "v1.7.4"
 
 [[projects]]
   digest = "1:927762c6729b4e72957ba3310e485ed09cf8451c5a637a52fd016a9fe09e7936"
@@ -361,6 +361,14 @@
   pruneopts = "UT"
   revision = "c9f403a30434dc43903a02f80bcf736f11169a86"
   version = "v1.6.3"
+
+[[projects]]
+  digest = "1:a7a36b54fbe2684e3a0b14c608650f4353e9535f47c5e1c07f9f3d06b6b6fcb7"
+  name = "github.com/thewizardplusplus/go-http-utils"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "e1d5aaa91684afaaeaba237d11a2bd448b17a774"
+  version = "v1.0"
 
 [[projects]]
   digest = "1:1d3ef3dd057d2eb1819e945f88cc83835296c9b7fb13ad3194c937c4e2891fee"
@@ -716,8 +724,6 @@
     "github.com/go-log/log",
     "github.com/go-log/log/print",
     "github.com/go-redis/redis",
-    "github.com/golang/gddo/httputil/header",
-    "github.com/google/uuid",
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",
     "github.com/pkg/errors",
@@ -726,6 +732,7 @@
     "github.com/stretchr/testify/require",
     "github.com/swaggo/swag",
     "github.com/swaggo/swag/cmd/swag",
+    "github.com/thewizardplusplus/go-http-utils",
     "github.com/vektra/mockery/cmd/mockery",
     "go.etcd.io/etcd/clientv3",
     "go.mongodb.org/mongo-driver/bson",

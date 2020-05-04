@@ -13,12 +13,12 @@ import (
 	"github.com/caarlos0/env"
 	"github.com/go-log/log/print"
 	middlewares "github.com/gorilla/handlers"
+	httputils "github.com/thewizardplusplus/go-http-utils"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/cache"
 	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/counter"
 	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/http/handlers"
 	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/http/handlers/presenters"
-	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/http/httputils"
 	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/http/router"
 	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/storage"
 	"github.com/thewizardplusplus/go-link-shortener-backend/usecases"
@@ -199,15 +199,9 @@ func main() {
 			return middlewares.LoggingHandler(os.Stdout, next)
 		})
 
-	httputils.RunServer(
-		context.Background(),
-		httputils.RunServerDependencies{
-			Server: &http.Server{
-				Addr:    options.Server.Address,
-				Handler: routerHandler,
-			},
-			Logger: errorPrinter,
-		},
-		os.Interrupt,
-	)
+	server := &http.Server{
+		Addr:    options.Server.Address,
+		Handler: routerHandler,
+	}
+	httputils.RunServer(context.Background(), server, errorPrinter, os.Interrupt)
 }
