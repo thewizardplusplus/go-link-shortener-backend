@@ -203,5 +203,9 @@ func main() {
 		Addr:    options.Server.Address,
 		Handler: routerHandler,
 	}
-	httputils.RunServer(context.Background(), server, errorPrinter, os.Interrupt)
+	ok :=
+		httputils.RunServer(context.Background(), server, errorPrinter, os.Interrupt)
+	if !ok {
+		os.Exit(1)
+	}
 }
