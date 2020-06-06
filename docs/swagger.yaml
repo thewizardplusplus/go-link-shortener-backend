@@ -23,7 +23,7 @@ info:
   license:
     name: MIT
   title: go-link-shortener API
-  version: 1.0.0
+  version: 1.8.0
 paths:
   /links/:
     post:
