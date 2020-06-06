@@ -121,12 +121,6 @@ func main() {
 		Logger:         errorPrinter,
 	}
 
-	staticFileHandler := http.FileServer(http.Dir(options.Server.StaticPath))
-	staticFileHandler =
-		httputils.CatchingMiddleware(errorPrinter)(staticFileHandler)
-	staticFileHandler =
-		httputils.SPAFallbackMiddleware()(staticFileHandler)
-
 	routerHandler := router.NewRouter(redirectEndpointPrefix, router.Handlers{
 		LinkRedirectHandler: handlers.LinkGettingHandler{
 			LinkGetter: linkByCodeGetter,
@@ -190,7 +184,10 @@ func main() {
 			LinkPresenter:  jsonLinkPresenter,
 			ErrorPresenter: jsonErrorPresenter,
 		},
-		StaticFileHandler: staticFileHandler,
+		StaticFileHandler: httputils.StaticAssetHandler(
+			http.Dir(options.Server.StaticPath),
+			errorPrinter,
+		),
 	})
 	routerHandler.
 		Use(middlewares.RecoveryHandler(middlewares.RecoveryLogger(errorLogger)))
