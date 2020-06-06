@@ -7,6 +7,48 @@
 
 Back-end of the service for shorting links.
 
+## Features
+
+- RESTful API:
+  - link model:
+    - creating by an URL;
+    - getting by a code;
+  - representing in a JSON:
+    - payloads:
+      - of requests;
+      - of responses;
+    - errors;
+- generating link codes:
+  - using sequential counters:
+    - formatting:
+      - formatting a counter as an integer number in the 62 base;
+    - storing:
+      - storing in a database only counters chunks;
+      - storing counters themselves in memory;
+    - sharding:
+      - sharding counters chunks;
+      - selecting a shard of a counter chunk at random;
+- server:
+  - additional routing:
+    - redirecting to the link URL by its code;
+    - serving static files;
+  - storing settings in environment variables;
+  - supporting graceful shutdown;
+  - logging:
+    - logging requests;
+    - logging errors;
+  - panics:
+    - recovering on panics;
+    - logging of panics;
+- databases:
+  - storing links in the [MongoDB](https://www.mongodb.com/) database;
+  - storing counters chunks in the [etcd](https://etcd.io/) database:
+    - using a record version as a counter chunk;
+  - caching links in the [Redis](https://redis.io/) database;
+- distributing:
+  - [Docker](https://www.docker.com/) image;
+  - [Docker Compose](https://docs.docker.com/compose/) configuration.
+
 ## Installation
 
 Prepare the directory:
@@ -60,7 +102,7 @@ API description in the [Swagger](http://swagger.io/) format: [docs/swagger.yaml]
 
 ## Bibliography
 
-1. [URL shortener System design](https://medium.com/@narengowda/url-shortener-system-design-3db520939a1c).
+1. [URL Shortener System Design](https://medium.com/@narengowda/url-shortener-system-design-3db520939a1c).
 2. [Generating Globally Unique Identifiers for Use with MongoDB](https://www.mongodb.com/blog/post/generating-globally-unique-identifiers-for-use-with-mongodb).
 
 ## License
