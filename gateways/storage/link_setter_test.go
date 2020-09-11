@@ -40,7 +40,7 @@ func TestLinkSetter_SetLink(test *testing.T) {
 		check   func(test *testing.T, setter LinkSetter)
 	}{
 		{
-			name: "success",
+			name: "success with creating",
 			fields: fields{
 				makeClient: func(test *testing.T) Client {
 					client, err := NewClient(opts.StorageAddress)
@@ -55,7 +55,7 @@ func TestLinkSetter_SetLink(test *testing.T) {
 				_, err := setter.Client.innerClient.
 					Database(setter.Database).
 					Collection(setter.Collection).
-					DeleteMany(context.Background(), bson.M{"code": "code"})
+					DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
 			},
 			args: args{
@@ -63,15 +63,103 @@ func TestLinkSetter_SetLink(test *testing.T) {
 			},
 			wantErr: assert.NoError,
 			check: func(test *testing.T, setter LinkSetter) {
-				var link entities.Link
-				err := setter.Client.innerClient.
+				cursor, err := setter.Client.innerClient.
 					Database(setter.Database).
 					Collection(setter.Collection).
-					FindOne(context.Background(), bson.M{"code": "code"}).
-					Decode(&link)
+					Find(context.Background(), bson.M{"url": "url"})
 				require.NoError(test, err)
 
-				assert.Equal(test, entities.Link{Code: "code", URL: "url"}, link)
+				var links []entities.Link
+				err = cursor.All(context.Background(), &links)
+				require.NoError(test, err)
+
+				assert.Equal(test, []entities.Link{{Code: "code", URL: "url"}}, links)
+			},
+		},
+		{
+			name: "success with updating",
+			fields: fields{
+				makeClient: func(test *testing.T) Client {
+					client, err := NewClient(opts.StorageAddress)
+					require.NoError(test, err)
+
+					return client
+				},
+				database:   "database",
+				collection: "collection",
+			},
+			prepare: func(test *testing.T, setter LinkSetter) {
+				_, err := setter.Client.innerClient.
+					Database(setter.Database).
+					Collection(setter.Collection).
+					DeleteMany(context.Background(), bson.M{})
+				require.NoError(test, err)
+
+				_, err = setter.Client.innerClient.
+					Database(setter.Database).
+					Collection(setter.Collection).
+					InsertOne(context.Background(), entities.Link{Code: "code #1", URL: "url"})
+				require.NoError(test, err)
+			},
+			args: args{
+				link: entities.Link{Code: "code #2", URL: "url"},
+			},
+			wantErr: assert.NoError,
+			check: func(test *testing.T, setter LinkSetter) {
+				cursor, err := setter.Client.innerClient.
+					Database(setter.Database).
+					Collection(setter.Collection).
+					Find(context.Background(), bson.M{"url": "url"})
+				require.NoError(test, err)
+
+				var links []entities.Link
+				err = cursor.All(context.Background(), &links)
+				require.NoError(test, err)
+
+				assert.Equal(test, []entities.Link{{Code: "code #1", URL: "url"}}, links)
+			},
+		},
+		{
+			name: "success with skipping",
+			fields: fields{
+				makeClient: func(test *testing.T) Client {
+					client, err := NewClient(opts.StorageAddress)
+					require.NoError(test, err)
+
+					return client
+				},
+				database:   "database",
+				collection: "collection",
+			},
+			prepare: func(test *testing.T, setter LinkSetter) {
+				_, err := setter.Client.innerClient.
+					Database(setter.Database).
+					Collection(setter.Collection).
+					DeleteMany(context.Background(), bson.M{})
+				require.NoError(test, err)
+
+				_, err = setter.Client.innerClient.
+					Database(setter.Database).
+					Collection(setter.Collection).
+					InsertOne(context.Background(), entities.Link{Code: "code", URL: "url"})
+				require.NoError(test, err)
+			},
+			args: args{
+				link: entities.Link{Code: "code", URL: "url"},
+			},
+			wantErr: assert.NoError,
+			check: func(test *testing.T, setter LinkSetter) {
+				cursor, err := setter.Client.innerClient.
+					Database(setter.Database).
+					Collection(setter.Collection).
+					Find(context.Background(), bson.M{"url": "url"})
+				require.NoError(test, err)
+
+				var links []entities.Link
+				err = cursor.All(context.Background(), &links)
+				require.NoError(test, err)
+
+				assert.Equal(test, []entities.Link{{Code: "code", URL: "url"}}, links)
 			},
 		},
 	} {
