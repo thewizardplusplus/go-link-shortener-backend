@@ -21,8 +21,6 @@ func TestLinkGetter_GetLink(test *testing.T) {
 	}
 	type fields struct {
 		makeClient func(test *testing.T) Client
-		database   string
-		collection string
 		keyField   string
 	}
 	type args struct {
@@ -50,20 +48,18 @@ func TestLinkGetter_GetLink(test *testing.T) {
 
 					return client
 				},
-				database:   "database",
-				collection: "collection",
-				keyField:   "code",
+				keyField: "code",
 			},
 			prepare: func(test *testing.T, getter LinkGetter) {
 				_, err := getter.Client.innerClient.
-					Database(getter.Database).
-					Collection(getter.Collection).
+					Database(getter.Client.database).
+					Collection(getter.Client.collection).
 					DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
 
 				_, err = getter.Client.innerClient.
-					Database(getter.Database).
-					Collection(getter.Collection).
+					Database(getter.Client.database).
+					Collection(getter.Client.collection).
 					InsertOne(context.Background(), entities.Link{Code: "code", URL: "url"})
 				require.NoError(test, err)
 			},
@@ -80,14 +76,12 @@ func TestLinkGetter_GetLink(test *testing.T) {
 
 					return client
 				},
-				database:   "database",
-				collection: "collection",
-				keyField:   "code",
+				keyField: "code",
 			},
 			prepare: func(test *testing.T, getter LinkGetter) {
 				_, err := getter.Client.innerClient.
-					Database(getter.Database).
-					Collection(getter.Collection).
+					Database(getter.Client.database).
+					Collection(getter.Client.collection).
 					DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
 			},
@@ -101,10 +95,8 @@ func TestLinkGetter_GetLink(test *testing.T) {
 		test.Run(data.name, func(test *testing.T) {
 			client := data.fields.makeClient(test)
 			getter := LinkGetter{
-				Client:     client,
-				Database:   data.fields.database,
-				Collection: data.fields.collection,
-				KeyField:   data.fields.keyField,
+				Client:   client,
+				KeyField: data.fields.keyField,
 			}
 			data.prepare(test, getter)
 

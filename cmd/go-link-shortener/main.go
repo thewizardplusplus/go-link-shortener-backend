@@ -102,10 +102,8 @@ func main() {
 	linkByCodeGetter := usecases.LinkGetterGroup{
 		cacheGetter,
 		storage.LinkGetter{
-			Client:     storageClient,
-			Database:   storageDatabase,
-			Collection: storageCollection,
-			KeyField:   "code",
+			Client:   storageClient,
+			KeyField: "code",
 		},
 	}
 
@@ -144,10 +142,8 @@ func main() {
 				LinkGetter: usecases.LinkGetterGroup{
 					cacheGetter,
 					storage.LinkGetter{
-						Client:     storageClient,
-						Database:   storageDatabase,
-						Collection: storageCollection,
-						KeyField:   "url",
+						Client:   storageClient,
+						KeyField: "url",
 					},
 				},
 				LinkSetter: usecases.LinkSetterGroup{

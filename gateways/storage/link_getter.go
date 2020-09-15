@@ -12,18 +12,16 @@ import (
 
 // LinkGetter ...
 type LinkGetter struct {
-	Client     Client
-	Database   string
-	Collection string
-	KeyField   string
+	Client   Client
+	KeyField string
 }
 
 // GetLink ...
 func (getter LinkGetter) GetLink(query string) (entities.Link, error) {
 	var link entities.Link
 	err := getter.Client.innerClient.
-		Database(getter.Database).
-		Collection(getter.Collection).
+		Database(getter.Client.database).
+		Collection(getter.Client.collection).
 		FindOne(context.Background(), bson.M{getter.KeyField: query}).
 		Decode(&link)
 	switch err {
