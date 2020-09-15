@@ -97,6 +97,8 @@ func TestNewClient(test *testing.T) {
 			require.NoError(test, err)
 
 			assert.ElementsMatch(test, data.wantIndexes, indexes)
+			assert.Equal(test, data.args.database, gotClient.database)
+			assert.Equal(test, data.args.collection, gotClient.collection)
 		})
 	}
 }

@@ -12,6 +12,8 @@ import (
 // Client ...
 type Client struct {
 	innerClient *mongo.Client
+	database    string
+	collection  string
 }
 
 // NewClient ...
@@ -35,7 +37,12 @@ func NewClient(uri string, database string, collection string) (Client, error) {
 		return Client{}, errors.Wrap(err, "unable to create indexes in MongoDB")
 	}
 
-	return Client{innerClient: innerClient}, nil
+	client := Client{
+		innerClient: innerClient,
+		database:    database,
+		collection:  collection,
+	}
+	return client, nil
 }
 
 func makeUniqueIndex(key string) mongo.IndexModel {
