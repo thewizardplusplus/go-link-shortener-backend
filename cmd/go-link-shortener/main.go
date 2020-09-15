@@ -164,9 +164,7 @@ func main() {
 						Logger: errorPrinter,
 					},
 					storage.LinkSetter{
-						Client:     storageClient,
-						Database:   storageDatabase,
-						Collection: storageCollection,
+						Client: storageClient,
 					},
 				},
 				CodeGenerator: generators.NewDistributedGenerator(

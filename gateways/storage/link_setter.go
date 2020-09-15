@@ -11,9 +11,7 @@ import (
 
 // LinkSetter ...
 type LinkSetter struct {
-	Client     Client
-	Database   string
-	Collection string
+	Client Client
 }
 
 // SetLink ...
@@ -23,8 +21,8 @@ func (setter LinkSetter) SetLink(link entities.Link) error {
 	// but update in the upsert mode; a link code is always unique, so we search
 	// by a link URL
 	_, err := setter.Client.innerClient.
-		Database(setter.Database).
-		Collection(setter.Collection).
+		Database(setter.Client.database).
+		Collection(setter.Client.collection).
 		UpdateOne(
 			context.Background(),
 			bson.M{"url": link.URL},

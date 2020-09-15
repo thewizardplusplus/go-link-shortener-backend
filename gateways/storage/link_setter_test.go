@@ -20,8 +20,6 @@ func TestLinkSetter_SetLink(test *testing.T) {
 	}
 	type fields struct {
 		makeClient func(test *testing.T) Client
-		database   string
-		collection string
 	}
 	type args struct {
 		link entities.Link
@@ -48,13 +46,11 @@ func TestLinkSetter_SetLink(test *testing.T) {
 
 					return client
 				},
-				database:   "database",
-				collection: "collection",
 			},
 			prepare: func(test *testing.T, setter LinkSetter) {
 				_, err := setter.Client.innerClient.
-					Database(setter.Database).
-					Collection(setter.Collection).
+					Database(setter.Client.database).
+					Collection(setter.Client.collection).
 					DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
 			},
@@ -64,8 +60,8 @@ func TestLinkSetter_SetLink(test *testing.T) {
 			wantErr: assert.NoError,
 			check: func(test *testing.T, setter LinkSetter) {
 				cursor, err := setter.Client.innerClient.
-					Database(setter.Database).
-					Collection(setter.Collection).
+					Database(setter.Client.database).
+					Collection(setter.Client.collection).
 					Find(context.Background(), bson.M{"url": "url"})
 				require.NoError(test, err)
 
@@ -85,19 +81,17 @@ func TestLinkSetter_SetLink(test *testing.T) {
 
 					return client
 				},
-				database:   "database",
-				collection: "collection",
 			},
 			prepare: func(test *testing.T, setter LinkSetter) {
 				_, err := setter.Client.innerClient.
-					Database(setter.Database).
-					Collection(setter.Collection).
+					Database(setter.Client.database).
+					Collection(setter.Client.collection).
 					DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
 
 				_, err = setter.Client.innerClient.
-					Database(setter.Database).
-					Collection(setter.Collection).
+					Database(setter.Client.database).
+					Collection(setter.Client.collection).
 					InsertOne(context.Background(), entities.Link{Code: "code #1", URL: "url"})
 				require.NoError(test, err)
 			},
@@ -107,8 +101,8 @@ func TestLinkSetter_SetLink(test *testing.T) {
 			wantErr: assert.NoError,
 			check: func(test *testing.T, setter LinkSetter) {
 				cursor, err := setter.Client.innerClient.
-					Database(setter.Database).
-					Collection(setter.Collection).
+					Database(setter.Client.database).
+					Collection(setter.Client.collection).
 					Find(context.Background(), bson.M{"url": "url"})
 				require.NoError(test, err)
 
@@ -128,19 +122,17 @@ func TestLinkSetter_SetLink(test *testing.T) {
 
 					return client
 				},
-				database:   "database",
-				collection: "collection",
 			},
 			prepare: func(test *testing.T, setter LinkSetter) {
 				_, err := setter.Client.innerClient.
-					Database(setter.Database).
-					Collection(setter.Collection).
+					Database(setter.Client.database).
+					Collection(setter.Client.collection).
 					DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
 
 				_, err = setter.Client.innerClient.
-					Database(setter.Database).
-					Collection(setter.Collection).
+					Database(setter.Client.database).
+					Collection(setter.Client.collection).
 					InsertOne(context.Background(), entities.Link{Code: "code", URL: "url"})
 				require.NoError(test, err)
 			},
@@ -150,8 +142,8 @@ func TestLinkSetter_SetLink(test *testing.T) {
 			wantErr: assert.NoError,
 			check: func(test *testing.T, setter LinkSetter) {
 				cursor, err := setter.Client.innerClient.
-					Database(setter.Database).
-					Collection(setter.Collection).
+					Database(setter.Client.database).
+					Collection(setter.Client.collection).
 					Find(context.Background(), bson.M{"url": "url"})
 				require.NoError(test, err)
 
@@ -166,9 +158,7 @@ func TestLinkSetter_SetLink(test *testing.T) {
 		test.Run(data.name, func(test *testing.T) {
 			client := data.fields.makeClient(test)
 			setter := LinkSetter{
-				Client:     client,
-				Database:   data.fields.database,
-				Collection: data.fields.collection,
+				Client: client,
 			}
 			data.prepare(test, setter)
 
