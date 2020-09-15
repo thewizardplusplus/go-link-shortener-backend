@@ -74,7 +74,8 @@ func main() {
 		Logger:     errorPrinter,
 	}
 
-	storageClient, err := storage.NewClient(options.Storage.Address)
+	storageClient, err :=
+		storage.NewClient(options.Storage.Address, storageDatabase, storageCollection)
 	if err != nil {
 		errorLogger.Fatalf("error with creating the storage client: %v", err)
 	}

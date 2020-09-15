@@ -43,7 +43,7 @@ func TestLinkSetter_SetLink(test *testing.T) {
 			name: "success with creating",
 			fields: fields{
 				makeClient: func(test *testing.T) Client {
-					client, err := NewClient(opts.StorageAddress)
+					client, err := NewClient(opts.StorageAddress, "database", "collection")
 					require.NoError(test, err)
 
 					return client
@@ -80,7 +80,7 @@ func TestLinkSetter_SetLink(test *testing.T) {
 			name: "success with updating",
 			fields: fields{
 				makeClient: func(test *testing.T) Client {
-					client, err := NewClient(opts.StorageAddress)
+					client, err := NewClient(opts.StorageAddress, "database", "collection")
 					require.NoError(test, err)
 
 					return client
@@ -123,7 +123,7 @@ func TestLinkSetter_SetLink(test *testing.T) {
 			name: "success with skipping",
 			fields: fields{
 				makeClient: func(test *testing.T) Client {
-					client, err := NewClient(opts.StorageAddress)
+					client, err := NewClient(opts.StorageAddress, "database", "collection")
 					require.NoError(test, err)
 
 					return client

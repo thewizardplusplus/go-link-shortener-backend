@@ -45,7 +45,7 @@ func TestLinkGetter_GetLink(test *testing.T) {
 			name: "success",
 			fields: fields{
 				makeClient: func(test *testing.T) Client {
-					client, err := NewClient(opts.StorageAddress)
+					client, err := NewClient(opts.StorageAddress, "database", "collection")
 					require.NoError(test, err)
 
 					return client
@@ -69,7 +69,7 @@ func TestLinkGetter_GetLink(test *testing.T) {
 			name: "error without data",
 			fields: fields{
 				makeClient: func(test *testing.T) Client {
-					client, err := NewClient(opts.StorageAddress)
+					client, err := NewClient(opts.StorageAddress, "database", "collection")
 					require.NoError(test, err)
 
 					return client
