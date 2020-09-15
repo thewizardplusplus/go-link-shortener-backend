@@ -58,6 +58,12 @@ func TestLinkGetter_GetLink(test *testing.T) {
 				_, err := getter.Client.innerClient.
 					Database(getter.Database).
 					Collection(getter.Collection).
+					DeleteMany(context.Background(), bson.M{})
+				require.NoError(test, err)
+
+				_, err = getter.Client.innerClient.
+					Database(getter.Database).
+					Collection(getter.Collection).
 					InsertOne(context.Background(), entities.Link{Code: "code", URL: "url"})
 				require.NoError(test, err)
 			},
@@ -82,7 +88,7 @@ func TestLinkGetter_GetLink(test *testing.T) {
 				_, err := getter.Client.innerClient.
 					Database(getter.Database).
 					Collection(getter.Collection).
-					DeleteMany(context.Background(), bson.M{"code": "code"})
+					DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
 			},
 			args:     args{"code"},
