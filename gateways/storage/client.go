@@ -28,16 +28,7 @@ func NewClient(uri string, database string, collection string) (Client, error) {
 		Indexes().
 		CreateMany(
 			context.Background(),
-			[]mongo.IndexModel{
-				mongo.IndexModel{
-					Keys:    bson.D{{Key: "code", Value: 1}},
-					Options: options.Index().SetUnique(true),
-				},
-				mongo.IndexModel{
-					Keys:    bson.D{{Key: "url", Value: 1}},
-					Options: options.Index().SetUnique(true),
-				},
-			},
+			[]mongo.IndexModel{makeUniqueIndex("code"), makeUniqueIndex("url")},
 			options.CreateIndexes(),
 		)
 	if err != nil {
@@ -45,4 +36,11 @@ func NewClient(uri string, database string, collection string) (Client, error) {
 	}
 
 	return Client{innerClient: innerClient}, nil
+}
+
+func makeUniqueIndex(key string) mongo.IndexModel {
+	return mongo.IndexModel{
+		Keys:    bson.D{{Key: key, Value: 1}},
+		Options: options.Index().SetUnique(true),
+	}
 }
