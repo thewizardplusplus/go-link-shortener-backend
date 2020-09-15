@@ -18,10 +18,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
+	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/storage"
 	"go.etcd.io/etcd/clientv3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func TestLinkCreating(test *testing.T) {
@@ -41,10 +41,8 @@ func TestLinkCreating(test *testing.T) {
 	require.NoError(test, err)
 
 	cache := redis.NewClient(&redis.Options{Addr: opts.CacheAddress})
-	storage, err := mongo.Connect(
-		context.Background(),
-		mongooptions.Client().ApplyURI(opts.StorageAddress),
-	)
+	storage, err :=
+		storage.NewClient(opts.StorageAddress, "go-link-shortener", "links")
 	require.NoError(test, err)
 
 	counter, err := clientv3.New(clientv3.Config{
@@ -71,10 +69,7 @@ func TestLinkCreating(test *testing.T) {
 				err := cache.FlushDB().Err()
 				require.NoError(test, err)
 
-				_, err = storage.
-					Database("go-link-shortener").
-					Collection("links").
-					DeleteMany(context.Background(), bson.M{})
+				_, err = storage.Collection().DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
 
 				var counters []uint64
@@ -126,8 +121,7 @@ func TestLinkCreating(test *testing.T) {
 
 				var link entities.Link
 				err := storage.
-					Database("go-link-shortener").
-					Collection("links").
+					Collection().
 					FindOne(context.Background(), bson.M{"code": expectedLink.Code}).
 					Decode(&link)
 				require.NoError(test, err)
@@ -172,10 +166,7 @@ func TestLinkCreating(test *testing.T) {
 					Err()
 				require.NoError(test, err)
 
-				_, err = storage.
-					Database("go-link-shortener").
-					Collection("links").
-					DeleteMany(context.Background(), bson.M{})
+				_, err = storage.Collection().DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
 
 				var counters []uint64
@@ -224,8 +215,7 @@ func TestLinkCreating(test *testing.T) {
 				require.NoError(test, err)
 
 				err = storage.
-					Database("go-link-shortener").
-					Collection("links").
+					Collection().
 					FindOne(context.Background(), bson.M{"code": expectedLink.Code}).
 					Err()
 				require.Equal(test, mongo.ErrNoDocuments, err)
@@ -252,15 +242,11 @@ func TestLinkCreating(test *testing.T) {
 				err := cache.FlushDB().Err()
 				require.NoError(test, err)
 
-				_, err = storage.
-					Database("go-link-shortener").
-					Collection("links").
-					DeleteMany(context.Background(), bson.M{})
+				_, err = storage.Collection().DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
 
 				_, err = storage.
-					Database("go-link-shortener").
-					Collection("links").
+					Collection().
 					InsertOne(
 						context.Background(),
 						entities.Link{Code: "code", URL: "http://example.com/"},
@@ -307,8 +293,7 @@ func TestLinkCreating(test *testing.T) {
 
 				var link entities.Link
 				err = storage.
-					Database("go-link-shortener").
-					Collection("links").
+					Collection().
 					FindOne(context.Background(), bson.M{"code": expectedLink.Code}).
 					Decode(&link)
 				require.NoError(test, err)
@@ -343,15 +328,11 @@ func TestLinkCreating(test *testing.T) {
 					Err()
 				require.NoError(test, err)
 
-				_, err = storage.
-					Database("go-link-shortener").
-					Collection("links").
-					DeleteMany(context.Background(), bson.M{})
+				_, err = storage.Collection().DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
 
 				_, err = storage.
-					Database("go-link-shortener").
-					Collection("links").
+					Collection().
 					InsertOne(
 						context.Background(),
 						entities.Link{Code: "code #2", URL: "http://example.com/"},
@@ -404,8 +385,7 @@ func TestLinkCreating(test *testing.T) {
 				require.NoError(test, err)
 
 				err = storage.
-					Database("go-link-shortener").
-					Collection("links").
+					Collection().
 					FindOne(context.Background(), bson.M{"code": expectedLink.Code}).
 					Err()
 				assert.Equal(test, mongo.ErrNoDocuments, err)

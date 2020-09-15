@@ -12,9 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
+	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/storage"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func TestLinkRedirect(test *testing.T) {
@@ -30,10 +29,8 @@ func TestLinkRedirect(test *testing.T) {
 	require.NoError(test, err)
 
 	cache := redis.NewClient(&redis.Options{Addr: opts.CacheAddress})
-	storage, err := mongo.Connect(
-		context.Background(),
-		mongooptions.Client().ApplyURI(opts.StorageAddress),
-	)
+	storage, err :=
+		storage.NewClient(opts.StorageAddress, "go-link-shortener", "links")
 	require.NoError(test, err)
 
 	for _, data := range []struct {
@@ -49,15 +46,11 @@ func TestLinkRedirect(test *testing.T) {
 				err := cache.FlushDB().Err()
 				require.NoError(test, err)
 
-				_, err = storage.
-					Database("go-link-shortener").
-					Collection("links").
-					DeleteMany(context.Background(), bson.M{})
+				_, err = storage.Collection().DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
 
 				_, err = storage.
-					Database("go-link-shortener").
-					Collection("links").
+					Collection().
 					InsertOne(
 						context.Background(),
 						entities.Link{Code: "code", URL: "http://example.com/"},
@@ -81,10 +74,7 @@ func TestLinkRedirect(test *testing.T) {
 				err := cache.FlushDB().Err()
 				require.NoError(test, err)
 
-				_, err = storage.
-					Database("go-link-shortener").
-					Collection("links").
-					DeleteMany(context.Background(), bson.M{})
+				_, err = storage.Collection().DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
 			},
 			request: func() *http.Request {
