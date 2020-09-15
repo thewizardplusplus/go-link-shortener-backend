@@ -85,9 +85,8 @@ func TestNewClient(test *testing.T) {
 				return
 			}
 
-			cursor, err := gotClient.innerClient.
-				Database(data.args.database).
-				Collection(data.args.collection).
+			cursor, err := gotClient.
+				Collection().
 				Indexes().
 				List(context.Background(), options.ListIndexes())
 			require.NoError(test, err)

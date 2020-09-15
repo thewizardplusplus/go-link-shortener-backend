@@ -51,15 +51,13 @@ func TestLinkGetter_GetLink(test *testing.T) {
 				keyField: "code",
 			},
 			prepare: func(test *testing.T, getter LinkGetter) {
-				_, err := getter.Client.innerClient.
-					Database(getter.Client.database).
-					Collection(getter.Client.collection).
+				_, err := getter.Client.
+					Collection().
 					DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
 
-				_, err = getter.Client.innerClient.
-					Database(getter.Client.database).
-					Collection(getter.Client.collection).
+				_, err = getter.Client.
+					Collection().
 					InsertOne(context.Background(), entities.Link{Code: "code", URL: "url"})
 				require.NoError(test, err)
 			},
@@ -79,9 +77,8 @@ func TestLinkGetter_GetLink(test *testing.T) {
 				keyField: "code",
 			},
 			prepare: func(test *testing.T, getter LinkGetter) {
-				_, err := getter.Client.innerClient.
-					Database(getter.Client.database).
-					Collection(getter.Client.collection).
+				_, err := getter.Client.
+					Collection().
 					DeleteMany(context.Background(), bson.M{})
 				require.NoError(test, err)
 			},

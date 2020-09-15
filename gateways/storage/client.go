@@ -24,9 +24,14 @@ func NewClient(uri string, database string, collection string) (Client, error) {
 		return Client{}, errors.Wrap(err, "unable to connect to MongoDB")
 	}
 
-	_, err = innerClient.
-		Database(database).
-		Collection(collection).
+	client := Client{
+		innerClient: innerClient,
+		database:    database,
+		collection:  collection,
+	}
+
+	_, err = client.
+		Collection().
 		Indexes().
 		CreateMany(
 			context.Background(),
@@ -37,12 +42,14 @@ func NewClient(uri string, database string, collection string) (Client, error) {
 		return Client{}, errors.Wrap(err, "unable to create indexes in MongoDB")
 	}
 
-	client := Client{
-		innerClient: innerClient,
-		database:    database,
-		collection:  collection,
-	}
 	return client, nil
+}
+
+// Collection ...
+func (client Client) Collection() *mongo.Collection {
+	return client.innerClient.
+		Database(client.database).
+		Collection(client.collection)
 }
 
 func makeUniqueIndex(key string) mongo.IndexModel {

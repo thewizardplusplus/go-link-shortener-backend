@@ -19,9 +19,8 @@ type LinkGetter struct {
 // GetLink ...
 func (getter LinkGetter) GetLink(query string) (entities.Link, error) {
 	var link entities.Link
-	err := getter.Client.innerClient.
-		Database(getter.Client.database).
-		Collection(getter.Client.collection).
+	err := getter.Client.
+		Collection().
 		FindOne(context.Background(), bson.M{getter.KeyField: query}).
 		Decode(&link)
 	switch err {

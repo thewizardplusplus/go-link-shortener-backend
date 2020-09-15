@@ -20,9 +20,8 @@ func (setter LinkSetter) SetLink(link entities.Link) error {
 	// in another thread; therefore, to avoid duplicates, we don't insert
 	// but update in the upsert mode; a link code is always unique, so we search
 	// by a link URL
-	_, err := setter.Client.innerClient.
-		Database(setter.Client.database).
-		Collection(setter.Client.collection).
+	_, err := setter.Client.
+		Collection().
 		UpdateOne(
 			context.Background(),
 			bson.M{"url": link.URL},
