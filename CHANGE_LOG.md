@@ -1,5 +1,14 @@
 # Change Log
 
+## [v1.9](https://github.com/thewizardplusplus/go-link-shortener-backend/tree/v1.9) (2020-09-16)
+
+- storing links in the [MongoDB](https://www.mongodb.com/) database:
+  - create indexes for all link fields on connecting to the database;
+  - don't insert a link but update in the upsert mode to avoid duplicates;
+- refactoring:
+  - of the `storage` package;
+  - of integration tests.
+
 ## [v1.8](https://github.com/thewizardplusplus/go-link-shortener-backend/tree/v1.8) (2020-06-06)
 
 - adding transformations of values received from a distributed counter:
