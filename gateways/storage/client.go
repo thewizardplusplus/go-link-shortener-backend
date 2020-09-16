@@ -35,7 +35,10 @@ func NewClient(uri string, database string, collection string) (Client, error) {
 		Indexes().
 		CreateMany(
 			context.Background(),
-			[]mongo.IndexModel{makeUniqueIndex("code"), makeUniqueIndex("url")},
+			[]mongo.IndexModel{
+				makeUniqueIndex(CodeLinkField),
+				makeUniqueIndex(URLLinkField),
+			},
 			options.CreateIndexes(),
 		)
 	if err != nil {

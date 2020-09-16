@@ -48,7 +48,7 @@ func TestLinkGetter_GetLink(test *testing.T) {
 
 					return client
 				},
-				keyField: "code",
+				keyField: CodeLinkField,
 			},
 			prepare: func(test *testing.T, getter LinkGetter) {
 				_, err := getter.Client.
@@ -74,7 +74,7 @@ func TestLinkGetter_GetLink(test *testing.T) {
 
 					return client
 				},
-				keyField: "code",
+				keyField: CodeLinkField,
 			},
 			prepare: func(test *testing.T, getter LinkGetter) {
 				_, err := getter.Client.

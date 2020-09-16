@@ -103,7 +103,7 @@ func main() {
 		cacheGetter,
 		storage.LinkGetter{
 			Client:   storageClient,
-			KeyField: "code",
+			KeyField: storage.CodeLinkField,
 		},
 	}
 
@@ -143,7 +143,7 @@ func main() {
 					cacheGetter,
 					storage.LinkGetter{
 						Client:   storageClient,
-						KeyField: "url",
+						KeyField: storage.URLLinkField,
 					},
 				},
 				LinkSetter: usecases.LinkSetterGroup{

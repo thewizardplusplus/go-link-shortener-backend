@@ -2,6 +2,7 @@
 
 package tests
 
+// nolint: lll
 import (
 	"bytes"
 	"context"
@@ -18,7 +19,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
-	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/storage"
+	storagepkg "github.com/thewizardplusplus/go-link-shortener-backend/gateways/storage"
 	"go.etcd.io/etcd/clientv3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -42,7 +43,7 @@ func TestLinkCreating(test *testing.T) {
 
 	cache := redis.NewClient(&redis.Options{Addr: opts.CacheAddress})
 	storage, err :=
-		storage.NewClient(opts.StorageAddress, "go-link-shortener", "links")
+		storagepkg.NewClient(opts.StorageAddress, "go-link-shortener", "links")
 	require.NoError(test, err)
 
 	counter, err := clientv3.New(clientv3.Config{
@@ -122,7 +123,10 @@ func TestLinkCreating(test *testing.T) {
 				var link entities.Link
 				err := storage.
 					Collection().
-					FindOne(context.Background(), bson.M{"code": expectedLink.Code}).
+					FindOne(
+						context.Background(),
+						bson.M{storagepkg.CodeLinkField: expectedLink.Code},
+					).
 					Decode(&link)
 				require.NoError(test, err)
 
@@ -216,7 +220,10 @@ func TestLinkCreating(test *testing.T) {
 
 				err = storage.
 					Collection().
-					FindOne(context.Background(), bson.M{"code": expectedLink.Code}).
+					FindOne(
+						context.Background(),
+						bson.M{storagepkg.CodeLinkField: expectedLink.Code},
+					).
 					Err()
 				require.Equal(test, mongo.ErrNoDocuments, err)
 
@@ -294,7 +301,10 @@ func TestLinkCreating(test *testing.T) {
 				var link entities.Link
 				err = storage.
 					Collection().
-					FindOne(context.Background(), bson.M{"code": expectedLink.Code}).
+					FindOne(
+						context.Background(),
+						bson.M{storagepkg.CodeLinkField: expectedLink.Code},
+					).
 					Decode(&link)
 				require.NoError(test, err)
 
@@ -386,7 +396,10 @@ func TestLinkCreating(test *testing.T) {
 
 				err = storage.
 					Collection().
-					FindOne(context.Background(), bson.M{"code": expectedLink.Code}).
+					FindOne(
+						context.Background(),
+						bson.M{storagepkg.CodeLinkField: expectedLink.Code},
+					).
 					Err()
 				assert.Equal(test, mongo.ErrNoDocuments, err)
 

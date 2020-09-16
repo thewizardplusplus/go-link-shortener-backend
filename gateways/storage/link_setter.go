@@ -24,8 +24,8 @@ func (setter LinkSetter) SetLink(link entities.Link) error {
 		Collection().
 		UpdateOne(
 			context.Background(),
-			bson.M{"url": link.URL},
-			bson.M{"$setOnInsert": bson.M{"code": link.Code}},
+			bson.M{URLLinkField: link.URL},
+			bson.M{"$setOnInsert": bson.M{CodeLinkField: link.Code}},
 			options.Update().SetUpsert(true),
 		)
 	if err != nil {

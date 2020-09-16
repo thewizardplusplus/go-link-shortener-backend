@@ -60,7 +60,7 @@ func TestLinkSetter_SetLink(test *testing.T) {
 			check: func(test *testing.T, setter LinkSetter) {
 				cursor, err := setter.Client.
 					Collection().
-					Find(context.Background(), bson.M{"url": "url"})
+					Find(context.Background(), bson.M{URLLinkField: "url"})
 				require.NoError(test, err)
 
 				var links []entities.Link
@@ -98,7 +98,7 @@ func TestLinkSetter_SetLink(test *testing.T) {
 			check: func(test *testing.T, setter LinkSetter) {
 				cursor, err := setter.Client.
 					Collection().
-					Find(context.Background(), bson.M{"url": "url"})
+					Find(context.Background(), bson.M{URLLinkField: "url"})
 				require.NoError(test, err)
 
 				var links []entities.Link
@@ -136,7 +136,7 @@ func TestLinkSetter_SetLink(test *testing.T) {
 			check: func(test *testing.T, setter LinkSetter) {
 				cursor, err := setter.Client.
 					Collection().
-					Find(context.Background(), bson.M{"url": "url"})
+					Find(context.Background(), bson.M{URLLinkField: "url"})
 				require.NoError(test, err)
 
 				var links []entities.Link
