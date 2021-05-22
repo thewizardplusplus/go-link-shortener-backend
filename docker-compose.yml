@@ -40,6 +40,14 @@ services:
     ports:
       - 27017:27017
 
+  mongo-express:
+    image: mongo-express:0.54.0
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_PORT: 27017
+    ports:
+      - 9092:8081
+
   etcd:
     image: gcr.io/etcd-development/etcd:v3.4.3
     entrypoint: /usr/local/bin/etcd
