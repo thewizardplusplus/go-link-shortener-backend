@@ -7,7 +7,7 @@ RUN apk update && \
 
 WORKDIR /go/src/github.com/thewizardplusplus/go-link-shortener-backend
 COPY Gopkg.toml Gopkg.lock ./
-RUN dep ensure -vendor-only
+RUN dep ensure -vendor-only -v
 
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install -a -ldflags='-w -s -extldflags "-static"' ./...
