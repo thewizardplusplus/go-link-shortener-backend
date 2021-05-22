@@ -13,5 +13,5 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install -a -ldflags='-w -s -extldflags "-static"' ./...
 
 FROM scratch
-COPY --from=builder /go/bin/go-link-shortener /usr/local/bin/go-link-shortener
-CMD ["/usr/local/bin/go-link-shortener"]
+COPY --from=builder /go/bin/go-link-shortener-backend /usr/local/bin/go-link-shortener-backend
+CMD ["/usr/local/bin/go-link-shortener-backend"]
