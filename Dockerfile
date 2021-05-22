@@ -12,6 +12,11 @@ RUN dep ensure -vendor-only -v
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install -a -ldflags='-w -s -extldflags "-static"' ./...
 
-FROM scratch
+FROM alpine:3.13.2
+
+RUN apk update && apk add --no-cache bash
+
 COPY --from=builder /go/bin/go-link-shortener-backend /usr/local/bin/go-link-shortener-backend
+COPY tools/wait-for-it.sh /usr/local/bin/wait-for-it.sh
+
 CMD ["/usr/local/bin/go-link-shortener-backend"]

@@ -11,6 +11,17 @@ services:
       - 8080:8080
     volumes:
       - ./static:/var/www/go-link-shortener-backend
+    command:
+      - /usr/local/bin/wait-for-it.sh
+      - redis:6379
+      - --
+      - /usr/local/bin/wait-for-it.sh
+      - mongo:27017
+      - --
+      - /usr/local/bin/wait-for-it.sh
+      - etcd:2379
+      - --
+      - /usr/local/bin/go-link-shortener-backend
 
   redis:
     image: redis:5-alpine
