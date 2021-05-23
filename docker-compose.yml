@@ -54,12 +54,21 @@ services:
     command:
       - "--listen-peer-urls=http://0.0.0.0:2380"
       - "--listen-client-urls=http://0.0.0.0:2379"
-      - "--initial-advertise-peer-urls=http://0.0.0.0:2380"
-      - "--initial-cluster=default=http://0.0.0.0:2380"
-      - "--advertise-client-urls=http://0.0.0.0:2379"
+      - "--initial-cluster=default=http://etcd:2380"
+      - "--initial-advertise-peer-urls=http://etcd:2380"
+      - "--advertise-client-urls=http://etcd:2379"
     ports:
-      - 2379:2379
-      - 2380:2380
+      - 2379:2379 # for client requests
+      - 2380:2380 # for peer communication
+
+  e3w:
+    image: soyking/e3w:0.1.0
+    environment:
+      GIN_MODE: release
+    volumes:
+      - ./tools/e3w_config.ini:/app/conf/config.default.ini
+    ports:
+      - 9093:8080
 
   swagger:
     image: swaggerapi/swagger-ui:v3.24.0

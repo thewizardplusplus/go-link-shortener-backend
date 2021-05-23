@@ -56,7 +56,7 @@ const (
 	redirectEndpointPrefix = "/redirect"
 	storageDatabase        = "go-link-shortener"
 	storageCollection      = "links"
-	counterNameTemplate    = "distributed-counter-%d"
+	counterNameTemplate    = "root/distributed_counter_%d"
 )
 
 func main() {
