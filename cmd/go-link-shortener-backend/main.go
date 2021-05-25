@@ -19,7 +19,6 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/counter"
 	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/handlers"
 	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/handlers/presenters"
-	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/http/router"
 	"github.com/thewizardplusplus/go-link-shortener-backend/gateways/storage"
 	"github.com/thewizardplusplus/go-link-shortener-backend/usecases"
 	"github.com/thewizardplusplus/go-link-shortener-backend/usecases/generators"
@@ -120,7 +119,7 @@ func main() {
 		Logger:         errorPrinter,
 	}
 
-	routerHandler := router.NewRouter(redirectEndpointPrefix, router.Handlers{
+	routerHandler := handlers.NewRouter(redirectEndpointPrefix, handlers.Handlers{
 		LinkRedirectHandler: handlers.LinkGettingHandler{
 			LinkGetter: linkByCodeGetter,
 			LinkPresenter: presenters.SilentLinkPresenter{
