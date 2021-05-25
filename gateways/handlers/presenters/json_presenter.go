@@ -1,8 +1,6 @@
 package presenters
 
 import (
-	"encoding/json"
-	"io"
 	"net/http"
 
 	"github.com/pkg/errors"
@@ -43,26 +41,6 @@ func (presenter JSONPresenter) PresentError(
 	response := ErrorResponse{Error: err.Error()}
 	if err := httputils.WriteJSON(writer, statusCode, response); err != nil {
 		return errors.Wrap(err, "unable to present the error in JSON")
-	}
-
-	return nil
-}
-
-func presentData(
-	writer http.ResponseWriter,
-	statusCode int,
-	data interface{},
-) error {
-	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(statusCode)
-
-	bytes, err := json.Marshal(data)
-	if err != nil {
-		return errors.Wrap(err, "unable to marshal the data")
-	}
-
-	if _, err := io.WriteString(writer, string(bytes)); err != nil {
-		return errors.Wrap(err, "unable to write the data")
 	}
 
 	return nil
