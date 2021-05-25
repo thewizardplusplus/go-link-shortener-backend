@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
+	httputils "github.com/thewizardplusplus/go-http-utils"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
 
@@ -57,7 +57,15 @@ func (handler LinkGettingHandler) ServeHTTP(
 	writer http.ResponseWriter,
 	request *http.Request,
 ) {
-	code := mux.Vars(request)["code"]
+	var code string
+	if err := httputils.ParsePathParameter(request, "code", &code); err != nil {
+		const statusCode = http.StatusBadRequest
+		err = errors.Wrap(err, "unable to decode the path parameter")
+		handler.ErrorPresenter.PresentError(writer, request, statusCode, err)
+
+		return
+	}
+
 	link, err := handler.LinkGetter.GetLink(code)
 	switch err {
 	case nil:
