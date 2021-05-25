@@ -44,7 +44,7 @@ func (handler LinkCreatingHandler) ServeHTTP(
 	var data LinkCreatingRequest
 	if err := httputils.ReadJSON(request.Body, &data); err != nil {
 		const statusCode = http.StatusBadRequest
-		err = errors.Wrap(err, "unable to decode the request")
+		err = errors.Wrap(err, "unable to decode the request body")
 		handler.ErrorPresenter.PresentError(writer, request, statusCode, err)
 
 		return
