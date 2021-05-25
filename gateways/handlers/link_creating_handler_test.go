@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -47,10 +46,9 @@ func TestLinkCreatingHandler_ServeHTTP(test *testing.T) {
 						bytes.NewBufferString(`{"URL":"url"}`),
 					)
 
-					// we should unmarshal the request body
+					// we should read the request body
 					// to set up the request to the required state
-					var body interface{}
-					json.NewDecoder(request.Body).Decode(&body)
+					ioutil.ReadAll(request.Body)
 
 					presenter := new(MockLinkPresenter)
 					presenter.On(
@@ -84,10 +82,9 @@ func TestLinkCreatingHandler_ServeHTTP(test *testing.T) {
 						bytes.NewBufferString("incorrect"),
 					)
 
-					// we should unmarshal the request body
+					// we should read the request body
 					// to set up the request to the required state
-					var body interface{}
-					json.NewDecoder(request.Body).Decode(&body)
+					ioutil.ReadAll(request.Body)
 
 					presenter := new(MockErrorPresenter)
 					presenter.On(
@@ -126,10 +123,9 @@ func TestLinkCreatingHandler_ServeHTTP(test *testing.T) {
 						bytes.NewBufferString(`{"URL":"url"}`),
 					)
 
-					// we should unmarshal the request body
+					// we should read the request body
 					// to set up the request to the required state
-					var body interface{}
-					json.NewDecoder(request.Body).Decode(&body)
+					ioutil.ReadAll(request.Body)
 
 					presenter := new(MockErrorPresenter)
 					presenter.On(

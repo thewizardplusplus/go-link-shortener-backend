@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/pkg/errors"
+	httputils "github.com/thewizardplusplus/go-http-utils"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
 
@@ -42,7 +42,7 @@ func (handler LinkCreatingHandler) ServeHTTP(
 	request *http.Request,
 ) {
 	var data LinkCreatingRequest
-	if err := json.NewDecoder(request.Body).Decode(&data); err != nil {
+	if err := httputils.ReadJSON(request.Body, &data); err != nil {
 		const statusCode = http.StatusBadRequest
 		err = errors.Wrap(err, "unable to decode the request")
 		handler.ErrorPresenter.PresentError(writer, request, statusCode, err)
