@@ -41,7 +41,7 @@ func (presenter JSONPresenter) PresentError(
 	err error,
 ) error {
 	response := ErrorResponse{Error: err.Error()}
-	if err := presentData(writer, statusCode, response); err != nil {
+	if err := httputils.WriteJSON(writer, statusCode, response); err != nil {
 		return errors.Wrap(err, "unable to present the error in JSON")
 	}
 
