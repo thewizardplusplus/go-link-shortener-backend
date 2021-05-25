@@ -170,7 +170,8 @@ func main() {
 					options.Counter.Chunk,
 					counters.CounterGroup{
 						DistributedCounters: distributedCounters,
-						RandomSource:        rand.New(rand.NewSource(time.Now().UnixNano())).Intn,
+						// nolint: gosec
+						RandomSource: rand.New(rand.NewSource(time.Now().UnixNano())).Intn,
 					},
 					formatters.InBase62,
 				),
