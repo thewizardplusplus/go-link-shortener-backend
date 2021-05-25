@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/pkg/errors"
+	httputils "github.com/thewizardplusplus/go-http-utils"
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
 
@@ -25,7 +26,7 @@ func (presenter JSONPresenter) PresentLink(
 	request *http.Request,
 	link entities.Link,
 ) error {
-	if err := presentData(writer, http.StatusOK, link); err != nil {
+	if err := httputils.WriteJSON(writer, http.StatusOK, link); err != nil {
 		return errors.Wrap(err, "unable to present the link in JSON")
 	}
 
