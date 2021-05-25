@@ -51,6 +51,7 @@ type LinkGettingHandler struct {
 //   @param code path string true "link code"
 //   @produce json
 //   @success 200 {object} entities.Link
+//   @failure 400 {object} presenters.ErrorResponse
 //   @failure 404 {object} presenters.ErrorResponse
 //   @failure 500 {object} presenters.ErrorResponse
 func (handler LinkGettingHandler) ServeHTTP(
