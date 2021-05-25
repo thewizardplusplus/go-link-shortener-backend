@@ -66,6 +66,30 @@ func TestLinkGettingHandler_ServeHTTP(test *testing.T) {
 			},
 		},
 		{
+			name: "error with path parameter decoding",
+			fields: fields{
+				LinkGetter:    new(MockLinkGetter),
+				LinkPresenter: new(MockLinkPresenter),
+				ErrorPresenter: func() ErrorPresenter {
+					request := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
+
+					presenter := new(MockErrorPresenter)
+					presenter.On(
+						"PresentError",
+						mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+						request,
+						http.StatusBadRequest,
+						mock.MatchedBy(func(error) bool { return true }),
+					)
+
+					return presenter
+				}(),
+			},
+			args: args{
+				request: httptest.NewRequest(http.MethodGet, "http://example.com/", nil),
+			},
+		},
+		{
 			name: "error with searching",
 			fields: fields{
 				LinkGetter: func() LinkGetter {
