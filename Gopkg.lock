@@ -494,12 +494,12 @@
   version = "v1.6.3"
 
 [[projects]]
-  digest = "1:c79cf31b0d168bc14b0d4c888807231b4c0e8fb855bf4f912fbae3c9535fd73f"
+  digest = "1:487897849d879c4c6b1a6147796af7a43a87ba79e15886031f4e0e2953dd90ba"
   name = "github.com/thewizardplusplus/go-http-utils"
   packages = ["."]
   pruneopts = "UT"
-  revision = "cdd3a269ba80ad477ef7e47627b33b9b14f8b6e7"
-  version = "v1.1"
+  revision = "4834fe2e218a744dd63be1cef090ebd75e974d91"
+  version = "v1.2"
 
 [[projects]]
   digest = "1:1d3ef3dd057d2eb1819e945f88cc83835296c9b7fb13ad3194c937c4e2891fee"
