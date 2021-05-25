@@ -17,7 +17,7 @@ type Handlers struct {
 // NewRouter ...
 func NewRouter(redirectEndpointPrefix string, handlers Handlers) *mux.Router {
 	// @title go-link-shortener API
-	// @version 1.9.0
+	// @version 1.10.0
 	// @license.name MIT
 	// @host localhost:8080
 	// @basePath /api/v1
