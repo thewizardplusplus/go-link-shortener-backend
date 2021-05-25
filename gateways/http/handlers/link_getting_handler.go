@@ -9,14 +9,14 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
 
-//go:generate mockery -name=LinkGetter -inpkg -case=underscore -testonly
+//go:generate mockery --name=LinkGetter --inpackage --case=underscore --testonly
 
 // LinkGetter ...
 type LinkGetter interface {
 	GetLink(code string) (entities.Link, error)
 }
 
-//go:generate mockery -name=LinkPresenter -inpkg -case=underscore -testonly
+//go:generate mockery --name=LinkPresenter --inpackage --case=underscore --testonly
 
 // LinkPresenter ...
 type LinkPresenter interface {
@@ -27,7 +27,7 @@ type LinkPresenter interface {
 	)
 }
 
-//go:generate mockery -name=ErrorPresenter -inpkg -case=underscore -testonly
+//go:generate mockery --name=ErrorPresenter --inpackage --case=underscore --testonly
 
 // ErrorPresenter ...
 type ErrorPresenter interface {

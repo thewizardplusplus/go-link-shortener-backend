@@ -8,7 +8,7 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
 
-//go:generate mockery -name=LinkCreator -inpkg -case=underscore -testonly
+//go:generate mockery --name=LinkCreator --inpackage --case=underscore --testonly
 
 // LinkCreator ...
 type LinkCreator interface {

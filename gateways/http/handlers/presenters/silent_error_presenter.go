@@ -6,7 +6,7 @@ import (
 	"github.com/go-log/log"
 )
 
-//go:generate mockery -name=ErrorPresenter -inpkg -case=underscore -testonly
+//go:generate mockery --name=ErrorPresenter --inpackage --case=underscore --testonly
 
 // ErrorPresenter ...
 type ErrorPresenter interface {

@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-//go:generate mockery -name=Handler -inpkg -case=underscore -testonly
+//go:generate mockery --name=Handler --inpackage --case=underscore --testonly
 
 // Handler ...
 //

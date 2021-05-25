@@ -7,7 +7,7 @@ import (
 	"github.com/thewizardplusplus/go-link-shortener-backend/entities"
 )
 
-//go:generate mockery -name=CodeGenerator -inpkg -case=underscore -testonly
+//go:generate mockery --name=CodeGenerator --inpackage --case=underscore --testonly
 
 // CodeGenerator ...
 type CodeGenerator interface {

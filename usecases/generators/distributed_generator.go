@@ -9,7 +9,7 @@ import (
 )
 
 // nolint: lll
-//go:generate mockery -name=DistributedCounterGroup -inpkg -case=underscore -testonly
+//go:generate mockery --name=DistributedCounterGroup --inpackage --case=underscore --testonly
 
 // DistributedCounterGroup ...
 type DistributedCounterGroup interface {

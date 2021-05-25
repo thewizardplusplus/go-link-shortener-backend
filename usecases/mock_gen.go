@@ -4,7 +4,7 @@ import (
 	"github.com/go-log/log"
 )
 
-//go:generate mockery -name=Logger -inpkg -case=underscore -testonly
+//go:generate mockery --name=Logger --inpackage --case=underscore --testonly
 
 // Logger ...
 //

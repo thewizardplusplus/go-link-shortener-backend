@@ -1,6 +1,6 @@
 package counters
 
-//go:generate mockery -name=DistributedCounter -inpkg -case=underscore -testonly
+//go:generate mockery --name=DistributedCounter --inpackage --case=underscore --testonly
 
 // DistributedCounter ...
 type DistributedCounter interface {

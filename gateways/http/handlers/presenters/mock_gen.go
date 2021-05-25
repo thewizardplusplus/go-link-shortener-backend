@@ -6,7 +6,7 @@ import (
 	"github.com/go-log/log"
 )
 
-//go:generate mockery -name=Logger -inpkg -case=underscore -testonly
+//go:generate mockery --name=Logger --inpackage --case=underscore --testonly
 
 // Logger ...
 //
@@ -15,7 +15,7 @@ type Logger interface {
 	log.Logger
 }
 
-//go:generate mockery -name=ResponseWriter -inpkg -case=underscore -testonly
+//go:generate mockery --name=ResponseWriter --inpackage --case=underscore --testonly
 
 // ResponseWriter ...
 //
