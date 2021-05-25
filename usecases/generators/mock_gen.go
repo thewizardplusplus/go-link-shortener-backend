@@ -9,7 +9,8 @@ import (
 
 // DistributedCounter ...
 //
-// It's used only for mock generating.
+// It is used only for mock generating.
+//
 type DistributedCounter interface {
 	counters.DistributedCounter
 }

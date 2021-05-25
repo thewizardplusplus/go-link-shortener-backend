@@ -10,7 +10,8 @@ import (
 
 // Logger ...
 //
-// It's used only for mock generating.
+// It is used only for mock generating.
+//
 type Logger interface {
 	log.Logger
 }
@@ -19,7 +20,8 @@ type Logger interface {
 
 // ResponseWriter ...
 //
-// It's used only for mock generating.
+// It is used only for mock generating.
+//
 type ResponseWriter interface {
 	http.ResponseWriter
 }
