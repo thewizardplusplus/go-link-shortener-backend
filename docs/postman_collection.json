@@ -1,0 +1,174 @@
+{
+	"info": {
+		"_postman_id": "9cfb5cad-277a-4c8e-9829-5ead539b5958",
+		"name": "go-link-shortener API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "links",
+			"item": [
+				{
+					"name": "/links/ (specific)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const link = pm.response.json()",
+									"pm.globals.set(\"linkCode\", link.Code)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"URL\": \"http://example.com/\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/links/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"links",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/links/ (random)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const link = pm.response.json()",
+									"pm.globals.set(\"linkCode\", link.Code)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"URL\": \"{{$randomUrl}}\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/links/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"links",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/links/:code (specific)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/links/:code",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"links",
+								":code"
+							],
+							"variable": [
+								{
+									"key": "code",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/links/:code (created)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/links/:code",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"links",
+								":code"
+							],
+							"variable": [
+								{
+									"key": "code",
+									"value": "{{linkCode}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
