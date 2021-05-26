@@ -1,5 +1,24 @@
 # Change Log
 
+## [v1.10](https://github.com/thewizardplusplus/go-link-shortener-backend/tree/v1.10) (2021-05-26)
+
+- refactoring:
+  - simplify the `handlers` package:
+    - move to the `gateways` package;
+    - merge with the `router` package;
+    - simplify the `handlers.NewRouter()` function;
+  - update the [github.com/thewizardplusplus/go-http-utils](https://github.com/thewizardplusplus/go-http-utils) package:
+    - use the `httputils.ReadJSON()` function;
+    - use the `httputils.WriteJSON()` function;
+    - use the `httputils.ParsePathParameter()` function;
+- distributing:
+  - use the [wait-for-it.sh](https://github.com/vishnubob/wait-for-it) script to wait for dependencies to become available;
+  - complete the [Docker Compose](https://docs.docker.com/compose/) configuration:
+    - add the [Redis Commander](https://github.com/joeferner/redis-commander) service;
+    - add the [mongo-express](https://github.com/mongo-express/mongo-express) service;
+    - add the [e3w](https://github.com/soyking/e3w) service;
+- add the API description in the format of a [Postman](https://www.postman.com/) collection.
+
 ## [v1.9](https://github.com/thewizardplusplus/go-link-shortener-backend/tree/v1.9) (2020-09-16)
 
 - storing links in the [MongoDB](https://www.mongodb.com/) database:
