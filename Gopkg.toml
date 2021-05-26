@@ -5,6 +5,8 @@ required = [
   "github.com/swaggo/swag/cmd/swag",
 ]
 
+ignored = ["github.com/thewizardplusplus/go-link-shortener-backend/docs*"]
+
 [prune]
   go-tests = true
   unused-packages = true
@@ -32,14 +34,6 @@ required = [
 [[constraint]]
   name = "github.com/caarlos0/env"
   version = "6.1.0"
-
-[[constraint]]
-  name = "github.com/swaggo/swag"
-  version = "1.6.3"
-
-[[constraint]]
-  name = "github.com/alecthomas/template"
-  revision = "fb15b899a75114aa79cc930e33c46b577cc664b1"
 
 [[constraint]]
   name = "go.etcd.io/etcd"
