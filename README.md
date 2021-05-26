@@ -85,16 +85,19 @@ $ go-link-shortener
 
 Environment variables:
 
-- `SERVER_ADDRESS` &mdash; server URI (default: `:8080`);
 - `SERVER_STATIC_PATH` &mdash; path to the project's front-end (default: `./static`);
-- `CACHE_ADDRESS` &mdash; [Redis](https://redis.io/) connection URI (default: `localhost:6379`);
-- `CACHE_TTL_CODE` &mdash; time to live of links in [Redis](https://redis.io/), stored by their code (e.g. `72h3m0.5s`; default: `1h`);
-- `CACHE_TTL_URL` &mdash; time to live of links in [Redis](https://redis.io/), stored by their URL (e.g. `72h3m0.5s`; default: `1h`);
-- `STORAGE_ADDRESS` &mdash; [MongoDB](https://www.mongodb.com/) connection URI (default: `mongodb://localhost:27017`);
-- `COUNTER_ADDRESS` &mdash; [etcd](https://etcd.io/) connection URI (default: `localhost:2379`);
-- `COUNTER_COUNT` &mdash; count of distributed counters (default: `2`);
-- `COUNTER_CHUNK` &mdash; step of a distributed counter (default: `1000`);
-- `COUNTER_RANGE` &mdash; range of a distributed counter (default: `1000000000`).
+- addresses:
+  - `SERVER_ADDRESS` &mdash; server URI (default: `:8080`);
+  - `CACHE_ADDRESS` &mdash; [Redis](https://redis.io/) connection URI (default: `localhost:6379`);
+  - `STORAGE_ADDRESS` &mdash; [MongoDB](https://www.mongodb.com/) connection URI (default: `mongodb://localhost:27017`);
+  - `COUNTER_ADDRESS` &mdash; [etcd](https://etcd.io/) connection URI (default: `localhost:2379`);
+- time to live of links in [Redis](https://redis.io/):
+  - `CACHE_TTL_CODE` &mdash; time to live of links in [Redis](https://redis.io/), stored by their code (e.g. `72h3m0.5s`; default: `1h`);
+  - `CACHE_TTL_URL` &mdash; time to live of links in [Redis](https://redis.io/), stored by their URL (e.g. `72h3m0.5s`; default: `1h`);
+- settings of distributed counters:
+  - `COUNTER_COUNT` &mdash; count of distributed counters (default: `2`);
+  - `COUNTER_CHUNK` &mdash; step of a distributed counter (default: `1000`);
+  - `COUNTER_RANGE` &mdash; range of a distributed counter (default: `1000000000`).
 
 ## API Description
 
