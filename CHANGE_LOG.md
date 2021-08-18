@@ -1,5 +1,17 @@
 # Change Log
 
+## [v1.11](https://github.com/thewizardplusplus/go-link-shortener-backend/tree/v1.11) (2021-08-18)
+
+- sharding links across multiple servers (optionally):
+  - supporting individual data storages for each server:
+    - [Redis](https://redis.io/) database;
+    - [MongoDB](https://www.mongodb.com/) database;
+  - supporting specifying of the source server in a link:
+    - returning the server ID on link generating;
+    - ignoring the server ID:
+      - on link getting;
+      - on redirecting to a link.
+
 ## [v1.10](https://github.com/thewizardplusplus/go-link-shortener-backend/tree/v1.10) (2021-05-26)
 
 - refactoring:
