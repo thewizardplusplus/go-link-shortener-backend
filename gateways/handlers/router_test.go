@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	httputils "github.com/thewizardplusplus/go-http-utils"
 )
 
 func TestNewRouter(test *testing.T) {
@@ -32,7 +33,12 @@ func TestNewRouter(test *testing.T) {
 						handler.On(
 							"ServeHTTP",
 							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
-							mock.MatchedBy(func(*http.Request) bool { return true }),
+							mock.MatchedBy(func(request *http.Request) bool {
+								var code string
+								httputils.ParsePathParameter(request, "code", &code)
+
+								return code == "code"
+							}),
 						)
 
 						return handler
@@ -59,7 +65,15 @@ func TestNewRouter(test *testing.T) {
 						handler.On(
 							"ServeHTTP",
 							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
-							mock.MatchedBy(func(*http.Request) bool { return true }),
+							mock.MatchedBy(func(request *http.Request) bool {
+								var serverID string
+								httputils.ParsePathParameter(request, "serverID", &serverID)
+
+								var code string
+								httputils.ParsePathParameter(request, "code", &code)
+
+								return serverID == "server-id" && code == "code"
+							}),
 						)
 
 						return handler
@@ -87,7 +101,12 @@ func TestNewRouter(test *testing.T) {
 						handler.On(
 							"ServeHTTP",
 							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
-							mock.MatchedBy(func(*http.Request) bool { return true }),
+							mock.MatchedBy(func(request *http.Request) bool {
+								var code string
+								httputils.ParsePathParameter(request, "code", &code)
+
+								return code == "code"
+							}),
 						)
 
 						return handler
@@ -114,7 +133,15 @@ func TestNewRouter(test *testing.T) {
 						handler.On(
 							"ServeHTTP",
 							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
-							mock.MatchedBy(func(*http.Request) bool { return true }),
+							mock.MatchedBy(func(request *http.Request) bool {
+								var serverID string
+								httputils.ParsePathParameter(request, "serverID", &serverID)
+
+								var code string
+								httputils.ParsePathParameter(request, "code", &code)
+
+								return serverID == "server-id" && code == "code"
+							}),
 						)
 
 						return handler
