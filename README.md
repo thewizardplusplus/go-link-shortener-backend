@@ -28,6 +28,15 @@ Back-end of the service for shorting links.
     - sharding:
       - sharding counters chunks;
       - selecting a shard of a counter chunk at random;
+- sharding links across multiple servers (optionally):
+  - supporting individual data storages for each server:
+    - [Redis](https://redis.io/) database;
+    - [MongoDB](https://www.mongodb.com/) database;
+  - supporting specifying of the source server in a link:
+    - returning the server ID on link generating;
+    - ignoring the server ID:
+      - on link getting;
+      - on redirecting to a link;
 - server:
   - additional routing:
     - redirecting to the link URL by its code;
