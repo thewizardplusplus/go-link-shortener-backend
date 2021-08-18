@@ -85,6 +85,7 @@ $ go-link-shortener
 
 Environment variables:
 
+- `SERVER_ID` &mdash; server ID;
 - `SERVER_STATIC_PATH` &mdash; path to the project's front-end (default: `./static`);
 - addresses:
   - `SERVER_ADDRESS` &mdash; server URI (default: `:8080`);

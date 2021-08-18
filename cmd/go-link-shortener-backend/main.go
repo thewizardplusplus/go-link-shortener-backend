@@ -29,6 +29,7 @@ import (
 
 type options struct {
 	Server struct {
+		ID         string `env:"SERVER_ID"`
 		Address    string `env:"SERVER_ADDRESS" envDefault:":8080"`
 		StaticPath string `env:"SERVER_STATIC_PATH" envDefault:"./static"`
 	}
@@ -111,7 +112,7 @@ func main() {
 		Logger:   errorPrinter,
 	}
 	jsonLinkPresenter := presenters.SilentLinkPresenter{
-		LinkPresenter: presenters.JSONPresenter{},
+		LinkPresenter: presenters.JSONPresenter{ServerID: options.Server.ID},
 		Logger:        errorPrinter,
 	}
 	jsonErrorPresenter := presenters.SilentErrorPresenter{
