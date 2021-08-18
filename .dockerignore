@@ -1,0 +1,2 @@
+# Swagger documentation in the form of Go code
+docs/*.go
