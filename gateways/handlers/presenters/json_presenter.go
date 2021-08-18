@@ -9,7 +9,9 @@ import (
 )
 
 // JSONPresenter ...
-type JSONPresenter struct{}
+type JSONPresenter struct {
+	ServerID string
+}
 
 // ErrorResponse ...
 //
@@ -24,6 +26,8 @@ func (presenter JSONPresenter) PresentLink(
 	request *http.Request,
 	link entities.Link,
 ) error {
+	link.ServerID = presenter.ServerID
+
 	if err := httputils.WriteJSON(writer, http.StatusOK, link); err != nil {
 		return errors.Wrap(err, "unable to present the link in JSON")
 	}

@@ -29,6 +29,9 @@ func (TimeoutResponseRecorder) WriteString(string) (n int, err error) {
 }
 
 func TestJSONPresenter_PresentLink(test *testing.T) {
+	type fields struct {
+		ServerID string
+	}
 	type args struct {
 		writer  http.ResponseWriter
 		request *http.Request
@@ -37,12 +40,16 @@ func TestJSONPresenter_PresentLink(test *testing.T) {
 
 	for _, data := range []struct {
 		name    string
+		fields  fields
 		args    args
 		wantErr assert.ErrorAssertionFunc
 		check   func(test *testing.T, writer http.ResponseWriter)
 	}{
 		{
 			name: "success",
+			fields: fields{
+				ServerID: "server-id",
+			},
 			args: args{
 				writer: httptest.NewRecorder(),
 				request: httptest.NewRequest(
@@ -59,11 +66,18 @@ func TestJSONPresenter_PresentLink(test *testing.T) {
 
 				assert.Equal(test, http.StatusOK, response.StatusCode)
 				assert.Equal(test, "application/json", response.Header.Get("Content-Type"))
-				assert.Equal(test, `{"Code":"code","URL":"url"}`, string(responseBody))
+				assert.Equal(
+					test,
+					`{"ServerID":"server-id","Code":"code","URL":"url"}`,
+					string(responseBody),
+				)
 			},
 		},
 		{
 			name: "error",
+			fields: fields{
+				ServerID: "server-id",
+			},
 			args: args{
 				writer: NewTimeoutResponseRecorder(),
 				request: httptest.NewRequest(
@@ -85,7 +99,9 @@ func TestJSONPresenter_PresentLink(test *testing.T) {
 		},
 	} {
 		test.Run(data.name, func(test *testing.T) {
-			var presenter JSONPresenter
+			presenter := JSONPresenter{
+				ServerID: data.fields.ServerID,
+			}
 			gotErr :=
 				presenter.PresentLink(data.args.writer, data.args.request, data.args.link)
 
