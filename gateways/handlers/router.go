@@ -26,11 +26,19 @@ func NewRouter(redirectEndpointPrefix string, handlers Handlers) *mux.Router {
 	apiRouter := rootRouter.PathPrefix("/api/v1").Subrouter()
 
 	rootRouter.
+		Handle(
+			redirectEndpointPrefix+"/{serverID}:{code}",
+			handlers.LinkRedirectHandler,
+		)
+	rootRouter.
 		Handle(redirectEndpointPrefix+"/{code}", handlers.LinkRedirectHandler)
 	rootRouter.
 		PathPrefix("/").Handler(handlers.StaticFileHandler).
 		Methods(http.MethodGet)
 
+	apiRouter.
+		Handle("/links/{serverID}:{code}", handlers.LinkGettingHandler).
+		Methods(http.MethodGet)
 	apiRouter.
 		Handle("/links/{code}", handlers.LinkGettingHandler).
 		Methods(http.MethodGet)

@@ -80,4 +80,36 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/presenters.ErrorResponse'
+  /links/{serverID}:{code}:
+    get:
+      parameters:
+      - description: server ID
+        in: path
+        name: serverID
+        required: true
+        type: string
+      - description: link code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Link'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
 swagger: "2.0"

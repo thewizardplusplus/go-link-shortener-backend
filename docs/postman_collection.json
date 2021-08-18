@@ -16,6 +16,7 @@
 							"script": {
 								"exec": [
 									"const link = pm.response.json()",
+									"pm.globals.set(\"serverID\", link.ServerID || \"unknown\")",
 									"pm.globals.set(\"linkCode\", link.Code)"
 								],
 								"type": "text/javascript"
@@ -63,6 +64,7 @@
 							"script": {
 								"exec": [
 									"const link = pm.response.json()",
+									"pm.globals.set(\"serverID\", link.ServerID || \"unknown\")",
 									"pm.globals.set(\"linkCode\", link.Code)"
 								],
 								"type": "text/javascript"
@@ -163,6 +165,33 @@
 									"key": "code",
 									"value": "{{linkCode}}"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/links/{{serverID}}:{{linkCode}}",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/links/{{serverID}}:{{linkCode}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"links",
+								"{{serverID}}:{{linkCode}}"
 							]
 						}
 					},

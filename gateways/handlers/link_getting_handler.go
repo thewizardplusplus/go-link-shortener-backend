@@ -46,6 +46,20 @@ type LinkGettingHandler struct {
 	ErrorPresenter ErrorPresenter
 }
 
+// @router /links/{serverID}:{code} [GET]
+// @param serverID path string true "server ID"
+// @param code path string true "link code"
+// @produce json
+// @success 200 {object} entities.Link
+// @failure 400 {object} presenters.ErrorResponse
+// @failure 404 {object} presenters.ErrorResponse
+// @failure 500 {object} presenters.ErrorResponse
+func (handler LinkGettingHandler) _(
+	writer http.ResponseWriter,
+	request *http.Request,
+) {
+}
+
 // ServeHTTP ...
 //   @router /links/{code} [GET]
 //   @param code path string true "link code"

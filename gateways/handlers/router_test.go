@@ -50,6 +50,33 @@ func TestNewRouter(test *testing.T) {
 			wantStatusCode: http.StatusOK,
 		},
 		{
+			name: "link redirect (with the server ID)",
+			args: args{
+				redirectEndpointPrefix: "/redirect",
+				handlers: Handlers{
+					LinkRedirectHandler: func() http.Handler {
+						handler := new(MockHandler)
+						handler.On(
+							"ServeHTTP",
+							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							mock.MatchedBy(func(*http.Request) bool { return true }),
+						)
+
+						return handler
+					}(),
+					LinkGettingHandler:  new(MockHandler),
+					LinkCreatingHandler: new(MockHandler),
+					StaticFileHandler:   new(MockHandler),
+				},
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/redirect/server-id:code",
+					nil,
+				),
+			},
+			wantStatusCode: http.StatusOK,
+		},
+		{
 			name: "link getting",
 			args: args{
 				redirectEndpointPrefix: "/redirect",
@@ -71,6 +98,33 @@ func TestNewRouter(test *testing.T) {
 				request: httptest.NewRequest(
 					http.MethodGet,
 					"http://example.com/api/v1/links/code",
+					nil,
+				),
+			},
+			wantStatusCode: http.StatusOK,
+		},
+		{
+			name: "link getting (with the server ID)",
+			args: args{
+				redirectEndpointPrefix: "/redirect",
+				handlers: Handlers{
+					LinkRedirectHandler: new(MockHandler),
+					LinkGettingHandler: func() http.Handler {
+						handler := new(MockHandler)
+						handler.On(
+							"ServeHTTP",
+							mock.MatchedBy(func(http.ResponseWriter) bool { return true }),
+							mock.MatchedBy(func(*http.Request) bool { return true }),
+						)
+
+						return handler
+					}(),
+					LinkCreatingHandler: new(MockHandler),
+					StaticFileHandler:   new(MockHandler),
+				},
+				request: httptest.NewRequest(
+					http.MethodGet,
+					"http://example.com/api/v1/links/server-id:code",
 					nil,
 				),
 			},
