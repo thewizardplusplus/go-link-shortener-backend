@@ -4,6 +4,8 @@ definitions:
     properties:
       Code:
         type: string
+      ServerID:
+        type: string
       URL:
         type: string
     type: object

@@ -2,6 +2,7 @@ package entities
 
 // Link ...
 type Link struct {
-	Code string
-	URL  string
+	ServerID string `json:",omitempty"`
+	Code     string
+	URL      string
 }
